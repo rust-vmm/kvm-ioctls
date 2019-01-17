@@ -1,0 +1,16 @@
+[package]
+name = "kvm-bindings"
+version = "0.1.0"
+authors = ["Amazon firecracker team <firecracker-devel@amazon.com>"]
+edition = "2018"
+description = "Rust FFI bindings to KVM generated using bindgen."
+repository = "https://github.com/rust-vmm/kvm-bindings"
+readme = "README.md"
+keywords = ["kvm"]
+license = "Apache-2.0"
+
+[features]
+kvm-v4_14_0 = []
+kvm-v4_20_0 = []
+
+[dependencies]
