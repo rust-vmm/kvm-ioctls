@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/rust-vmm/kvm-bindings.svg?branch=master)](https://travis-ci.org/rust-vmm/kvm-bindings)
 # kvm-bindings
 Rust FFI bindings to KVM generated using
 [bindgen](https://crates.io/crates/bindgen). It currently has support for the
