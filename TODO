@@ -1,0 +1,8 @@
+- High Level docs with usage
+- add comment on each method with the KVM ioctl that it is used
+- write cleanup functions for tests
+- create test profiles (when running as part of the development process,
+  update the coverage threshold, otherwise fail the test if the current
+  coverage > previous coverage)
+- Add copyright files
+- move sys_util ioctls to a different crate.

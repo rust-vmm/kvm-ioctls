@@ -1,0 +1,8 @@
+[package]
+name = "kvm-ioctls"
+version = "0.1.0"
+authors = ["Andreea Florescu <fandree@amazon.com>"]
+
+[dependencies]
+libc = ">=0.2.39"
+kvm-bindings = ">=0.1.0"
