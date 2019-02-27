@@ -1,0 +1,11 @@
+[package]
+name = "kvm-ioctls"
+version = "0.0.1"
+authors = ["Amazon Firecracker Team <firecracker-maintainers@amazon.com>"]
+description = "Safe wrappers over KVM ioctls"
+repository = "https://github.com/rust-vmm/kvm-ioctls"
+readme = "README.md"
+keywords = ["kvm"]
+license = "Apache-2.0"
+
+[dependencies]
