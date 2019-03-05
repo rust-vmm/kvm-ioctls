@@ -116,6 +116,8 @@ impl Kvm {
     }
 
     /// Returns the KVM API version.
+    ///
+    /// See the documentation for `KVM_GET_API_VERSION`.
     pub fn get_api_version(&self) -> i32 {
         // Safe because we know that our file is a KVM fd and that the request is one of the ones
         // defined by kernel.
@@ -123,6 +125,8 @@ impl Kvm {
     }
 
     /// Query the availability of a particular kvm capability.
+    ///
+    /// See the documentation for `KVM_CHECK_EXTENSION`.
     /// Returns 0 if the capability is not available and > 0 otherwise.
     ///
     fn check_extension_int(&self, c: Cap) -> i32 {
@@ -133,8 +137,8 @@ impl Kvm {
 
     /// Checks if a particular `Cap` is available.
     ///
-    /// According to the KVM API doc, KVM_CHECK_EXTENSION returns "0 if unsupported; 1 (or some
-    /// other positive integer) if supported".
+    /// According to the KVM API doc, `KVM_CHECK_EXTENSION` returns "0 if unsupported; 1 (or some
+    /// other positive integer) if supported.
     ///
     /// # Arguments
     ///
@@ -145,6 +149,9 @@ impl Kvm {
     }
 
     /// Gets the size of the mmap required to use vcpu's `kvm_run` structure.
+    ///
+    /// See the documentation for `KVM_GET_VCPU_MMAP_SIZE`.
+    ///
     pub fn get_vcpu_mmap_size(&self) -> Result<usize> {
         // Safe because we know that our file is a KVM fd and we verify the return result.
         let res = unsafe { ioctl(self, KVM_GET_VCPU_MMAP_SIZE()) };
@@ -157,6 +164,8 @@ impl Kvm {
 
     /// Gets the recommended number of VCPUs per VM.
     ///
+    /// See the documentation for `KVM_CAP_NR_VCPUS`.
+    /// Default to 4 when `KVM_CAP_NR_VCPUS` is not implemented.
     pub fn get_nr_vcpus(&self) -> usize {
         let x = self.check_extension_int(Cap::NrVcpus);
         if x > 0 {
@@ -184,6 +193,9 @@ impl Kvm {
 
     /// Gets the recommended maximum number of VCPUs per VM.
     ///
+    /// See the documentation for `KVM_CAP_MAX_VCPUS`.
+    /// Default to `KVM_CAP_NR_VCPUS` when `KVM_CAP_MAX_VCPUS` is not implemented.
+    ///
     pub fn get_max_vcpus(&self) -> usize {
         match self.check_extension_int(Cap::MaxVcpus) {
             0 => self.get_nr_vcpus(),
@@ -210,6 +222,8 @@ impl Kvm {
 
     /// X86 specific call to get the system emulated CPUID values.
     ///
+    /// See the documentation for KVM_GET_EMULATED_CPUID.
+    ///
     /// # Arguments
     ///
     /// * `max_entries_count` - Maximum number of CPUID entries. This function can return less than
@@ -221,6 +235,8 @@ impl Kvm {
     }
 
     /// X86 specific call to get the system supported CPUID values.
+    ///
+    /// See the documentation for KVM_GET_SUPPORTED_CPUID.
     ///
     /// # Arguments
     ///
@@ -235,6 +251,7 @@ impl Kvm {
     /// X86 specific call to get list of supported MSRS
     ///
     /// See the documentation for KVM_GET_MSR_INDEX_LIST.
+    ///
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn get_msr_index_list(&self) -> Result<Vec<u32>> {
         const MAX_KVM_MSR_ENTRIES: usize = 256;
@@ -266,10 +283,11 @@ impl Kvm {
         Ok(indices.to_vec())
     }
 
-    /// Creates a VM fd using the KVM fd (`KVM_CREATE_VM`).
+    /// Creates a VM fd using the KVM fd.
     ///
-    /// A call to this function will also initialize the size of the vcpu mmap area
-    /// (`KVM_GET_VCPU_MMAP_SIZE`).
+    /// See the documentation for `KVM_CREATE_VM`.
+    /// A call to this function will also initialize the size of the vcpu mmap area using the
+    /// `KVM_GET_VCPU_MMAP_SIZE` ioctl.
     ///
     pub fn create_vm(&self) -> Result<VmFd> {
         // Safe because we know kvm is a real kvm fd as this module is the only one that can make
