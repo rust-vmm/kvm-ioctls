@@ -9,3 +9,5 @@ keywords = ["kvm"]
 license = "Apache-2.0"
 
 [dependencies]
+libc = ">=0.2.39"
+kvm-bindings = ">=0.1.0"
