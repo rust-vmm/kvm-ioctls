@@ -191,6 +191,35 @@ impl Kvm {
         }
     }
 
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    fn get_cpuid(&self, kind: u64, max_entries_count: usize) -> Result<CpuId> {
+        let mut cpuid = CpuId::new(max_entries_count);
+
+        let ret = unsafe {
+            // ioctl is unsafe. The kernel is trusted not to write beyond the bounds of the memory
+            // allocated for the struct. The limit is read from nent, which is set to the allocated
+            // size(max_entries_count) above.
+            ioctl_with_mut_ptr(self, kind, cpuid.as_mut_ptr())
+        };
+        if ret < 0 {
+            return Err(io::Error::last_os_error());
+        }
+
+        Ok(cpuid)
+    }
+
+    /// X86 specific call to get the system emulated CPUID values.
+    ///
+    /// # Arguments
+    ///
+    /// * `max_entries_count` - Maximum number of CPUID entries. This function can return less than
+    ///                         this when the hardware does not support so many CPUID entries.
+    ///
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    pub fn get_emulated_cpuid(&self, max_entries_count: usize) -> Result<CpuId> {
+        self.get_cpuid(KVM_GET_EMULATED_CPUID(), max_entries_count)
+    }
+
     /// X86 specific call to get the system supported CPUID values.
     ///
     /// # Arguments
@@ -200,19 +229,41 @@ impl Kvm {
     ///
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn get_supported_cpuid(&self, max_entries_count: usize) -> Result<CpuId> {
-        let mut cpuid = CpuId::new(max_entries_count);
+        self.get_cpuid(KVM_GET_SUPPORTED_CPUID(), max_entries_count)
+    }
+
+    /// X86 specific call to get list of supported MSRS
+    ///
+    /// See the documentation for KVM_GET_MSR_INDEX_LIST.
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    pub fn get_msr_index_list(&self) -> Result<Vec<u32>> {
+        const MAX_KVM_MSR_ENTRIES: usize = 256;
+
+        let mut msr_list = vec_with_array_field::<kvm_msr_list, u32>(MAX_KVM_MSR_ENTRIES);
+        msr_list[0].nmsrs = MAX_KVM_MSR_ENTRIES as u32;
 
         let ret = unsafe {
             // ioctl is unsafe. The kernel is trusted not to write beyond the bounds of the memory
-            // allocated for the struct. The limit is read from nent, which is set to the allocated
-            // size(max_entries_count) above.
-            ioctl_with_mut_ptr(self, KVM_GET_SUPPORTED_CPUID(), cpuid.as_mut_ptr())
+            // allocated for the struct. The limit is read from nmsrs, which is set to the allocated
+            // size (MAX_KVM_MSR_ENTRIES) above.
+            ioctl_with_mut_ref(self, KVM_GET_MSR_INDEX_LIST(), &mut msr_list[0])
         };
         if ret < 0 {
             return Err(io::Error::last_os_error());
         }
 
-        Ok(cpuid)
+        let mut nmsrs = msr_list[0].nmsrs;
+
+        // Mapping the unsized array to a slice is unsafe because the length isn't known.  Using
+        // the length we originally allocated with eliminates the possibility of overflow.
+        let indices: &[u32] = unsafe {
+            if nmsrs > MAX_KVM_MSR_ENTRIES as u32 {
+                nmsrs = MAX_KVM_MSR_ENTRIES as u32;
+            }
+            msr_list[0].indices.as_slice(nmsrs as usize)
+        };
+
+        Ok(indices.to_vec())
     }
 
     /// Creates a VM fd using the KVM fd (`KVM_CREATE_VM`).
@@ -388,6 +439,16 @@ mod tests {
         assert!(cpuid_entries.len() <= MAX_KVM_CPUID_ENTRIES);
     }
 
+    #[test]
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    fn test_get_emulated_cpuid() {
+        let kvm = Kvm::new().unwrap();
+        let mut cpuid = kvm.get_emulated_cpuid(MAX_KVM_CPUID_ENTRIES).unwrap();
+        let cpuid_entries = cpuid.mut_entries_slice();
+        assert!(cpuid_entries.len() > 0);
+        assert!(cpuid_entries.len() <= MAX_KVM_CPUID_ENTRIES);
+    }
+
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     #[test]
     fn test_cpuid_clone() {
@@ -398,4 +459,13 @@ mod tests {
         cpuid_2 = unsafe { std::mem::zeroed() };
         assert!(cpuid_1 != cpuid_2);
     }
+
+    #[test]
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    fn get_msr_index_list() {
+        let kvm = Kvm::new().unwrap();
+        let msr_list = kvm.get_msr_index_list().unwrap();
+        assert!(msr_list.len() >= 2);
+    }
+
 }
