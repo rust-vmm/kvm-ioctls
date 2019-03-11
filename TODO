@@ -6,3 +6,6 @@
   coverage > previous coverage)
 - Add copyright files
 - move sys_util ioctls to a different crate.
+- ARM support
+- CrosVM ioctls
+- missing unit tests (almost everything is testable)
