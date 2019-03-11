@@ -334,4 +334,31 @@ mod tests {
         let msr_list = kvm.get_msr_index_list().unwrap();
         assert!(msr_list.len() >= 2);
     }
+
+    fn get_raw_errno<T>(result: super::Result<T>) -> i32 {
+        result.err().unwrap().raw_os_error().unwrap()
+    }
+
+    #[test]
+    fn test_bad_kvm_fd() {
+        let badf_errno = libc::EBADF;
+
+        let faulty_kvm = Kvm {
+            kvm: unsafe { File::from_raw_fd(-1) },
+        };
+
+        assert_eq!(get_raw_errno(faulty_kvm.get_vcpu_mmap_size()), badf_errno);
+
+        assert_eq!(faulty_kvm.get_nr_vcpus(), 4);
+
+        assert_eq!(faulty_kvm.get_nr_memslots(), 32);
+
+        assert_eq!(get_raw_errno(faulty_kvm.get_emulated_cpuid(4)), badf_errno);
+
+        assert_eq!(get_raw_errno(faulty_kvm.get_supported_cpuid(4)), badf_errno);
+
+        assert_eq!(get_raw_errno(faulty_kvm.get_msr_index_list()), badf_errno);
+
+        assert_eq!(get_raw_errno(faulty_kvm.create_vm()), badf_errno);
+    }
 }
