@@ -384,9 +384,14 @@ impl AsRawFd for VcpuFd {
 
 #[cfg(test)]
 mod tests {
+    extern crate byteorder;
+
     use super::*;
     use ioctls::system::Kvm;
+    use Cap;
+    use MAX_KVM_CPUID_ENTRIES;
 
+    use std::os::unix::io::FromRawFd;
     use std::ptr::null_mut;
 
     // Helper function for mmap an anonymous memory of `size`.
@@ -415,6 +420,144 @@ mod tests {
         let vm = kvm.create_vm().unwrap();
 
         assert!(vm.create_vcpu(0).is_ok());
+    }
+
+    #[cfg(target_arch = "x86_64")]
+    #[test]
+    fn test_set_cpuid2() {
+        let kvm = Kvm::new().unwrap();
+        if kvm.check_extension(Cap::ExtCpuid) {
+            let vm = kvm.create_vm().unwrap();
+            let mut cpuid = kvm.get_supported_cpuid(MAX_KVM_CPUID_ENTRIES).unwrap();
+            assert!(cpuid.mut_entries_slice().len() <= MAX_KVM_CPUID_ENTRIES);
+            let nr_vcpus = kvm.get_nr_vcpus();
+            for cpu_id in 0..nr_vcpus {
+                let vcpu = vm.create_vcpu(cpu_id as u8).unwrap();
+                vcpu.set_cpuid2(&cpuid).unwrap();
+            }
+        }
+    }
+
+    #[cfg(target_arch = "x86_64")]
+    #[allow(non_snake_case)]
+    #[test]
+    fn test_fpu() {
+        // as per https://github.com/torvalds/linux/blob/master/arch/x86/include/asm/fpu/internal.h
+        let KVM_FPU_CWD: usize = 0x37f;
+        let KVM_FPU_MXCSR: usize = 0x1f80;
+        let kvm = Kvm::new().unwrap();
+        let vm = kvm.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+        let mut fpu: kvm_fpu = kvm_fpu {
+            fcw: KVM_FPU_CWD as u16,
+            mxcsr: KVM_FPU_MXCSR as u32,
+            ..Default::default()
+        };
+
+        fpu.fcw = KVM_FPU_CWD as u16;
+        fpu.mxcsr = KVM_FPU_MXCSR as u32;
+
+        vcpu.set_fpu(&fpu).unwrap();
+        assert_eq!(vcpu.get_fpu().unwrap().fcw, KVM_FPU_CWD as u16);
+    }
+
+    #[cfg(target_arch = "x86_64")]
+    #[test]
+    fn lapic_test() {
+        use std::io::Cursor;
+        //we might get read of byteorder if we replace 5h3 mem::transmute with something safer
+        use self::byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
+        //as per https://github.com/torvalds/linux/arch/x86/kvm/lapic.c
+        //try to write and read the APIC_ICR (0x300) register which is non-read only and
+        //one can simply write to it
+        let kvm = Kvm::new().unwrap();
+        assert!(kvm.check_extension(Cap::Irqchip));
+        let vm = kvm.create_vm().unwrap();
+        //the get_lapic ioctl will fail if there is no irqchip created beforehand
+        assert!(vm.create_irq_chip().is_ok());
+        let vcpu = vm.create_vcpu(0).unwrap();
+        let mut klapic: kvm_lapic_state = vcpu.get_lapic().unwrap();
+
+        let reg_offset = 0x300;
+        let value = 2 as u32;
+        //try to write and read the APIC_ICR	0x300
+        let write_slice =
+            unsafe { &mut *(&mut klapic.regs[reg_offset..] as *mut [i8] as *mut [u8]) };
+        let mut writer = Cursor::new(write_slice);
+        writer.write_u32::<LittleEndian>(value).unwrap();
+        vcpu.set_lapic(&klapic).unwrap();
+        klapic = vcpu.get_lapic().unwrap();
+        let read_slice = unsafe { &*(&klapic.regs[reg_offset..] as *const [i8] as *const [u8]) };
+        let mut reader = Cursor::new(read_slice);
+        assert_eq!(reader.read_u32::<LittleEndian>().unwrap(), value);
+    }
+
+    #[cfg(target_arch = "x86_64")]
+    #[test]
+    fn msrs_test() {
+        use std::mem;
+        let kvm = Kvm::new().unwrap();
+        let vm = kvm.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+        let mut configured_entry_vec = Vec::<kvm_msr_entry>::new();
+
+        configured_entry_vec.push(kvm_msr_entry {
+            index: 0x0000_0174,
+            data: 0x0,
+            ..Default::default()
+        });
+        configured_entry_vec.push(kvm_msr_entry {
+            index: 0x0000_0175,
+            data: 0x1,
+            ..Default::default()
+        });
+
+        let vec_size_bytes = mem::size_of::<kvm_msrs>()
+            + (configured_entry_vec.len() * mem::size_of::<kvm_msr_entry>());
+        let vec: Vec<u8> = Vec::with_capacity(vec_size_bytes);
+        let msrs: &mut kvm_msrs = unsafe { &mut *(vec.as_ptr() as *mut kvm_msrs) };
+        unsafe {
+            let entries: &mut [kvm_msr_entry] =
+                msrs.entries.as_mut_slice(configured_entry_vec.len());
+            entries.copy_from_slice(&configured_entry_vec);
+        }
+        msrs.nmsrs = configured_entry_vec.len() as u32;
+        vcpu.set_msrs(msrs).unwrap();
+
+        //now test that GET_MSRS returns the same
+        let wanted_kvm_msrs_entries = [
+            kvm_msr_entry {
+                index: 0x0000_0174,
+                ..Default::default()
+            },
+            kvm_msr_entry {
+                index: 0x0000_0175,
+                ..Default::default()
+            },
+        ];
+        let vec2: Vec<u8> = Vec::with_capacity(vec_size_bytes);
+        let mut msrs2: &mut kvm_msrs = unsafe {
+            // Converting the vector's memory to a struct is unsafe.  Carefully using the read-only
+            // vector to size and set the members ensures no out-of-bounds errors below.
+            &mut *(vec2.as_ptr() as *mut kvm_msrs)
+        };
+
+        unsafe {
+            let entries: &mut [kvm_msr_entry] =
+                msrs2.entries.as_mut_slice(configured_entry_vec.len());
+            entries.copy_from_slice(&wanted_kvm_msrs_entries);
+        }
+        msrs2.nmsrs = configured_entry_vec.len() as u32;
+
+        let read_msrs = vcpu.get_msrs(&mut msrs2).unwrap();
+        assert_eq!(read_msrs, configured_entry_vec.len() as i32);
+
+        let returned_kvm_msr_entries: &mut [kvm_msr_entry] =
+            unsafe { msrs2.entries.as_mut_slice(msrs2.nmsrs as usize) };
+
+        for (i, entry) in returned_kvm_msr_entries.iter_mut().enumerate() {
+            assert_eq!(entry, &mut configured_entry_vec[i]);
+        }
     }
 
     #[cfg(target_arch = "x86_64")]
@@ -509,5 +652,65 @@ mod tests {
                 r => panic!("unexpected exit reason: {:?}", r),
             }
         }
+    }
+
+    fn get_raw_errno<T>(result: super::Result<T>) -> i32 {
+        result.err().unwrap().raw_os_error().unwrap()
+    }
+
+    #[test]
+    #[cfg(target_arch = "x86_64")]
+    fn test_faulty_vcpu_fd() {
+        let badf_errno = libc::EBADF;
+
+        let faulty_vcpu_fd = VcpuFd {
+            vcpu: unsafe { File::from_raw_fd(-1) },
+            kvm_run_ptr: KvmRunWrapper {
+                kvm_run_ptr: mmap_anonymous(10),
+            },
+        };
+
+        assert_eq!(get_raw_errno(faulty_vcpu_fd.get_regs()), badf_errno);
+        assert_eq!(
+            get_raw_errno(faulty_vcpu_fd.set_regs(&unsafe { std::mem::zeroed() })),
+            badf_errno
+        );
+        assert_eq!(get_raw_errno(faulty_vcpu_fd.get_sregs()), badf_errno);
+        assert_eq!(
+            get_raw_errno(faulty_vcpu_fd.set_sregs(&unsafe { std::mem::zeroed() })),
+            badf_errno
+        );
+        assert_eq!(get_raw_errno(faulty_vcpu_fd.get_fpu()), badf_errno);
+        assert_eq!(
+            get_raw_errno(faulty_vcpu_fd.set_fpu(&unsafe { std::mem::zeroed() })),
+            badf_errno
+        );
+        assert_eq!(
+            get_raw_errno(
+                faulty_vcpu_fd.set_cpuid2(
+                    &Kvm::new()
+                        .unwrap()
+                        .get_supported_cpuid(MAX_KVM_CPUID_ENTRIES)
+                        .unwrap()
+                )
+            ),
+            badf_errno
+        );
+        // kvm_lapic_state does not implement debug by default so we cannot
+        // use unwrap_err here.
+        assert!(faulty_vcpu_fd.get_lapic().is_err());
+        assert_eq!(
+            get_raw_errno(faulty_vcpu_fd.set_lapic(&unsafe { std::mem::zeroed() })),
+            badf_errno
+        );
+        assert_eq!(
+            get_raw_errno(faulty_vcpu_fd.get_msrs(&mut kvm_msrs::default())),
+            badf_errno
+        );
+        assert_eq!(
+            get_raw_errno(faulty_vcpu_fd.set_msrs(&unsafe { std::mem::zeroed() })),
+            badf_errno
+        );
+        assert_eq!(get_raw_errno(faulty_vcpu_fd.run()), badf_errno);
     }
 }

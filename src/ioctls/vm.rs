@@ -366,4 +366,51 @@ mod tests {
         assert!(vm_fd.register_irqfd(evtfd3, 4).is_err());
         assert!(vm_fd.register_irqfd(evtfd3, 5).is_err());
     }
+
+    fn get_raw_errno<T>(result: super::Result<T>) -> i32 {
+        result.err().unwrap().raw_os_error().unwrap()
+    }
+
+    #[test]
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    fn test_faulty_vm_fd() {
+        let badf_errno = libc::EBADF;
+
+        let faulty_vm_fd = VmFd {
+            vm: unsafe { File::from_raw_fd(-1) },
+            run_size: 0,
+        };
+
+        let invalid_mem_region = kvm_userspace_memory_region {
+            slot: 0,
+            guest_phys_addr: 0,
+            memory_size: 0,
+            userspace_addr: 0,
+            flags: 0,
+        };
+
+        assert_eq!(
+            get_raw_errno(faulty_vm_fd.set_user_memory_region(invalid_mem_region)),
+            badf_errno
+        );
+        assert_eq!(get_raw_errno(faulty_vm_fd.set_tss_address(0)), badf_errno);
+        assert_eq!(get_raw_errno(faulty_vm_fd.create_irq_chip()), badf_errno);
+        assert_eq!(
+            get_raw_errno(faulty_vm_fd.create_pit2(kvm_pit_config::default())),
+            badf_errno
+        );
+        let event_fd = unsafe { eventfd(0, EFD_NONBLOCK) };
+        assert_eq!(
+            get_raw_errno(faulty_vm_fd.register_ioevent(event_fd, &IoEventAddress::Pio(0), 0u64)),
+            badf_errno
+        );
+        assert_eq!(
+            get_raw_errno(faulty_vm_fd.register_irqfd(event_fd, 0)),
+            badf_errno
+        );
+
+        assert_eq!(get_raw_errno(faulty_vm_fd.create_vcpu(0)), badf_errno);
+
+        assert_eq!(get_raw_errno(faulty_vm_fd.get_dirty_log(0, 0)), badf_errno);
+    }
 }
