@@ -1,2 +1,4 @@
 /target
 **/*.rs.bk
+**/.pytest_cache/
+**/__pycache__/*
