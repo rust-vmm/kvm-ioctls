@@ -7,7 +7,11 @@
 
 use kvm_bindings::*;
 
-/// A capability the kernel's KVM interface can possibly expose.
+/// Enumeration of the extension capability list that KVM exposes.
+///
+/// For details check the
+/// [Linux KVM header](https://elixir.bootlin.com/linux/latest/source/include/uapi/linux/kvm.h).
+///
 #[derive(Clone, Copy, Debug)]
 #[repr(u32)]
 // We are allowing docs to be missing here because this enum is a wrapper

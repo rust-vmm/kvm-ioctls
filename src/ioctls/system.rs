@@ -13,9 +13,9 @@ use ioctls::{CpuId, Result};
 use kvm_ioctls::*;
 use sys_ioctl::*;
 
-/// A wrapper around opening and using `/dev/kvm`.
+/// A wrapper over the `/dev/kvm` file.
 ///
-/// The handle is used to issue system ioctls.
+/// The handle is used to issue KVM system ioctls.
 pub struct Kvm {
     kvm: File,
 }
@@ -70,10 +70,8 @@ impl Kvm {
         unsafe { ioctl(self, KVM_GET_API_VERSION()) }
     }
 
-    /// Query the availability of a particular kvm capability.
-    ///
-    /// See the documentation for `KVM_CHECK_EXTENSION`.
-    /// Returns 0 if the capability is not available and > 0 otherwise.
+    /// Wrapper over `KVM_CHECK_EXTENSION`.
+    /// Returns 0 if the capability is not available and a positive integer otherwise.
     ///
     fn check_extension_int(&self, c: Cap) -> i32 {
         // Safe because we know that our file is a KVM fd and that the extension is one of the ones
@@ -83,18 +81,18 @@ impl Kvm {
 
     /// Checks if a particular `Cap` is available.
     ///
-    /// According to the KVM API doc, `KVM_CHECK_EXTENSION` returns "0 if unsupported; 1 (or some
-    /// other positive integer) if supported.
+    /// See the documentation for `KVM_CHECK_EXTENSION`.
+    /// Returns "0 if the capability is unsupported or a positive integer otherwise.
     ///
     /// # Arguments
     ///
     /// * `c` - KVM capability.
     ///
     pub fn check_extension(&self, c: Cap) -> bool {
-        self.check_extension_int(c) >= 1
+        self.check_extension_int(c) > 0
     }
 
-    /// Gets the size of the mmap required to use vcpu's `kvm_run` structure.
+    ///  Returns the size of the memory mapping required to use the vcpu's `kvm_run` structure.
     ///
     /// See the documentation for `KVM_GET_VCPU_MMAP_SIZE`.
     ///
@@ -236,8 +234,8 @@ impl Kvm {
     /// `KVM_GET_VCPU_MMAP_SIZE` ioctl.
     ///
     pub fn create_vm(&self) -> Result<VmFd> {
-        // Safe because we know kvm is a real kvm fd as this module is the only one that can make
-        // Kvm objects.
+        // Safe because we know `self.kvm` is a real KVM fd as this module is the only one that
+        // create Kvm objects.
         let ret = unsafe { ioctl(&self.kvm, KVM_CREATE_VM()) };
         if ret >= 0 {
             // Safe because we verify the value of ret and we are the owners of the fd.
@@ -348,17 +346,11 @@ mod tests {
         };
 
         assert_eq!(get_raw_errno(faulty_kvm.get_vcpu_mmap_size()), badf_errno);
-
         assert_eq!(faulty_kvm.get_nr_vcpus(), 4);
-
         assert_eq!(faulty_kvm.get_nr_memslots(), 32);
-
         assert_eq!(get_raw_errno(faulty_kvm.get_emulated_cpuid(4)), badf_errno);
-
         assert_eq!(get_raw_errno(faulty_kvm.get_supported_cpuid(4)), badf_errno);
-
         assert_eq!(get_raw_errno(faulty_kvm.get_msr_index_list()), badf_errno);
-
         assert_eq!(get_raw_errno(faulty_kvm.create_vm()), badf_errno);
     }
 }

@@ -163,7 +163,7 @@ impl VmFd {
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn get_dirty_log(&self, slot: u32, memory_size: usize) -> Result<Vec<u64>> {
         // Compute the length of the bitmap needed for all dirty pages in one memory slot.
-        // One memory page is 4KiB (4096 bits) and KVM_GET_DIRTY_LOG returns one dirty bit for
+        // One memory page is 4KiB (4096 bits) and `KVM_GET_DIRTY_LOG` returns one dirty bit for
         // each page.
         let page_size = 4 << 10;
 
@@ -220,14 +220,14 @@ impl VmFd {
         }
     }
 
-    /// Creates a new KVM VCPU fd.
+    /// Creates a new KVM vCPU fd.
     ///
     /// # Arguments
     ///
-    /// * `id` - The CPU number between [0, max vcpus).
+    /// * `id` - The CPU number between [0, max vs).
     ///
     /// # Errors
-    /// Returns an error when the VM fd is invalid or the VCPU memory cannot be mapped correctly.
+    /// Returns an error when the VM fd is invalid or the vCPU memory cannot be mapped correctly.
     ///
     pub fn create_vcpu(&self, id: u8) -> Result<VcpuFd> {
         // Safe because we know that vm is a VM fd and we verify the return result.
@@ -237,7 +237,7 @@ impl VmFd {
             return Err(io::Error::last_os_error());
         }
 
-        // Wrap the vcpu now in case the following ? returns early. This is safe because we verified
+        // Wrap the vCPU now in case the following ? returns early. This is safe because we verified
         // the value of the fd and we own the fd.
         let vcpu = unsafe { File::from_raw_fd(vcpu_fd) };
 
@@ -252,11 +252,11 @@ impl VmFd {
     }
 }
 
-/// Helper function to create a new VcpuFd.
+/// Helper function to create a new `VmFd`.
 ///
 /// This should not be exported as a public function because the preferred way is to use
-/// `create_vm` from `Kvm`. The function cannot be part of the Vcpu implementation because
-/// then it would be exported with the public VcpuFd interface.
+/// `create_vm` from `Kvm`. The function cannot be part of the `VmFd` implementation because
+/// then it would be exported with the public `VmFd` interface.
 pub fn new_vmfd(vm: File, run_size: usize) -> VmFd {
     VmFd { vm, run_size }
 }
