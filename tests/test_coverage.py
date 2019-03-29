@@ -3,6 +3,7 @@
 """Test the coverage and update the threshold when coverage is increased."""
 
 import os, re, shutil, subprocess
+import pytest
 
 def _get_current_coverage():
     """Helper function that returns the coverage computed with kcov."""
@@ -82,15 +83,25 @@ def _update_coverage(cov_value):
     with open(coverage_path, "w") as f:
         f.write(str(cov_value))
 
-def test_coverage():
+def test_coverage(profile):
     current_coverage = _get_current_coverage()
     previous_coverage = _get_previous_coverage()
-
-    # When coverage is increased, we have to update the value in the file.
     if previous_coverage < current_coverage:
-        # TODO check if the test runs as part of the CI. If that's the case
-        # we have to fail the test here.
-        _update_coverage(current_coverage)
+        if profile == pytest.profile_ci:
+            # In the CI Profile we expect the coverage to be manually updated.
+            assert False, "Coverage is increased from {} to {}. " \
+                          "Please update the coverage in " \
+                          "tests/coverage.".format(
+                previous_coverage,
+                current_coverage
+            )
+        elif profile == pytest.profile_devel:
+            _update_coverage(current_coverage)
+        else:
+            # This should never happen because pytest should only accept
+            # the valid test profiles specified with `choices` in
+            # `pytest_addoption`.
+            assert False, "Invalid test profile."
     elif previous_coverage > current_coverage:
         diff = float(previous_coverage - current_coverage)
         assert False, "Coverage drops by {:.2f}%. Please add unit tests for" \
