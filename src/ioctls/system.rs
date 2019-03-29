@@ -9,7 +9,9 @@ use std::os::unix::io::{AsRawFd, FromRawFd, RawFd};
 use cap::Cap;
 use ioctls::vec_with_array_field;
 use ioctls::vm::{new_vmfd, VmFd};
-use ioctls::{CpuId, Result};
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+use ioctls::CpuId;
+use ioctls::Result;
 use kvm_ioctls::*;
 use sys_ioctl::*;
 

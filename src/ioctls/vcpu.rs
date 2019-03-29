@@ -4,7 +4,9 @@ use std::fs::File;
 use std::io;
 use std::os::unix::io::{AsRawFd, RawFd};
 
-use ioctls::{CpuId, KvmRunWrapper, Result};
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+use ioctls::CpuId;
+use ioctls::{KvmRunWrapper, Result};
 use kvm_ioctls::*;
 use sys_ioctl::*;
 
