@@ -15,6 +15,8 @@ use kvm_bindings::kvm_run;
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 use kvm_bindings::{kvm_cpuid2, kvm_cpuid_entry2};
 
+/// Helper for dealing with KVM api structures
+mod common;
 /// Wrappers over KVM device ioctls.
 pub mod device;
 /// Wrappers over KVM system ioctls.
@@ -23,6 +25,8 @@ pub mod system;
 pub mod vcpu;
 /// Wrappers over KVM Virtual Machine ioctls.
 pub mod vm;
+
+use self::common::kvm_vec::*;
 
 /// A specialized `Result` type for KVM ioctls.
 ///
