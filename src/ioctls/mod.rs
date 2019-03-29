@@ -1,4 +1,6 @@
-use kvm_bindings::{kvm_cpuid2, kvm_cpuid_entry2, kvm_run};
+use kvm_bindings::kvm_run;
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+use kvm_bindings::{kvm_cpuid2, kvm_cpuid_entry2};
 use std::io;
 use std::mem::size_of;
 use std::os::unix::io::AsRawFd;
