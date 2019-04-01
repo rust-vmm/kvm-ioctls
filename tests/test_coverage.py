@@ -46,7 +46,7 @@ def _get_current_coverage():
     subprocess.run(kcov_cmd, shell=True, check=True)
 
     # Read the coverage reported by kcov.
-    coverage_file = os.path.join(kcov_ouput_dir, 'index.json')
+    coverage_file = os.path.join(kcov_ouput_dir, 'index.js')
     with open(coverage_file) as cov_output:
         coverage = float(re.findall(
             r'"covered":"(\d+\.\d)"',
