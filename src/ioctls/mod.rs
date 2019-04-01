@@ -10,13 +10,15 @@ use std::mem::size_of;
 use std::os::unix::io::AsRawFd;
 use std::ptr::null_mut;
 use std::result;
+use MAX_KVM_CPUID_ENTRIES;
+use MAX_KVM_MSR_ENTRIES;
 
 use kvm_bindings::kvm_run;
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-use kvm_bindings::{kvm_cpuid2, kvm_cpuid_entry2};
+use kvm_bindings::{__IncompleteArrayField, kvm_cpuid2, kvm_cpuid_entry2, kvm_msr_list};
 
 /// Helper for dealing with KVM api structures
-mod common;
+pub mod common;
 /// Wrappers over KVM device ioctls.
 pub mod device;
 /// Wrappers over KVM system ioctls.
@@ -26,7 +28,7 @@ pub mod vcpu;
 /// Wrappers over KVM Virtual Machine ioctls.
 pub mod vm;
 
-use self::common::kvm_vec::*;
+use self::common::kvm_vec::{KvmArray, KvmVec};
 
 /// A specialized `Result` type for KVM ioctls.
 ///
@@ -34,189 +36,121 @@ use self::common::kvm_vec::*;
 /// is otherwise a direct mapping to Result.
 pub type Result<T> = result::Result<T, io::Error>;
 
-// Returns a `Vec<T>` with a size in bytes at least as large as `size_in_bytes`.
-fn vec_with_size_in_bytes<T: Default>(size_in_bytes: usize) -> Vec<T> {
-    let rounded_size = (size_in_bytes + size_of::<T>() - 1) / size_of::<T>();
-    let mut v = Vec::with_capacity(rounded_size);
-    for _ in 0..rounded_size {
-        v.push(T::default())
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+impl KvmArray for kvm_cpuid2 {
+    type Entry = kvm_cpuid_entry2;
+
+    fn len(&self) -> usize {
+        self.nent as usize
     }
-    v
+
+    fn set_len(&mut self, len: usize) {
+        self.nent = len as u32;
+    }
+
+    fn max_len() -> usize {
+        MAX_KVM_CPUID_ENTRIES
+    }
+
+    fn entries(&self) -> &__IncompleteArrayField<kvm_cpuid_entry2> {
+        &self.entries
+    }
+
+    fn entries_mut(&mut self) -> &mut __IncompleteArrayField<kvm_cpuid_entry2> {
+        &mut self.entries
+    }
 }
 
-// The kvm API has many structs that resemble the following `Foo` structure:
-//
-// ```
-// #[repr(C)]
-// struct Foo {
-//    some_data: u32
-//    entries: __IncompleteArrayField<__u32>,
-// }
-// ```
-//
-// In order to allocate such a structure, `size_of::<Foo>()` would be too small because it would not
-// include any space for `entries`. To make the allocation large enough while still being aligned
-// for `Foo`, a `Vec<Foo>` is created. Only the first element of `Vec<Foo>` would actually be used
-// as a `Foo`. The remaining memory in the `Vec<Foo>` is for `entries`, which must be contiguous
-// with `Foo`. This function is used to make the `Vec<Foo>` with enough space for `count` entries.
-fn vec_with_array_field<T: Default, F>(count: usize) -> Vec<T> {
-    let element_space = count * size_of::<F>();
-    let vec_size_bytes = size_of::<T>() + element_space;
-    vec_with_size_in_bytes(vec_size_bytes)
-}
-
-/// Wrapper over the `kvm_cpuid2` structure.
+/// Wrapper for `kvm_cpuid2`.
 ///
-/// The structure has a zero length array at the end, hidden behind bounds check.
+/// The `kvm_cpuid2` structure has a zero sized array. For details check the
+/// [KVM API](https://www.kernel.org/doc/Documentation/virtual/kvm/api.txt)
+/// documentation on `kvm_cpuid2`. To provide safe access to
+/// the array elements, this type is implemented using
+/// [KvmVec](struct.KvmVec.html).
+///
+/// # Example
+/// ```rust
+/// extern crate kvm_bindings;
+/// use kvm_bindings::kvm_cpuid_entry2;
+///
+/// use kvm_ioctls::{CpuId, Kvm, MAX_KVM_CPUID_ENTRIES};
+/// let kvm = Kvm::new().unwrap();
+/// // get the supported cpuid from KVM
+/// let mut cpuid = kvm.get_supported_cpuid(MAX_KVM_CPUID_ENTRIES).unwrap();
+/// // remove extended cache topology leafs
+/// cpuid.retain(|entry| {
+///     return entry.function != 0x8000_001d;
+/// });
+/// // add largest extended fn entry
+/// cpuid.push(kvm_cpuid_entry2 {
+///     function: 0x8000_0000,
+///     index: 0,
+///     flags: 0,
+///     eax: 0x8000_001f,
+///     ebx: 0,
+///     ecx: 0,
+///     edx: 0,
+///     padding: [0, 0, 0]}
+/// );
+/// // edit features info leaf
+/// for entry in cpuid.as_mut_entries_slice().iter_mut() {
+///     match entry.function {
+///         0x1 => {
+///             entry.eax = 0;
+///         }
+///         _ => { }
+///     }
+/// }
+/// ```
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-pub struct CpuId {
-    // Wrapper over `kvm_cpuid2` from which we only use the first element.
-    kvm_cpuid: Vec<kvm_cpuid2>,
-    // Number of `kvm_cpuid_entry2` structs at the end of kvm_cpuid2.
-    allocated_len: usize,
-}
-
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-impl Clone for CpuId {
-    fn clone(&self) -> Self {
-        let mut kvm_cpuid = Vec::with_capacity(self.kvm_cpuid.len());
-        for _ in 0..self.kvm_cpuid.len() {
-            kvm_cpuid.push(kvm_cpuid2::default());
-        }
-
-        let num_bytes = self.kvm_cpuid.len() * size_of::<kvm_cpuid2>();
-
-        let src_byte_slice =
-            unsafe { std::slice::from_raw_parts(self.kvm_cpuid.as_ptr() as *const u8, num_bytes) };
-
-        let dst_byte_slice =
-            unsafe { std::slice::from_raw_parts_mut(kvm_cpuid.as_mut_ptr() as *mut u8, num_bytes) };
-
-        dst_byte_slice.copy_from_slice(src_byte_slice);
-
-        CpuId {
-            kvm_cpuid,
-            allocated_len: self.allocated_len,
-        }
-    }
-}
-
-#[cfg(test)]
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-impl PartialEq for CpuId {
-    fn eq(&self, other: &CpuId) -> bool {
-        let entries: &[kvm_cpuid_entry2] =
-            unsafe { self.kvm_cpuid[0].entries.as_slice(self.allocated_len) };
-        let other_entries: &[kvm_cpuid_entry2] =
-            unsafe { self.kvm_cpuid[0].entries.as_slice(other.allocated_len) };
-        self.allocated_len == other.allocated_len && entries == other_entries
-    }
-}
+pub type CpuId = KvmVec<kvm_cpuid2>;
 
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-impl CpuId {
-    /// Creates a new `CpuId` structure that contains at most `array_len` KVM CPUID entries.
-    ///
-    /// # Arguments
-    ///
-    /// * `array_len` - Maximum number of CPUID entries.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// use kvm_ioctls::CpuId;
-    /// let cpu_id = CpuId::new(32);
-    /// ```
-    pub fn new(array_len: usize) -> CpuId {
-        let mut kvm_cpuid = vec_with_array_field::<kvm_cpuid2, kvm_cpuid_entry2>(array_len);
-        kvm_cpuid[0].nent = array_len as u32;
+impl KvmArray for kvm_msr_list {
+    type Entry = u32;
 
-        CpuId {
-            kvm_cpuid,
-            allocated_len: array_len,
-        }
+    fn len(&self) -> usize {
+        self.nmsrs as usize
     }
 
-    /// Creates a new `CpuId` structure based on a supplied vector of `kvm_cpuid_entry2`.
-    ///
-    /// # Arguments
-    ///
-    /// * `entries` - The vector of `kvm_cpuid_entry2` entries.
-    ///
-    /// # Example
-    ///
-    /// ```rust
-    /// # extern crate kvm_ioctls;
-    /// extern crate kvm_bindings;
-    ///
-    /// use kvm_bindings::kvm_cpuid_entry2;
-    /// use kvm_ioctls::CpuId;
-    /// // Create a Cpuid to hold one entry.
-    /// let mut cpuid = CpuId::new(1);
-    /// let mut entries = cpuid.mut_entries_slice().to_vec();
-    /// let new_entry = kvm_cpuid_entry2 {
-    ///     function: 0x4,
-    ///     index: 0,
-    ///     flags: 1,
-    ///     eax: 0b1100000,
-    ///     ebx: 0,
-    ///     ecx: 0,
-    ///     edx: 0,
-    ///     padding: [0, 0, 0],
-    /// };
-    /// entries.insert(0, new_entry);
-    /// cpuid = CpuId::from_entries(&entries);
-    /// ```
-    ///
-    pub fn from_entries(entries: &[kvm_cpuid_entry2]) -> CpuId {
-        let mut kvm_cpuid = vec_with_array_field::<kvm_cpuid2, kvm_cpuid_entry2>(entries.len());
-        kvm_cpuid[0].nent = entries.len() as u32;
-
-        unsafe {
-            kvm_cpuid[0]
-                .entries
-                .as_mut_slice(entries.len())
-                .copy_from_slice(entries);
-        }
-
-        CpuId {
-            kvm_cpuid,
-            allocated_len: entries.len(),
-        }
+    fn set_len(&mut self, len: usize) {
+        self.nmsrs = len as u32;
     }
 
-    /// Returns the mutable entries slice so they can be modified before passing to the VCPU.
-    ///
-    /// # Example
-    /// ```rust
-    /// use kvm_ioctls::{CpuId, Kvm, MAX_KVM_CPUID_ENTRIES};
-    /// let kvm = Kvm::new().unwrap();
-    /// let mut cpuid = kvm.get_supported_cpuid(MAX_KVM_CPUID_ENTRIES).unwrap();
-    /// let cpuid_entries = cpuid.mut_entries_slice();
-    /// ```
-    ///
-    pub fn mut_entries_slice(&mut self) -> &mut [kvm_cpuid_entry2] {
-        // Mapping the unsized array to a slice is unsafe because the length isn't known.  Using
-        // the length we originally allocated with eliminates the possibility of overflow.
-        if self.kvm_cpuid[0].nent as usize > self.allocated_len {
-            self.kvm_cpuid[0].nent = self.allocated_len as u32;
-        }
-        let nent = self.kvm_cpuid[0].nent as usize;
-        unsafe { self.kvm_cpuid[0].entries.as_mut_slice(nent) }
+    fn max_len() -> usize {
+        MAX_KVM_MSR_ENTRIES as usize
     }
 
-    /// Get a  pointer so it can be passed to the kernel. Using this pointer is unsafe.
-    ///
-    pub fn as_ptr(&self) -> *const kvm_cpuid2 {
-        &self.kvm_cpuid[0]
+    fn entries(&self) -> &__IncompleteArrayField<u32> {
+        &self.indices
     }
 
-    /// Get a mutable pointer so it can be passed to the kernel. Using this pointer is unsafe.
-    ///
-    pub fn as_mut_ptr(&mut self) -> *mut kvm_cpuid2 {
-        &mut self.kvm_cpuid[0]
+    fn entries_mut(&mut self) -> &mut __IncompleteArrayField<u32> {
+        &mut self.indices
     }
 }
+
+/// Wrapper for `kvm_msr_list`.
+///
+/// The `kvm_msr_list` structure has a zero sized array. For details check the
+/// [KVM API](https://www.kernel.org/doc/Documentation/virtual/kvm/api.txt)
+/// documentation on `kvm_msr_list`. To provide safe access to
+/// the array elements, this type is implemented using
+/// [KvmVec](struct.KvmVec.html).
+///
+/// # Example
+/// ```rust
+/// use kvm_ioctls::{Kvm};
+///
+/// let kvm = Kvm::new().unwrap();
+/// // get the msr index list from KVM
+/// let mut msr_index_list = kvm.get_msr_index_list().unwrap();
+/// // get indexes as u32 slice
+/// let indexes = msr_index_list.as_entries_slice();
+/// ```
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+pub type MsrList = KvmVec<kvm_msr_list>;
 
 /// Safe wrapper over the `kvm_run` struct.
 ///
@@ -271,38 +205,5 @@ impl KvmRunWrapper {
         unsafe {
             &mut *(self.kvm_run_ptr as *mut kvm_run)
         }
-    }
-}
-
-#[cfg(test)]
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_cpuid_from_entries() {
-        let num_entries = 4;
-        let mut cpuid = CpuId::new(num_entries);
-
-        // add entry
-        let mut entries = cpuid.mut_entries_slice().to_vec();
-        let new_entry = kvm_cpuid_entry2 {
-            function: 0x4,
-            index: 0,
-            flags: 1,
-            eax: 0b1100000,
-            ebx: 0,
-            ecx: 0,
-            edx: 0,
-            padding: [0, 0, 0],
-        };
-        entries.insert(0, new_entry);
-        cpuid = CpuId::from_entries(&entries);
-
-        // check that the cpuid contains the new entry
-        assert_eq!(cpuid.allocated_len, num_entries + 1);
-        assert_eq!(cpuid.kvm_cpuid[0].nent, (num_entries + 1) as u32);
-        assert_eq!(cpuid.mut_entries_slice().len(), num_entries + 1);
-        assert_eq!(cpuid.mut_entries_slice()[0], new_entry);
     }
 }

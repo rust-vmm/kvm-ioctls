@@ -64,6 +64,7 @@ pub enum Error {
 /// ```
 #[allow(clippy::len_without_is_empty)]
 pub trait KvmArray {
+    /// The type of the __IncompleteArrayField entries
     type Entry: PartialEq + Copy;
 
     /// Get the array length
@@ -131,6 +132,25 @@ impl<T: Default + KvmArray> KvmVec<T> {
     ///
     /// * `num_elements` - The number of empty elements of type `KvmArray::Entry` in the initial `KvmVec`
     ///
+    /// # Example
+    ///
+    /// ```
+    /// extern crate kvm_bindings;
+    /// use kvm_bindings::*;
+    ///
+    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    /// use kvm_ioctls::{KvmArray, KvmVec, CpuId};
+    ///
+    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    /// fn example() {
+    ///     let cpuid = CpuId::new(3);
+    ///     assert_eq!(cpuid.as_entries_slice().len(), 3);
+    ///     for entry in cpuid.as_entries_slice().iter() {
+    ///         assert_eq!(*entry, kvm_cpuid_entry2::default())
+    ///     }
+    /// }
+    /// ```
+    ///
     pub fn new(num_elements: usize) -> KvmVec<T> {
         let required_mem_allocator_capacity =
             KvmVec::<T>::kvm_vec_len_to_mem_allocator_len(num_elements);
@@ -153,6 +173,34 @@ impl<T: Default + KvmArray> KvmVec<T> {
     /// # Arguments
     ///
     /// * `entries` - The vector of `KvmArray::Entry` entries.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// extern crate kvm_bindings;
+    /// use kvm_bindings::*;
+    ///
+    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    /// use kvm_ioctls::{KvmArray, KvmVec, CpuId};
+    ///
+    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    /// fn example() {
+    /// // Create a vec to hold one cpuid entry.
+    ///     let mut cpuid_entries = Vec::new();
+    ///     let new_entry = kvm_cpuid_entry2 {
+    ///         function: 0x4,
+    ///         index: 0,
+    ///         flags: 1,
+    ///          eax: 0b1100000,
+    ///         ebx: 0,
+    ///         ecx: 0,
+    ///         edx: 0,
+    ///         padding: [0, 0, 0],
+    ///     };
+    ///     cpuid_entries.push(new_entry);
+    ///     let cpuid = CpuId::from_entries(&cpuid_entries);
+    /// }
+    /// ```
     ///
     pub fn from_entries(entries: &[T::Entry]) -> KvmVec<T> {
         let mut kvm_vec = KvmVec::<T>::new(entries.len());
@@ -205,12 +253,37 @@ impl<T: Default + KvmArray> KvmVec<T> {
 
     /// Get the mutable elements slice so they can be modified before passing to the VCPU.
     ///
+    /// # Example
+    /// ```
+    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    /// use kvm_ioctls::{CpuId, Kvm, MAX_KVM_CPUID_ENTRIES};
+    ///
+    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    /// fn example() {
+    ///     let kvm = Kvm::new().unwrap();
+    ///     let mut cpuid = kvm.get_supported_cpuid(MAX_KVM_CPUID_ENTRIES).unwrap();
+    ///     let cpuid_entries = cpuid.as_entries_slice();
+    /// }
+    /// ```
     pub fn as_entries_slice(&self) -> &[T::Entry] {
         let len = self.as_kvm_struct().len();
         unsafe { self.as_kvm_struct().entries().as_slice(len as usize) }
     }
 
     /// Get the mutable elements slice so they can be modified before passing to the VCPU.
+    ///
+    /// # Example
+    /// ```
+    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    /// use kvm_ioctls::{CpuId, Kvm, MAX_KVM_CPUID_ENTRIES};
+    ///
+    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    /// fn example() {
+    ///     let kvm = Kvm::new().unwrap();
+    ///     let mut cpuid = kvm.get_supported_cpuid(MAX_KVM_CPUID_ENTRIES).unwrap();
+    ///     let cpuid_entries = cpuid.as_mut_entries_slice();
+    /// }
+    /// ```
     ///
     pub fn as_mut_entries_slice(&mut self) -> &mut [T::Entry] {
         let len = self.as_kvm_struct().len();
@@ -264,6 +337,31 @@ impl<T: Default + KvmArray> KvmVec<T> {
     ///
     /// # Error: When len is already equal to max possible len it returns Error::SizeLimitExceeded
     ///
+    /// # Example
+    /// ```
+    /// extern crate kvm_bindings;
+    /// use kvm_bindings::*;
+    ///
+    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    /// use kvm_ioctls::{KvmArray, KvmVec, CpuId};
+    ///
+    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    /// fn example() {
+    ///     let mut cpuid = CpuId::new(3);
+    ///     cpuid.push(kvm_cpuid_entry2 {
+    ///         function: 1,
+    ///         index: 0,
+    ///         flags: 0,
+    ///         eax: 0,
+    ///         ebx: 0,
+    ///         ecx: 0,
+    ///         edx: 0,
+    ///         padding: [0, 0, 0]
+    ///     });
+    ///     assert_eq!(cpuid.as_entries_slice()[3].function, 1)
+    /// }
+    /// ```
+    ///
     pub fn push(&mut self, entry: T::Entry) -> Result<(), Error> {
         let desired_len = self.len + 1;
         if desired_len > T::max_len() {
@@ -287,6 +385,24 @@ impl<T: Default + KvmArray> KvmVec<T> {
     ///
     /// * `f` - The function used to evaluate whether an entry will be kept or not.
     ///         When `f` returns `true` the entry is kept.
+    ///
+    /// # Example
+    /// ```
+    /// extern crate kvm_bindings;
+    /// use kvm_bindings::*;
+    ///
+    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    /// use kvm_ioctls::{KvmArray, KvmVec, CpuId};
+    ///
+    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    /// fn example() {
+    ///     let mut cpuid = CpuId::new(3);
+    ///     cpuid.retain(|entry| {
+    ///         entry.function != 0
+    ///     });
+    ///     assert_eq!(cpuid.as_entries_slice().len(), 0);
+    /// }
+    /// ```
     ///
     pub fn retain<P>(&mut self, f: P)
     where

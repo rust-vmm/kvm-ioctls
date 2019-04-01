@@ -189,12 +189,13 @@ mod cap;
 mod ioctls;
 
 pub use cap::Cap;
+pub use ioctls::common::kvm_vec::{KvmArray, KvmVec};
 pub use ioctls::device::DeviceFd;
 pub use ioctls::system::Kvm;
 pub use ioctls::vcpu::{VcpuExit, VcpuFd};
 pub use ioctls::vm::{IoEventAddress, NoDatamatch, VmFd};
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-pub use ioctls::CpuId;
+pub use ioctls::{CpuId, MsrList};
 // The following example is used to verify that our public
 // structures are exported properly.
 /// # Example
@@ -211,3 +212,7 @@ pub use ioctls::{KvmRunWrapper, Result};
 /// It can be used for calls to [get_supported_cpuid](struct.Kvm.html#method.get_supported_cpuid) and
 /// [get_emulated_cpuid](struct.Kvm.html#method.get_emulated_cpuid).
 pub const MAX_KVM_CPUID_ENTRIES: usize = 80;
+
+/// Maximum number of MSR entries that can be returned by a call to KVM ioctls.
+///
+pub const MAX_KVM_MSR_ENTRIES: usize = 256;

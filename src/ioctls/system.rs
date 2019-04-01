@@ -14,13 +14,13 @@ use std::os::raw::{c_char, c_ulong};
 use std::os::unix::io::{AsRawFd, FromRawFd, RawFd};
 
 use cap::Cap;
-use ioctls::vec_with_array_field;
 use ioctls::vm::{new_vmfd, VmFd};
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-use ioctls::CpuId;
 use ioctls::Result;
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+use ioctls::{CpuId, MsrList};
 use kvm_ioctls::*;
 use sys_ioctl::*;
+use MAX_KVM_MSR_ENTRIES;
 
 /// Wrapper over KVM system ioctls.
 pub struct Kvm {
@@ -266,7 +266,7 @@ impl Kvm {
     ///
     /// let kvm = Kvm::new().unwrap();
     /// let mut cpuid = kvm.get_emulated_cpuid(MAX_KVM_CPUID_ENTRIES).unwrap();
-    /// let cpuid_entries = cpuid.mut_entries_slice();
+    /// let cpuid_entries = cpuid.as_mut_entries_slice();
     /// assert!(cpuid_entries.len() <= MAX_KVM_CPUID_ENTRIES);
     /// ```
     ///
@@ -291,7 +291,7 @@ impl Kvm {
     ///
     /// let kvm = Kvm::new().unwrap();
     /// let mut cpuid = kvm.get_emulated_cpuid(MAX_KVM_CPUID_ENTRIES).unwrap();
-    /// let cpuid_entries = cpuid.mut_entries_slice();
+    /// let cpuid_entries = cpuid.as_mut_entries_slice();
     /// assert!(cpuid_entries.len() <= MAX_KVM_CPUID_ENTRIES);
     /// ```
     ///
@@ -307,40 +307,26 @@ impl Kvm {
     /// # Example
     ///
     /// ```
-    /// use kvm_ioctls::{Kvm, MAX_KVM_CPUID_ENTRIES};
+    /// use kvm_ioctls::{Kvm};
     ///
     /// let kvm = Kvm::new().unwrap();
     /// let msr_index_list = kvm.get_msr_index_list().unwrap();
     /// ```
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-    pub fn get_msr_index_list(&self) -> Result<Vec<u32>> {
-        const MAX_KVM_MSR_ENTRIES: usize = 256;
-
-        let mut msr_list = vec_with_array_field::<kvm_msr_list, u32>(MAX_KVM_MSR_ENTRIES);
-        msr_list[0].nmsrs = MAX_KVM_MSR_ENTRIES as u32;
+    pub fn get_msr_index_list(&self) -> Result<MsrList> {
+        let mut msr_list = MsrList::new(MAX_KVM_MSR_ENTRIES);
 
         let ret = unsafe {
             // ioctl is unsafe. The kernel is trusted not to write beyond the bounds of the memory
             // allocated for the struct. The limit is read from nmsrs, which is set to the allocated
             // size (MAX_KVM_MSR_ENTRIES) above.
-            ioctl_with_mut_ref(self, KVM_GET_MSR_INDEX_LIST(), &mut msr_list[0])
+            ioctl_with_mut_ptr(self, KVM_GET_MSR_INDEX_LIST(), msr_list.as_mut_ptr())
         };
         if ret < 0 {
             return Err(io::Error::last_os_error());
         }
 
-        let mut nmsrs = msr_list[0].nmsrs;
-
-        // Mapping the unsized array to a slice is unsafe because the length isn't known.  Using
-        // the length we originally allocated with eliminates the possibility of overflow.
-        let indices: &[u32] = unsafe {
-            if nmsrs > MAX_KVM_MSR_ENTRIES as u32 {
-                nmsrs = MAX_KVM_MSR_ENTRIES as u32;
-            }
-            msr_list[0].indices.as_slice(nmsrs as usize)
-        };
-
-        Ok(indices.to_vec())
+        Ok(msr_list)
     }
 
     /// Creates a VM fd using the KVM fd.
@@ -425,7 +411,7 @@ mod tests {
     fn test_get_supported_cpuid() {
         let kvm = Kvm::new().unwrap();
         let mut cpuid = kvm.get_supported_cpuid(MAX_KVM_CPUID_ENTRIES).unwrap();
-        let cpuid_entries = cpuid.mut_entries_slice();
+        let cpuid_entries = cpuid.as_mut_entries_slice();
         assert!(cpuid_entries.len() > 0);
         assert!(cpuid_entries.len() <= MAX_KVM_CPUID_ENTRIES);
     }
@@ -435,7 +421,7 @@ mod tests {
     fn test_get_emulated_cpuid() {
         let kvm = Kvm::new().unwrap();
         let mut cpuid = kvm.get_emulated_cpuid(MAX_KVM_CPUID_ENTRIES).unwrap();
-        let cpuid_entries = cpuid.mut_entries_slice();
+        let cpuid_entries = cpuid.as_mut_entries_slice();
         assert!(cpuid_entries.len() > 0);
         assert!(cpuid_entries.len() <= MAX_KVM_CPUID_ENTRIES);
     }
@@ -456,7 +442,7 @@ mod tests {
     fn get_msr_index_list() {
         let kvm = Kvm::new().unwrap();
         let msr_list = kvm.get_msr_index_list().unwrap();
-        assert!(msr_list.len() >= 2);
+        assert!(msr_list.as_entries_slice().len() >= 2);
     }
 
     fn get_raw_errno<T>(result: super::Result<T>) -> i32 {
