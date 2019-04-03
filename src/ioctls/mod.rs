@@ -106,6 +106,13 @@ impl CpuId {
     ///
     /// * `array_len` - Maximum number of CPUID entries.
     ///
+    /// # Example
+    ///
+    /// ```
+    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    /// use kvm_ioctls::CpuId;
+    /// let cpu_id = CpuId::new(32);
+    /// ```
     pub fn new(array_len: usize) -> CpuId {
         let mut kvm_cpuid = vec_with_array_field::<kvm_cpuid2, kvm_cpuid_entry2>(array_len);
         kvm_cpuid[0].nent = array_len as u32;
