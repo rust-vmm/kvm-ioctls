@@ -24,8 +24,8 @@ pub use ioctls::system::Kvm;
 pub use ioctls::vcpu::{VcpuExit, VcpuFd};
 pub use ioctls::vm::VmFd;
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-use ioctls::CpuId;
-use ioctls::{KvmRunWrapper, Result};
+pub use ioctls::CpuId;
+pub use ioctls::{KvmRunWrapper, Result};
 
 /// Maximum number of CPUID entries that can be returned by a call to KVM ioctls.
 ///
