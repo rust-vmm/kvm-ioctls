@@ -25,6 +25,14 @@ pub use ioctls::vcpu::{VcpuExit, VcpuFd};
 pub use ioctls::vm::VmFd;
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 pub use ioctls::CpuId;
+// The following example is used to verify that our public
+// structures are exported properly.
+/// # Example
+///
+/// ```
+/// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+/// use kvm_ioctls::{KvmRunWrapper, Result};
+/// ```
 pub use ioctls::{KvmRunWrapper, Result};
 
 /// Maximum number of CPUID entries that can be returned by a call to KVM ioctls.
