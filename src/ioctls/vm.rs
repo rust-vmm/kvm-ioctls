@@ -278,7 +278,7 @@ impl VmFd {
     }
 
     /// Get the `kvm_run` size.
-    pub fn get_run_size(&self) -> usize {
+    pub fn run_size(&self) -> usize {
         self.run_size
     }
 }

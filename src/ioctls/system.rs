@@ -300,7 +300,7 @@ mod tests {
         let kvm = Kvm::new().unwrap();
         let vm = kvm.create_vm().unwrap();
 
-        assert_eq!(vm.get_run_size(), kvm.get_vcpu_mmap_size().unwrap());
+        assert_eq!(vm.run_size(), kvm.get_vcpu_mmap_size().unwrap());
     }
 
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
