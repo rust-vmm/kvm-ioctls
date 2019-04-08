@@ -1,12 +1,15 @@
-use kvm_bindings::kvm_run;
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-use kvm_bindings::{kvm_cpuid2, kvm_cpuid_entry2};
 use std::io;
 use std::mem::size_of;
 use std::os::unix::io::AsRawFd;
 use std::ptr::null_mut;
 use std::result;
 
+use kvm_bindings::kvm_run;
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+use kvm_bindings::{kvm_cpuid2, kvm_cpuid_entry2};
+
+/// Wrappers over KVM device ioctls.
+pub mod device;
 /// Wrappers over KVM system ioctls.
 pub mod system;
 /// Wrappers over KVM VCPU ioctls.

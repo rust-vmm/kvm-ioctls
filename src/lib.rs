@@ -20,6 +20,7 @@ mod cap;
 mod ioctls;
 
 pub use cap::Cap;
+pub use ioctls::device::DeviceFd;
 pub use ioctls::system::Kvm;
 pub use ioctls::vcpu::{VcpuExit, VcpuFd};
 pub use ioctls::vm::VmFd;
