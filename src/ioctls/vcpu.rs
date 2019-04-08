@@ -293,6 +293,52 @@ impl VcpuFd {
         Ok(())
     }
 
+    /// Sets the type of CPU to be exposed to the guest and optional features.
+    ///
+    /// This initializes an ARM vCPU to the specified type with the specified features
+    /// and resets the values of all of its registers to defaults.
+    ///
+    /// # Arguments
+    ///
+    /// * `kvi` - information about preferred CPU target type and recommended features for it.
+    ///
+    #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
+    pub fn vcpu_init(&self, kvi: &kvm_vcpu_init) -> Result<()> {
+        // This is safe because we allocated the struct and we know the kernel will read
+        // exactly the size of the struct.
+        let ret = unsafe { ioctl_with_ref(self, KVM_ARM_VCPU_INIT(), kvi) };
+        if ret < 0 {
+            return Err(io::Error::last_os_error());
+        }
+        Ok(())
+    }
+
+    /// Sets the value of one register for this vCPU.
+    ///
+    /// The id of the register is encoded as specified in the kernel documentation
+    /// for `KVM_SET_ONE_REG`.
+    ///
+    /// # Arguments
+    ///
+    /// * `reg_id` - ID of the register for which we are setting the value.
+    /// * `data` - value for the specified register.
+    ///
+    #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
+    pub fn set_one_reg(&self, reg_id: u64, data: u64) -> Result<()> {
+        let data_ref = &data as *const u64;
+        let onereg = kvm_one_reg {
+            id: reg_id,
+            addr: data_ref as u64,
+        };
+        // This is safe because we allocated the struct and we know the kernel will read
+        // exactly the size of the struct.
+        let ret = unsafe { ioctl_with_ref(self, KVM_SET_ONE_REG(), &onereg) };
+        if ret < 0 {
+            return Err(io::Error::last_os_error());
+        }
+        Ok(())
+    }
+
     /// Triggers the running of the current virtual CPU returning an exit reason.
     ///
     pub fn run(&self) -> Result<VcpuExit> {
@@ -717,5 +763,42 @@ mod tests {
             badf_errno
         );
         assert_eq!(get_raw_errno(faulty_vcpu_fd.run()), badf_errno);
+    }
+
+    #[test]
+    #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
+    fn test_get_preferred_target() {
+        let kvm = Kvm::new().unwrap();
+        let vm = kvm.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+
+        let mut kvi: kvm_bindings::kvm_vcpu_init = kvm_bindings::kvm_vcpu_init::default();
+        assert!(vcpu.vcpu_init(&kvi).is_err());
+
+        vm.get_preferred_target(&mut kvi)
+            .expect("Cannot get preferred target");
+        assert!(vcpu.vcpu_init(&kvi).is_ok());
+    }
+
+    #[test]
+    #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
+    fn test_set_one_reg() {
+        let kvm = Kvm::new().unwrap();
+        let vm = kvm.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+
+        let mut kvi: kvm_bindings::kvm_vcpu_init = kvm_bindings::kvm_vcpu_init::default();
+        vm.get_preferred_target(&mut kvi)
+            .expect("Cannot get preferred target");
+        vcpu.vcpu_init(&kvi).expect("Cannot initialize vcpu");
+        let mut data: u64 = 0;
+        let mut reg_id: u64 = 0;
+
+        assert!(vcpu.set_one_reg(reg_id, data).is_err());
+        // Exercising KVM_SET_ONE_REG by trying to alter the data inside the PSTATE register (which is a
+        // specific aarch64 register).
+        const PSTATE_REG_ID: u64 = 0x6030_0000_0010_0042;
+        vcpu.set_one_reg(PSTATE_REG_ID, data)
+            .expect("Failed to set pstate register");
     }
 }

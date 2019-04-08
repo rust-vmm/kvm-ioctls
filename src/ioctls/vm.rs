@@ -5,6 +5,8 @@ use std::io;
 use std::os::raw::{c_ulong, c_void};
 use std::os::unix::io::{AsRawFd, FromRawFd, RawFd};
 
+use ioctls::device::new_device;
+use ioctls::device::DeviceFd;
 use ioctls::vcpu::new_vcpu;
 use ioctls::vcpu::VcpuFd;
 use ioctls::KvmRunWrapper;
@@ -246,6 +248,28 @@ impl VmFd {
         Ok(new_vcpu(vcpu, kvm_run_ptr))
     }
 
+    /// Creates an emulated device in the kernel.
+    pub fn create_device(&self, device: &mut kvm_create_device) -> Result<DeviceFd> {
+        let ret = unsafe { ioctl_with_ref(self, KVM_CREATE_DEVICE(), device) };
+        if ret == 0 {
+            Ok((new_device(unsafe { File::from_raw_fd(device.fd as i32) })))
+        } else {
+            return Err(io::Error::last_os_error());
+        }
+    }
+
+    /// This queries the kernel for the preferred target CPU type.
+    #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
+    pub fn get_preferred_target(&self, kvi: &mut kvm_vcpu_init) -> Result<()> {
+        // The ioctl is safe because we allocated the struct and we know the
+        // kernel will write exactly the size of the struct.
+        let ret = unsafe { ioctl_with_mut_ref(self, KVM_ARM_PREFERRED_TARGET(), kvi) };
+        if ret != 0 {
+            return Err(io::Error::last_os_error());
+        }
+        Ok(())
+    }
+
     /// Get the `kvm_run` size.
     pub fn get_run_size(&self) -> usize {
         self.run_size
@@ -307,7 +331,12 @@ mod tests {
         let kvm = Kvm::new().unwrap();
         assert!(kvm.check_extension(Cap::Irqchip));
         let vm = kvm.create_vm().unwrap();
-        assert!(vm.create_irq_chip().is_ok());
+        if cfg!(any(target_arch = "x86", target_arch = "x86_64")) {
+            assert!(vm.create_irq_chip().is_ok());
+        } else if cfg!(any(target_arch = "arm", target_arch = "aarch64")) {
+            // On arm, we expect this to fail as the irq chip needs to be created after the vcpus.
+            assert!(vm.create_irq_chip().is_err());
+        }
     }
 
     #[test]
@@ -358,11 +387,15 @@ mod tests {
         let evtfd1 = unsafe { eventfd(0, EFD_NONBLOCK) };
         let evtfd2 = unsafe { eventfd(0, EFD_NONBLOCK) };
         let evtfd3 = unsafe { eventfd(0, EFD_NONBLOCK) };
+        if cfg!(any(target_arch = "x86", target_arch = "x86_64")) {
+            assert!(vm_fd.register_irqfd(evtfd1, 4).is_ok());
+            assert!(vm_fd.register_irqfd(evtfd2, 8).is_ok());
+            assert!(vm_fd.register_irqfd(evtfd3, 4).is_ok());
+        }
 
-        assert!(vm_fd.register_irqfd(evtfd1, 4).is_ok());
-        assert!(vm_fd.register_irqfd(evtfd2, 8).is_ok());
-        assert!(vm_fd.register_irqfd(evtfd3, 4).is_ok());
-
+        // On aarch64, this fails because setting up the interrupt controller is mandatory before
+        // registering any IRQ.
+        // On x86_64 this fails as the event fd was already matched with a GSI.
         assert!(vm_fd.register_irqfd(evtfd3, 4).is_err());
         assert!(vm_fd.register_irqfd(evtfd3, 5).is_err());
     }
@@ -412,5 +445,14 @@ mod tests {
         assert_eq!(get_raw_errno(faulty_vm_fd.create_vcpu(0)), badf_errno);
 
         assert_eq!(get_raw_errno(faulty_vm_fd.get_dirty_log(0, 0)), badf_errno);
+    }
+
+    #[test]
+    #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
+    fn test_get_preferred_target() {
+        let kvm = Kvm::new().unwrap();
+        let vm = kvm.create_vm().unwrap();
+        let mut kvi: kvm_bindings::kvm_vcpu_init = kvm_bindings::kvm_vcpu_init::default();
+        assert!(vm.get_preferred_target(&mut kvi).is_ok());
     }
 }

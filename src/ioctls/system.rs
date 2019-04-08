@@ -350,9 +350,13 @@ mod tests {
         assert_eq!(get_raw_errno(faulty_kvm.get_vcpu_mmap_size()), badf_errno);
         assert_eq!(faulty_kvm.get_nr_vcpus(), 4);
         assert_eq!(faulty_kvm.get_nr_memslots(), 32);
-        assert_eq!(get_raw_errno(faulty_kvm.get_emulated_cpuid(4)), badf_errno);
-        assert_eq!(get_raw_errno(faulty_kvm.get_supported_cpuid(4)), badf_errno);
-        assert_eq!(get_raw_errno(faulty_kvm.get_msr_index_list()), badf_errno);
+        #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+        {
+            assert_eq!(get_raw_errno(faulty_kvm.get_emulated_cpuid(4)), badf_errno);
+            assert_eq!(get_raw_errno(faulty_kvm.get_supported_cpuid(4)), badf_errno);
+
+            assert_eq!(get_raw_errno(faulty_kvm.get_msr_index_list()), badf_errno);
+        }
         assert_eq!(get_raw_errno(faulty_kvm.create_vm()), badf_errno);
     }
 }
