@@ -23,7 +23,7 @@ pub use cap::Cap;
 pub use ioctls::device::DeviceFd;
 pub use ioctls::system::Kvm;
 pub use ioctls::vcpu::{VcpuExit, VcpuFd};
-pub use ioctls::vm::VmFd;
+pub use ioctls::vm::{IoEventAddress, NoDatamatch, VmFd};
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 pub use ioctls::CpuId;
 // The following example is used to verify that our public
