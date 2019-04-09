@@ -61,11 +61,12 @@ fn vec_with_array_field<T: Default, F>(count: usize) -> Vec<T> {
     vec_with_size_in_bytes(vec_size_bytes)
 }
 
-/// Wrapper for `kvm_cpuid2` which has a zero length array at the end.
-/// Hides the zero length array behind a bounds check.
+/// Wrapper over the `kvm_cpuid2` structure.
+///
+/// The structure has a zero length array at the end, hidden behind bounds check.
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 pub struct CpuId {
-    /// Wrapper over `kvm_cpuid2` from which we only use the first element.
+    // Wrapper over `kvm_cpuid2` from which we only use the first element.
     kvm_cpuid: Vec<kvm_cpuid2>,
     // Number of `kvm_cpuid_entry2` structs at the end of kvm_cpuid2.
     allocated_len: usize,
@@ -110,7 +111,7 @@ impl PartialEq for CpuId {
 
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 impl CpuId {
-    /// Creates a new `CpuId` structure that can contain at most `array_len` KVM CPUID entries.
+    /// Creates a new `CpuId` structure that contains at most `array_len` KVM CPUID entries.
     ///
     /// # Arguments
     ///
@@ -119,7 +120,6 @@ impl CpuId {
     /// # Example
     ///
     /// ```
-    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     /// use kvm_ioctls::CpuId;
     /// let cpu_id = CpuId::new(32);
     /// ```
@@ -133,7 +133,15 @@ impl CpuId {
         }
     }
 
-    /// Get the mutable entries slice so they can be modified before passing to the VCPU.
+    /// Returns the mutable entries slice so they can be modified before passing to the VCPU.
+    ///
+    /// # Example
+    /// ```rust
+    /// use kvm_ioctls::{CpuId, Kvm, MAX_KVM_CPUID_ENTRIES};
+    /// let kvm = Kvm::new().unwrap();
+    /// let mut cpuid = kvm.get_supported_cpuid(MAX_KVM_CPUID_ENTRIES).unwrap();
+    /// let cpuid_entries = cpuid.mut_entries_slice();
+    /// ```
     ///
     pub fn mut_entries_slice(&mut self) -> &mut [kvm_cpuid_entry2] {
         // Mapping the unsized array to a slice is unsafe because the length isn't known.  Using
@@ -158,7 +166,7 @@ impl CpuId {
     }
 }
 
-/// A safe wrapper over the `kvm_run` struct.
+/// Safe wrapper over the `kvm_run` struct.
 ///
 /// The wrapper is needed for sending the pointer to `kvm_run` between
 /// threads as raw pointers do not implement `Send` and `Sync`.
