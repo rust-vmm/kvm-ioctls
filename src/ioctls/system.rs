@@ -22,15 +22,20 @@ use ioctls::Result;
 use kvm_ioctls::*;
 use sys_ioctl::*;
 
-/// A wrapper over the `/dev/kvm` file.
-///
-/// The handle is used to issue KVM system ioctls.
+/// Wrapper over KVM system ioctls.
 pub struct Kvm {
     kvm: File,
 }
 
 impl Kvm {
-    /// Opens `/dev/kvm/` and returns a `Kvm` object on success.
+    /// Opens `/dev/kvm` and returns a `Kvm` object on success.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use kvm_ioctls::Kvm;
+    /// let kvm = Kvm::new().unwrap();
+    /// ```
     ///
     #[allow(clippy::new_ret_no_self)]
     pub fn new() -> Result<Self> {
@@ -42,6 +47,8 @@ impl Kvm {
 
     /// Creates a new Kvm object assuming `fd` represents an existing open file descriptor
     /// associated with `/dev/kvm`.
+    ///
+    /// For usage examples check [open_with_cloexec()](struct.Kvm.html#method.open_with_cloexec).
     ///
     /// # Arguments
     ///
@@ -55,9 +62,24 @@ impl Kvm {
 
     /// Opens `/dev/kvm` and returns the fd number on success.
     ///
+    /// One usecase for this method is opening `/dev/kvm` before exec-ing into a
+    /// process with seccomp filters enabled that blacklist the `sys_open` syscall.
+    /// For this usecase `open_with_cloexec` must be called with the `close_on_exec`
+    /// parameter set to false.
+    ///
     /// # Arguments
     ///
     /// * `close_on_exec`: If true opens `/dev/kvm` using the `O_CLOEXEC` flag.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use kvm_ioctls::Kvm;
+    /// let kvm_fd = Kvm::open_with_cloexec(false).unwrap();
+    /// // The `kvm_fd` can now be passed to another process where we can use
+    /// // `new_with_fd_number` for creating a `Kvm` object:
+    /// let kvm = unsafe { Kvm::new_with_fd_number(kvm_fd) };
+    /// ```
     ///
     pub fn open_with_cloexec(close_on_exec: bool) -> Result<RawFd> {
         let open_flags = O_RDWR | if close_on_exec { O_CLOEXEC } else { 0 };
@@ -73,6 +95,15 @@ impl Kvm {
     /// Returns the KVM API version.
     ///
     /// See the documentation for `KVM_GET_API_VERSION`.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use kvm_ioctls::Kvm;
+    /// let kvm = Kvm::new().unwrap();
+    /// assert_eq!(kvm.get_api_version(), 12);
+    /// ```
+    ///
     pub fn get_api_version(&self) -> i32 {
         // Safe because we know that our file is a KVM fd and that the request is one of the ones
         // defined by kernel.
@@ -80,8 +111,8 @@ impl Kvm {
     }
 
     /// Wrapper over `KVM_CHECK_EXTENSION`.
-    /// Returns 0 if the capability is not available and a positive integer otherwise.
     ///
+    /// Returns 0 if the capability is not available and a positive integer otherwise.
     fn check_extension_int(&self, c: Cap) -> i32 {
         // Safe because we know that our file is a KVM fd and that the extension is one of the ones
         // defined by kernel.
@@ -90,12 +121,23 @@ impl Kvm {
 
     /// Checks if a particular `Cap` is available.
     ///
+    /// Returns true if the capability is supported and false otherwise.
     /// See the documentation for `KVM_CHECK_EXTENSION`.
-    /// Returns "0 if the capability is unsupported or a positive integer otherwise.
     ///
     /// # Arguments
     ///
-    /// * `c` - KVM capability.
+    /// * `c` - KVM capability to check.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use kvm_ioctls::Kvm;
+    /// use kvm_ioctls::Cap;
+    ///
+    /// let kvm = Kvm::new().unwrap();
+    /// // Check if `KVM_CAP_USER_MEMORY` is supported.
+    /// assert!(kvm.check_extension(Cap::UserMemory));
+    /// ```
     ///
     pub fn check_extension(&self, c: Cap) -> bool {
         self.check_extension_int(c) > 0
@@ -104,6 +146,14 @@ impl Kvm {
     ///  Returns the size of the memory mapping required to use the vcpu's `kvm_run` structure.
     ///
     /// See the documentation for `KVM_GET_VCPU_MMAP_SIZE`.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use kvm_ioctls::Kvm;
+    /// let kvm = Kvm::new().unwrap();
+    /// assert!(kvm.get_vcpu_mmap_size().unwrap() > 0);
+    /// ```
     ///
     pub fn get_vcpu_mmap_size(&self) -> Result<usize> {
         // Safe because we know that our file is a KVM fd and we verify the return result.
@@ -119,6 +169,16 @@ impl Kvm {
     ///
     /// See the documentation for `KVM_CAP_NR_VCPUS`.
     /// Default to 4 when `KVM_CAP_NR_VCPUS` is not implemented.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use kvm_ioctls::Kvm;
+    /// let kvm = Kvm::new().unwrap();
+    /// // We expect the number of vCPUs to be > 0 as per KVM API documentation.
+    /// assert!(kvm.get_nr_vcpus() > 0);
+    /// ```
+    ///
     pub fn get_nr_vcpus(&self) -> usize {
         let x = self.check_extension_int(Cap::NrVcpus);
         if x > 0 {
@@ -128,12 +188,20 @@ impl Kvm {
         }
     }
 
-    /// Gets the maximum allowed memory slots per VM.
+    /// Returns the maximum allowed memory slots per VM.
     ///
     /// KVM reports the number of available memory slots (`KVM_CAP_NR_MEMSLOTS`)
     /// using the extension interface.  Both x86 and s390 implement this, ARM
     /// and powerpc do not yet enable it.
     /// Default to 32 when `KVM_CAP_NR_MEMSLOTS` is not implemented.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use kvm_ioctls::Kvm;
+    /// let kvm = Kvm::new().unwrap();
+    /// assert!(kvm.get_nr_memslots() > 0);
+    /// ```
     ///
     pub fn get_nr_memslots(&self) -> usize {
         let x = self.check_extension_int(Cap::NrMemslots);
@@ -147,7 +215,16 @@ impl Kvm {
     /// Gets the recommended maximum number of VCPUs per VM.
     ///
     /// See the documentation for `KVM_CAP_MAX_VCPUS`.
-    /// Default to `KVM_CAP_NR_VCPUS` when `KVM_CAP_MAX_VCPUS` is not implemented.
+    /// Returns [get_nr_vcpus()](struct.Kvm.html#method.get_nr_vcpus) when
+    /// `KVM_CAP_MAX_VCPUS` is not implemented.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use kvm_ioctls::Kvm;
+    /// let kvm = Kvm::new().unwrap();
+    /// assert!(kvm.get_max_vcpus() > 0);
+    /// ```
     ///
     pub fn get_max_vcpus(&self) -> usize {
         match self.check_extension_int(Cap::MaxVcpus) {
@@ -175,12 +252,23 @@ impl Kvm {
 
     /// X86 specific call to get the system emulated CPUID values.
     ///
-    /// See the documentation for KVM_GET_EMULATED_CPUID.
+    /// See the documentation for `KVM_GET_EMULATED_CPUID`.
     ///
     /// # Arguments
     ///
     /// * `max_entries_count` - Maximum number of CPUID entries. This function can return less than
     ///                         this when the hardware does not support so many CPUID entries.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use kvm_ioctls::{Kvm, MAX_KVM_CPUID_ENTRIES};
+    ///
+    /// let kvm = Kvm::new().unwrap();
+    /// let mut cpuid = kvm.get_emulated_cpuid(MAX_KVM_CPUID_ENTRIES).unwrap();
+    /// let cpuid_entries = cpuid.mut_entries_slice();
+    /// assert!(cpuid_entries.len() <= MAX_KVM_CPUID_ENTRIES);
+    /// ```
     ///
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn get_emulated_cpuid(&self, max_entries_count: usize) -> Result<CpuId> {
@@ -189,12 +277,23 @@ impl Kvm {
 
     /// X86 specific call to get the system supported CPUID values.
     ///
-    /// See the documentation for KVM_GET_SUPPORTED_CPUID.
+    /// See the documentation for `KVM_GET_SUPPORTED_CPUID`.
     ///
     /// # Arguments
     ///
     /// * `max_entries_count` - Maximum number of CPUID entries. This function can return less than
     ///                         this when the hardware does not support so many CPUID entries.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use kvm_ioctls::{Kvm, MAX_KVM_CPUID_ENTRIES};
+    ///
+    /// let kvm = Kvm::new().unwrap();
+    /// let mut cpuid = kvm.get_emulated_cpuid(MAX_KVM_CPUID_ENTRIES).unwrap();
+    /// let cpuid_entries = cpuid.mut_entries_slice();
+    /// assert!(cpuid_entries.len() <= MAX_KVM_CPUID_ENTRIES);
+    /// ```
     ///
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn get_supported_cpuid(&self, max_entries_count: usize) -> Result<CpuId> {
@@ -203,8 +302,16 @@ impl Kvm {
 
     /// X86 specific call to get list of supported MSRS
     ///
-    /// See the documentation for KVM_GET_MSR_INDEX_LIST.
+    /// See the documentation for `KVM_GET_MSR_INDEX_LIST`.
     ///
+    /// # Example
+    ///
+    /// ```
+    /// use kvm_ioctls::{Kvm, MAX_KVM_CPUID_ENTRIES};
+    ///
+    /// let kvm = Kvm::new().unwrap();
+    /// let msr_index_list = kvm.get_msr_index_list().unwrap();
+    /// ```
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn get_msr_index_list(&self) -> Result<Vec<u32>> {
         const MAX_KVM_MSR_ENTRIES: usize = 256;
@@ -241,6 +348,16 @@ impl Kvm {
     /// See the documentation for `KVM_CREATE_VM`.
     /// A call to this function will also initialize the size of the vcpu mmap area using the
     /// `KVM_GET_VCPU_MMAP_SIZE` ioctl.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use kvm_ioctls::Kvm;
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    /// // Check that the VM mmap size is the same reported by `KVM_GET_VCPU_MMAP_SIZE`.
+    /// assert!(vm.run_size() == kvm.get_vcpu_mmap_size().unwrap());
+    /// ```
     ///
     pub fn create_vm(&self) -> Result<VmFd> {
         // Safe because we know `self.kvm` is a real KVM fd as this module is the only one that
@@ -300,7 +417,7 @@ mod tests {
         let kvm = Kvm::new().unwrap();
         let vm = kvm.create_vm().unwrap();
 
-        assert_eq!(vm.get_run_size(), kvm.get_vcpu_mmap_size().unwrap());
+        assert_eq!(vm.run_size(), kvm.get_vcpu_mmap_size().unwrap());
     }
 
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
