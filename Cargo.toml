@@ -6,7 +6,7 @@ description = "Safe wrappers over KVM ioctls"
 repository = "https://github.com/rust-vmm/kvm-ioctls"
 readme = "README.md"
 keywords = ["kvm"]
-license = "Apache-2.0"
+license = "Apache-2.0 OR MIT"
 
 [dependencies]
 libc = ">=0.2.39"
