@@ -133,6 +133,54 @@ impl CpuId {
         }
     }
 
+    /// Creates a new `CpuId` structure based on a supplied vector of `kvm_cpuid_entry2`.
+    ///
+    /// # Arguments
+    ///
+    /// * `entries` - The vector of `kvm_cpuid_entry2` entries.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # extern crate kvm_ioctls;
+    /// extern crate kvm_bindings;
+    ///
+    /// use kvm_bindings::kvm_cpuid_entry2;
+    /// use kvm_ioctls::CpuId;
+    /// // Create a Cpuid to hold one entry.
+    /// let mut cpuid = CpuId::new(1);
+    /// let mut entries = cpuid.mut_entries_slice().to_vec();
+    /// let new_entry = kvm_cpuid_entry2 {
+    ///     function: 0x4,
+    ///     index: 0,
+    ///     flags: 1,
+    ///     eax: 0b1100000,
+    ///     ebx: 0,
+    ///     ecx: 0,
+    ///     edx: 0,
+    ///     padding: [0, 0, 0],
+    /// };
+    /// entries.insert(0, new_entry);
+    /// cpuid = CpuId::from_entries(&entries);
+    /// ```
+    ///
+    pub fn from_entries(entries: &[kvm_cpuid_entry2]) -> CpuId {
+        let mut kvm_cpuid = vec_with_array_field::<kvm_cpuid2, kvm_cpuid_entry2>(entries.len());
+        kvm_cpuid[0].nent = entries.len() as u32;
+
+        unsafe {
+            kvm_cpuid[0]
+                .entries
+                .as_mut_slice(entries.len())
+                .copy_from_slice(entries);
+        }
+
+        CpuId {
+            kvm_cpuid,
+            allocated_len: entries.len(),
+        }
+    }
+
     /// Returns the mutable entries slice so they can be modified before passing to the VCPU.
     ///
     /// # Example
@@ -219,5 +267,38 @@ impl KvmRunWrapper {
         unsafe {
             &mut *(self.kvm_run_ptr as *mut kvm_run)
         }
+    }
+}
+
+#[cfg(test)]
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_cpuid_from_entries() {
+        let num_entries = 4;
+        let mut cpuid = CpuId::new(num_entries);
+
+        // add entry
+        let mut entries = cpuid.mut_entries_slice().to_vec();
+        let new_entry = kvm_cpuid_entry2 {
+            function: 0x4,
+            index: 0,
+            flags: 1,
+            eax: 0b1100000,
+            ebx: 0,
+            ecx: 0,
+            edx: 0,
+            padding: [0, 0, 0],
+        };
+        entries.insert(0, new_entry);
+        cpuid = CpuId::from_entries(&entries);
+
+        // check that the cpuid contains the new entry
+        assert_eq!(cpuid.allocated_len, num_entries + 1);
+        assert_eq!(cpuid.kvm_cpuid[0].nent, (num_entries + 1) as u32);
+        assert_eq!(cpuid.mut_entries_slice().len(), num_entries + 1);
+        assert_eq!(cpuid.mut_entries_slice()[0], new_entry);
     }
 }
