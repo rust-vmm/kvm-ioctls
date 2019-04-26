@@ -76,8 +76,8 @@ impl VmFd {
     /// let vm = kvm.create_vm().unwrap();
     /// let mem_region = kvm_userspace_memory_region {
     ///                     slot: 0,
-    ///                     guest_phys_addr: 0x1000 as u64,
-    ///                     memory_size: 0x4000 as u64,
+    ///                     guest_phys_addr: 0x10000 as u64,
+    ///                     memory_size: 0x10000 as u64,
     ///                     userspace_addr: 0x0 as u64,
     ///                     flags: 0,
     ///                 };
