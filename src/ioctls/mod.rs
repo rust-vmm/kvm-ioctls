@@ -6,6 +6,7 @@
 // found in the THIRD-PARTY file.
 
 use std::io;
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 use std::mem::size_of;
 use std::os::unix::io::AsRawFd;
 use std::ptr::null_mut;
@@ -31,6 +32,7 @@ pub mod vm;
 pub type Result<T> = result::Result<T, io::Error>;
 
 // Returns a `Vec<T>` with a size in bytes at least as large as `size_in_bytes`.
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 fn vec_with_size_in_bytes<T: Default>(size_in_bytes: usize) -> Vec<T> {
     let rounded_size = (size_in_bytes + size_of::<T>() - 1) / size_of::<T>();
     let mut v = Vec::with_capacity(rounded_size);
@@ -55,6 +57,7 @@ fn vec_with_size_in_bytes<T: Default>(size_in_bytes: usize) -> Vec<T> {
 // for `Foo`, a `Vec<Foo>` is created. Only the first element of `Vec<Foo>` would actually be used
 // as a `Foo`. The remaining memory in the `Vec<Foo>` is for `entries`, which must be contiguous
 // with `Foo`. This function is used to make the `Vec<Foo>` with enough space for `count` entries.
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 fn vec_with_array_field<T: Default, F>(count: usize) -> Vec<T> {
     let element_space = count * size_of::<F>();
     let vec_size_bytes = size_of::<T>() + element_space;

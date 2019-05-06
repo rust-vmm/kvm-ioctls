@@ -3,7 +3,7 @@
 
 use std::fs::File;
 use std::io;
-use std::os::unix::io::{AsRawFd, FromRawFd, RawFd};
+use std::os::unix::io::{AsRawFd, RawFd};
 
 use kvm_bindings::kvm_device_attr;
 
@@ -49,14 +49,15 @@ mod tests {
     use super::*;
     use ioctls::system::Kvm;
     use kvm_bindings::{
-        kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V3, kvm_device_type_KVM_DEV_TYPE_FSL_MPIC_20,
-        kvm_device_type_KVM_DEV_TYPE_VFIO, KVM_CREATE_DEVICE_TEST, KVM_DEV_VFIO_GROUP,
-        KVM_DEV_VFIO_GROUP_ADD,
+        kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V3, kvm_device_type_KVM_DEV_TYPE_VFIO,
+        KVM_CREATE_DEVICE_TEST, KVM_DEV_VFIO_GROUP, KVM_DEV_VFIO_GROUP_ADD,
     };
-    use std::io::{Error, ErrorKind};
 
     #[test]
     fn test_create_device() {
+        #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
+        use kvm_bindings::kvm_device_type_KVM_DEV_TYPE_FSL_MPIC_20;
+
         let kvm = Kvm::new().unwrap();
         let vm = kvm.create_vm().unwrap();
 

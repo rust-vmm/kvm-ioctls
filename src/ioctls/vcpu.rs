@@ -754,17 +754,18 @@ impl AsRawFd for VcpuFd {
 mod tests {
     extern crate byteorder;
 
+    #[cfg(target_arch = "x86_64")]
     use super::*;
     use ioctls::system::Kvm;
-    use Cap;
-    use MAX_KVM_CPUID_ENTRIES;
-
-    use std::os::unix::io::FromRawFd;
-    use std::ptr::null_mut;
+    #[cfg(target_arch = "x86_64")]
+    use {Cap, MAX_KVM_CPUID_ENTRIES};
 
     // Helper function for memory mapping `size` bytes of anonymous memory.
     // Panics if the mmap fails.
+    #[cfg(target_arch = "x86_64")]
     fn mmap_anonymous(size: usize) -> *mut u8 {
+        use std::ptr::null_mut;
+
         let addr = unsafe {
             libc::mmap(
                 null_mut(),
@@ -1023,13 +1024,11 @@ mod tests {
         }
     }
 
-    fn get_raw_errno<T>(result: super::Result<T>) -> i32 {
-        result.err().unwrap().raw_os_error().unwrap()
-    }
-
     #[test]
     #[cfg(target_arch = "x86_64")]
     fn test_faulty_vcpu_fd() {
+        use std::os::unix::io::FromRawFd;
+
         let badf_errno = libc::EBADF;
 
         let faulty_vcpu_fd = VcpuFd {
@@ -1038,6 +1037,10 @@ mod tests {
                 kvm_run_ptr: mmap_anonymous(10),
             },
         };
+
+        fn get_raw_errno<T>(result: super::Result<T>) -> i32 {
+            result.err().unwrap().raw_os_error().unwrap()
+        }
 
         assert_eq!(get_raw_errno(faulty_vcpu_fd.get_regs()), badf_errno);
         assert_eq!(
@@ -1109,8 +1112,8 @@ mod tests {
         vm.get_preferred_target(&mut kvi)
             .expect("Cannot get preferred target");
         vcpu.vcpu_init(&kvi).expect("Cannot initialize vcpu");
-        let mut data: u64 = 0;
-        let mut reg_id: u64 = 0;
+        let data: u64 = 0;
+        let reg_id: u64 = 0;
 
         assert!(vcpu.set_one_reg(reg_id, data).is_err());
         // Exercising KVM_SET_ONE_REG by trying to alter the data inside the PSTATE register (which is a
