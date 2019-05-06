@@ -4,8 +4,8 @@
 // Portions Copyright 2017 The Chromium OS Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the THIRD-PARTY file.
-
-use kvm_bindings::*;
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+use kvm_bindings::kvm_msr_list;
 
 use libc::{open, O_CLOEXEC, O_RDWR};
 use std::fs::File;
@@ -14,6 +14,7 @@ use std::os::raw::{c_char, c_ulong};
 use std::os::unix::io::{AsRawFd, FromRawFd, RawFd};
 
 use cap::Cap;
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 use ioctls::vec_with_array_field;
 use ioctls::vm::{new_vmfd, VmFd};
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
@@ -383,6 +384,7 @@ impl AsRawFd for Kvm {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     use MAX_KVM_CPUID_ENTRIES;
 
     #[test]

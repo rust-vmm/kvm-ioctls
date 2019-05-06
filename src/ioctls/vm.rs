@@ -9,7 +9,9 @@ use ioctls::Result;
 use kvm_bindings::*;
 use std::fs::File;
 use std::io;
-use std::os::raw::{c_ulong, c_void};
+use std::os::raw::c_ulong;
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+use std::os::raw::c_void;
 use std::os::unix::io::{AsRawFd, FromRawFd, RawFd};
 
 use ioctls::device::new_device;
@@ -506,7 +508,7 @@ impl VmFd {
     pub fn create_device(&self, device: &mut kvm_create_device) -> Result<DeviceFd> {
         let ret = unsafe { ioctl_with_ref(self, KVM_CREATE_DEVICE(), device) };
         if ret == 0 {
-            Ok((new_device(unsafe { File::from_raw_fd(device.fd as i32) })))
+            Ok(new_device(unsafe { File::from_raw_fd(device.fd as i32) }))
         } else {
             return Err(io::Error::last_os_error());
         }
@@ -570,7 +572,7 @@ impl AsRawFd for VmFd {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use {Cap, Kvm, MAX_KVM_CPUID_ENTRIES};
+    use {Cap, Kvm};
 
     use libc::{eventfd, EFD_NONBLOCK};
 
@@ -676,10 +678,6 @@ mod tests {
         assert!(vm_fd.register_irqfd(evtfd3, 5).is_err());
     }
 
-    fn get_raw_errno<T>(result: super::Result<T>) -> i32 {
-        result.err().unwrap().raw_os_error().unwrap()
-    }
-
     #[test]
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     fn test_faulty_vm_fd() {
@@ -697,6 +695,10 @@ mod tests {
             userspace_addr: 0,
             flags: 0,
         };
+
+        fn get_raw_errno<T>(result: super::Result<T>) -> i32 {
+            result.err().unwrap().raw_os_error().unwrap()
+        }
 
         assert_eq!(
             get_raw_errno(faulty_vm_fd.set_user_memory_region(invalid_mem_region)),
