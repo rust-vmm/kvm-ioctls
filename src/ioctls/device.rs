@@ -88,7 +88,7 @@ mod tests {
             addr: 0x0,
             flags: 0,
         };
-        device_fd.set_device_attr(&dist_attr);
+
         // We are just creating a test device. Creating a real device would make the CI dependent
         // on host configuration (like having /dev/vfio). We expect this to fail.
         assert!(device_fd.set_device_attr(&dist_attr).is_err());
