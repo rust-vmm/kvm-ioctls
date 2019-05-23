@@ -480,7 +480,6 @@ mod tests {
         {
             assert_eq!(get_raw_errno(faulty_kvm.get_emulated_cpuid(4)), badf_errno);
             assert_eq!(get_raw_errno(faulty_kvm.get_supported_cpuid(4)), badf_errno);
-
             assert_eq!(get_raw_errno(faulty_kvm.get_msr_index_list()), badf_errno);
         }
         assert_eq!(get_raw_errno(faulty_kvm.create_vm()), badf_errno);

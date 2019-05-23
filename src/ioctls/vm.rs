@@ -10,7 +10,6 @@ use kvm_bindings::*;
 use std::fs::File;
 use std::io;
 use std::os::raw::c_ulong;
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 use std::os::raw::c_void;
 use std::os::unix::io::{AsRawFd, FromRawFd, RawFd};
 
@@ -351,7 +350,6 @@ impl VmFd {
     /// }
     /// ```
     ///
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn get_dirty_log(&self, slot: u32, memory_size: usize) -> Result<Vec<u64>> {
         // Compute the length of the bitmap needed for all dirty pages in one memory slot.
         // One memory page is 4KiB (4096 bits) and `KVM_GET_DIRTY_LOG` returns one dirty bit for
@@ -609,12 +607,7 @@ mod tests {
         let kvm = Kvm::new().unwrap();
         assert!(kvm.check_extension(Cap::Irqchip));
         let vm = kvm.create_vm().unwrap();
-        if cfg!(any(target_arch = "x86", target_arch = "x86_64")) {
-            assert!(vm.create_irq_chip().is_ok());
-        } else if cfg!(any(target_arch = "arm", target_arch = "aarch64")) {
-            // On arm, we expect this to fail as the irq chip needs to be created after the vcpus.
-            assert!(vm.create_irq_chip().is_err());
-        }
+        assert!(vm.create_irq_chip().is_ok());
     }
 
     #[test]
@@ -653,12 +646,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(any(
-        target_arch = "x86",
-        target_arch = "x86_64",
-        target_arch = "arm",
-        target_arch = "aarch64"
-    ))]
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64",))]
     fn test_register_irqfd() {
         let kvm = Kvm::new().unwrap();
         let vm_fd = kvm.create_vm().unwrap();
@@ -679,7 +667,6 @@ mod tests {
     }
 
     #[test]
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     fn test_faulty_vm_fd() {
         let badf_errno = libc::EBADF;
 
@@ -704,22 +691,28 @@ mod tests {
             get_raw_errno(faulty_vm_fd.set_user_memory_region(invalid_mem_region)),
             badf_errno
         );
-        assert_eq!(get_raw_errno(faulty_vm_fd.set_tss_address(0)), badf_errno);
-        assert_eq!(get_raw_errno(faulty_vm_fd.create_irq_chip()), badf_errno);
-        assert_eq!(
-            get_raw_errno(faulty_vm_fd.create_pit2(kvm_pit_config::default())),
-            badf_errno
-        );
-        let event_fd = unsafe { eventfd(0, EFD_NONBLOCK) };
-        assert_eq!(
-            get_raw_errno(faulty_vm_fd.register_ioevent(event_fd, &IoEventAddress::Pio(0), 0u64)),
-            badf_errno
-        );
-        assert_eq!(
-            get_raw_errno(faulty_vm_fd.register_irqfd(event_fd, 0)),
-            badf_errno
-        );
-
+        #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+        {
+            assert_eq!(get_raw_errno(faulty_vm_fd.set_tss_address(0)), badf_errno);
+            assert_eq!(get_raw_errno(faulty_vm_fd.create_irq_chip()), badf_errno);
+            assert_eq!(
+                get_raw_errno(faulty_vm_fd.create_pit2(kvm_pit_config::default())),
+                badf_errno
+            );
+            let event_fd = unsafe { eventfd(0, EFD_NONBLOCK) };
+            assert_eq!(
+                get_raw_errno(faulty_vm_fd.register_ioevent(
+                    event_fd,
+                    &IoEventAddress::Pio(0),
+                    0u64
+                )),
+                badf_errno
+            );
+            assert_eq!(
+                get_raw_errno(faulty_vm_fd.register_irqfd(event_fd, 0)),
+                badf_errno
+            );
+        }
         assert_eq!(get_raw_errno(faulty_vm_fd.create_vcpu(0)), badf_errno);
 
         assert_eq!(get_raw_errno(faulty_vm_fd.get_dirty_log(0, 0)), badf_errno);
