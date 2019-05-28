@@ -132,5 +132,7 @@ pub enum Cap {
     PpcEnableHcall = KVM_CAP_PPC_ENABLE_HCALL,
     CheckExtensionVm = KVM_CAP_CHECK_EXTENSION_VM,
     S390UserSigp = KVM_CAP_S390_USER_SIGP,
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    SplitIrqchip = KVM_CAP_SPLIT_IRQCHIP,
     ImmediateExit = KVM_CAP_IMMEDIATE_EXIT,
 }
