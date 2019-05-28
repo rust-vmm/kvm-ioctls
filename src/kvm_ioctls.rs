@@ -82,6 +82,8 @@ ioctl_iow_nr!(KVM_SET_FPU, KVMIO, 0x8d, kvm_fpu);
 ioctl_ior_nr!(KVM_GET_LAPIC, KVMIO, 0x8e, kvm_lapic_state);
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 ioctl_iow_nr!(KVM_SET_LAPIC, KVMIO, 0x8f, kvm_lapic_state);
+#[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
+ioctl_iow_nr!(KVM_ENABLE_CAP, KVMIO, 0xa3, kvm_enable_cap);
 #[cfg(any(
     target_arch = "x86",
     target_arch = "x86_64",

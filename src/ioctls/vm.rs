@@ -610,6 +610,62 @@ impl VmFd {
         Ok(())
     }
 
+    /// Enable the specified capability as per the `KVM_ENABLE_CAP` ioctl.
+    ///
+    /// See the documentation for `KVM_ENABLE_CAP`.
+    ///
+    /// Returns an io::Error when the capability could not be enabled.
+    ///
+    /// # Arguments
+    ///
+    /// * kvm_enable_cap - KVM capability structure. For details check the `kvm_enable_cap`
+    ///                    structure in the
+    ///                    [KVM API doc](https://www.kernel.org/doc/Documentation/virtual/kvm/api.txt).
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # extern crate kvm_ioctls;
+    /// extern crate kvm_bindings;
+    ///
+    /// # use kvm_ioctls::{Cap, Kvm, VmFd};
+    /// use kvm_bindings::{kvm_enable_cap, KVM_CAP_SPLIT_IRQCHIP};
+    ///
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    /// let mut cap: kvm_enable_cap = Default::default();
+    /// // This example cannot enable an arm/aarch64 capability since there
+    /// // is no capability available for these architectures.
+    /// if cfg!(target_arch = "x86") || cfg!(target_arch = "x86_64") {
+    ///     cap.cap = KVM_CAP_SPLIT_IRQCHIP;
+    ///     // As per the KVM documentation, KVM_CAP_SPLIT_IRQCHIP only emulates
+    ///     // the local APIC in kernel, expecting that a userspace IOAPIC will
+    ///     // be implemented by the VMM.
+    ///     // Along with this capability, the user needs to specify the number
+    ///     // of pins reserved for the userspace IOAPIC. This number needs to be
+    ///     // provided through the first argument of the capability structure, as
+    ///     // specified in KVM documentation:
+    ///     //     args[0] - number of routes reserved for userspace IOAPICs
+    ///     //
+    ///     // Because an IOAPIC supports 24 pins, that's the reason why this test
+    ///     // picked this number as reference.
+    ///     cap.args[0] = 24;
+    ///     vm.enable_cap(&cap).unwrap();
+    /// }
+    /// ```
+    ///
+    #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
+    pub fn enable_cap(&self, cap: &kvm_enable_cap) -> Result<()> {
+        // The ioctl is safe because we allocated the struct and we know the
+        // kernel will write exactly the size of the struct.
+        let ret = unsafe { ioctl_with_ref(self, KVM_ENABLE_CAP(), cap) };
+        if ret == 0 {
+            Ok(())
+        } else {
+            Err(io::Error::last_os_error())
+        }
+    }
+
     /// Get the `kvm_run` size.
     pub fn run_size(&self) -> usize {
         self.run_size
@@ -811,5 +867,38 @@ mod tests {
         let vm = kvm.create_vm().unwrap();
         let msi = kvm_msi::default();
         assert!(vm.signal_msi(msi).is_err());
+    }
+
+    #[test]
+    #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
+    fn test_enable_cap_failure() {
+        let kvm = Kvm::new().unwrap();
+        let vm = kvm.create_vm().unwrap();
+        let cap: kvm_enable_cap = Default::default();
+        // Providing the `kvm_enable_cap` structure filled with default() should
+        // always result in a failure as it is not a valid capability.
+        assert!(vm.enable_cap(&cap).is_err());
+    }
+
+    #[test]
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    fn test_enable_split_irqchip_cap() {
+        let kvm = Kvm::new().unwrap();
+        let vm = kvm.create_vm().unwrap();
+        let mut cap: kvm_enable_cap = Default::default();
+        cap.cap = KVM_CAP_SPLIT_IRQCHIP;
+        // As per the KVM documentation, KVM_CAP_SPLIT_IRQCHIP only emulates
+        // the local APIC in kernel, expecting that a userspace IOAPIC will
+        // be implemented by the VMM.
+        // Along with this capability, the user needs to specify the number
+        // of pins reserved for the userspace IOAPIC. This number needs to be
+        // provided through the first argument of the capability structure, as
+        // specified in KVM documentation:
+        //     args[0] - number of routes reserved for userspace IOAPICs
+        //
+        // Because an IOAPIC supports 24 pins, that's the reason why this test
+        // picked this number as reference.
+        cap.args[0] = 24;
+        assert!(vm.enable_cap(&cap).is_ok());
     }
 }
