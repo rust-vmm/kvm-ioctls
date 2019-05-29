@@ -87,7 +87,7 @@ pub enum VcpuExit<'a> {
     /// Corresponds to KVM_EXIT_S390_STSI.
     S390Stsi,
     /// Corresponds to KVM_EXIT_IOAPIC_EOI.
-    IoapicEoi,
+    IoapicEoi(u8 /* vector */),
     /// Corresponds to KVM_EXIT_HYPERV.
     Hyperv,
 }
@@ -725,7 +725,12 @@ impl VcpuFd {
                 KVM_EXIT_EPR => Ok(VcpuExit::Epr),
                 KVM_EXIT_SYSTEM_EVENT => Ok(VcpuExit::SystemEvent),
                 KVM_EXIT_S390_STSI => Ok(VcpuExit::S390Stsi),
-                KVM_EXIT_IOAPIC_EOI => Ok(VcpuExit::IoapicEoi),
+                KVM_EXIT_IOAPIC_EOI => {
+                    // Safe because the exit_reason (which comes from the kernel) told us which
+                    // union field to use.
+                    let eoi = unsafe { &mut run.__bindgen_anon_1.eoi };
+                    Ok(VcpuExit::IoapicEoi(eoi.vector))
+                }
                 KVM_EXIT_HYPERV => Ok(VcpuExit::Hyperv),
                 r => panic!("unknown kvm exit reason: {}", r),
             }
