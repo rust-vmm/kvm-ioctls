@@ -9,9 +9,9 @@ use ioctls::Result;
 use kvm_bindings::*;
 use std::fs::File;
 use std::io;
-use std::os::raw::c_ulong;
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 use std::os::raw::c_void;
+use std::os::raw::{c_int, c_ulong};
 use std::os::unix::io::{AsRawFd, FromRawFd, RawFd};
 
 use ioctls::device::new_device;
@@ -197,6 +197,58 @@ impl VmFd {
         let ret = unsafe { ioctl_with_ref(self, KVM_CREATE_PIT2(), &pit_config) };
         if ret == 0 {
             Ok(())
+        } else {
+            Err(io::Error::last_os_error())
+        }
+    }
+
+    /// Directly injects a MSI message as per the `KVM_SIGNAL_MSI` ioctl.
+    ///
+    /// See the documentation for `KVM_SIGNAL_MSI`.
+    ///
+    /// This ioctl returns > 0 when the MSI is successfully delivered and 0
+    /// when the guest blocked the MSI.
+    ///
+    /// # Arguments
+    ///
+    /// * kvm_msi - MSI message configuration. For details check the `kvm_msi` structure in the
+    ///                [KVM API doc](https://www.kernel.org/doc/Documentation/virtual/kvm/api.txt).
+    /// # Example
+    ///
+    /// In this example, the important function signal_msi() calling into
+    /// the actual ioctl is commented out. The reason is that MSI vectors are
+    /// not chosen from the HW side (VMM). The guest OS (or anything that runs
+    /// inside the VM) is supposed to allocate the MSI vectors, and usually
+    /// communicate back through PCI configuration space. Sending a random MSI
+    /// vector through this signal_msi() function will always result in a
+    /// failure, which is why it needs to be commented out.
+    ///
+    /// ```rust
+    /// # extern crate kvm_ioctls;
+    /// extern crate kvm_bindings;
+    /// # use kvm_ioctls::{Kvm, VmFd};
+    /// use kvm_bindings::kvm_msi;
+    ///
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    /// let msi = kvm_msi::default();
+    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    /// vm.create_irq_chip().unwrap();
+    /// //vm.signal_msi(msi).unwrap();
+    /// ```
+    ///
+    #[cfg(any(
+        target_arch = "x86",
+        target_arch = "x86_64",
+        target_arch = "arm",
+        target_arch = "aarch64"
+    ))]
+    pub fn signal_msi(&self, msi: kvm_msi) -> Result<c_int> {
+        // Safe because we allocated the structure and we know the kernel
+        // will read exactly the size of the structure.
+        let ret = unsafe { ioctl_with_ref(self, KVM_SIGNAL_MSI(), &msi) };
+        if ret >= 0 {
+            Ok(ret)
         } else {
             Err(io::Error::last_os_error())
         }
@@ -742,5 +794,22 @@ mod tests {
         let vm = kvm.create_vm().unwrap();
         let mut kvi: kvm_bindings::kvm_vcpu_init = kvm_bindings::kvm_vcpu_init::default();
         assert!(vm.get_preferred_target(&mut kvi).is_ok());
+    }
+
+    /// As explained in the example code related to signal_msi(), sending
+    /// a random MSI vector will always fail because no vector has been
+    /// previously allocated from the guest itself.
+    #[test]
+    #[cfg(any(
+        target_arch = "x86",
+        target_arch = "x86_64",
+        target_arch = "arm",
+        target_arch = "aarch64"
+    ))]
+    fn test_signal_msi_failure() {
+        let kvm = Kvm::new().unwrap();
+        let vm = kvm.create_vm().unwrap();
+        let msi = kvm_msi::default();
+        assert!(vm.signal_msi(msi).is_err());
     }
 }

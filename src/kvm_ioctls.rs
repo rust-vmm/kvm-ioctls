@@ -82,6 +82,13 @@ ioctl_iow_nr!(KVM_SET_FPU, KVMIO, 0x8d, kvm_fpu);
 ioctl_ior_nr!(KVM_GET_LAPIC, KVMIO, 0x8e, kvm_lapic_state);
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 ioctl_iow_nr!(KVM_SET_LAPIC, KVMIO, 0x8f, kvm_lapic_state);
+#[cfg(any(
+    target_arch = "x86",
+    target_arch = "x86_64",
+    target_arch = "arm",
+    target_arch = "aarch64"
+))]
+ioctl_iow_nr!(KVM_SIGNAL_MSI, KVMIO, 0xa5, kvm_msi);
 #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
 ioctl_iow_nr!(KVM_SET_ONE_REG, KVMIO, 0xac, kvm_one_reg);
 #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
