@@ -83,15 +83,16 @@ impl VmFd {
     ///                     userspace_addr: 0x0 as u64,
     ///                     flags: 0,
     ///                 };
-    /// vm.set_user_memory_region(mem_region).unwrap();
+    /// unsafe {
+    ///     vm.set_user_memory_region(mem_region).unwrap();
+    /// };
     /// ```
     ///
-    pub fn set_user_memory_region(
+    pub unsafe fn set_user_memory_region(
         &self,
         user_memory_region: kvm_userspace_memory_region,
     ) -> Result<()> {
-        let ret =
-            unsafe { ioctl_with_ref(self, KVM_SET_USER_MEMORY_REGION(), &user_memory_region) };
+        let ret = ioctl_with_ref(self, KVM_SET_USER_MEMORY_REGION(), &user_memory_region);
         if ret == 0 {
             Ok(())
         } else {
@@ -306,7 +307,7 @@ impl VmFd {
     ///     userspace_addr: load_addr as u64,
     ///     flags: KVM_MEM_LOG_DIRTY_PAGES,
     /// };
-    /// vm.set_user_memory_region(mem_region).unwrap();
+    /// unsafe { vm.set_user_memory_region(mem_region).unwrap() };
     ///
     /// // Dummy x86 code that just calls halt.
     /// let x86_code = [
@@ -587,7 +588,7 @@ mod tests {
             userspace_addr: 0,
             flags: 0,
         };
-        assert!(vm.set_user_memory_region(invalid_mem_region).is_err());
+        assert!(unsafe { vm.set_user_memory_region(invalid_mem_region) }.is_err());
     }
 
     #[test]
@@ -701,7 +702,7 @@ mod tests {
         }
 
         assert_eq!(
-            get_raw_errno(faulty_vm_fd.set_user_memory_region(invalid_mem_region)),
+            get_raw_errno(unsafe { faulty_vm_fd.set_user_memory_region(invalid_mem_region) }),
             badf_errno
         );
         assert_eq!(get_raw_errno(faulty_vm_fd.set_tss_address(0)), badf_errno);

@@ -620,7 +620,7 @@ impl VcpuFd {
     ///         userspace_addr: load_addr as u64,
     ///         flags: 0,
     ///     };
-    ///     vm.set_user_memory_region(mem_region).unwrap();
+    ///     unsafe { vm.set_user_memory_region(mem_region).unwrap() };
     ///
     ///     // Dummy x86 code that just calls halt.
     ///     let x86_code = [
@@ -961,7 +961,9 @@ mod tests {
             userspace_addr: load_addr as u64,
             flags: KVM_MEM_LOG_DIRTY_PAGES,
         };
-        vm.set_user_memory_region(mem_region).unwrap();
+        unsafe {
+            vm.set_user_memory_region(mem_region).unwrap();
+        }
 
         unsafe {
             // Get a mutable slice of `mem_size` from `load_addr`.
