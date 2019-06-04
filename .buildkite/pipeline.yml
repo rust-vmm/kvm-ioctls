@@ -112,7 +112,7 @@ steps:
 
   - label: "clippy-x86"
     commands:
-     - cargo clippy --all
+     - cargo clippy --all -- -D warnings
     retry:
       automatic: false
     agents:
@@ -124,7 +124,7 @@ steps:
 
   - label: "clippy-arm"
     commands:
-     - cargo clippy --all
+     - cargo clippy --all -- -D warnings
     retry:
       automatic: false
     agents:
