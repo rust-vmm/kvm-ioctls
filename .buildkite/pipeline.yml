@@ -122,6 +122,18 @@ steps:
           image: "rustvmm/dev:v2"
           always-pull: true
 
+  - label: "clippy-arm"
+    commands:
+     - cargo clippy --all
+    retry:
+      automatic: false
+    agents:
+      platform: arm.metal
+    plugins:
+      - docker#v3.0.1:
+          image: "rustvmm/dev:v2"
+          always-pull: true
+
   - label: "coverage-x86"
     commands:
       - pytest tests/test_coverage.py
