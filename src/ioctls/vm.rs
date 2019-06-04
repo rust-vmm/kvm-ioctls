@@ -511,7 +511,7 @@ impl VmFd {
         if ret == 0 {
             Ok(new_device(unsafe { File::from_raw_fd(device.fd as i32) }))
         } else {
-            return Err(io::Error::last_os_error());
+            Err(io::Error::last_os_error())
         }
     }
 
