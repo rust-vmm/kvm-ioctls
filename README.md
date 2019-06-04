@@ -38,7 +38,7 @@ docker run --device=/dev/kvm \
            -it \
            --security-opt seccomp=unconfined \
            --volume $(pwd)/kvm-ioctls:/kvm-ioctls \
-           fandree/rust-vmm-dev
+           rustvmm/dev:v2
 cd kvm-ioctls/
 cargo test
 ```
@@ -76,7 +76,7 @@ docker run --device=/dev/kvm \
            -it \
            --security-opt seccomp=unconfined \
            --volume $(pwd)/kvm-ioctls:/kvm-ioctls \
-           fandree/rust-vmm-dev
+           rustvmm/dev:v2
 cd kvm-ioctls/
 pytest --profile=devel tests/test_coverage.py
 ```
