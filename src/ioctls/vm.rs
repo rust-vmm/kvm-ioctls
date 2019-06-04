@@ -65,6 +65,15 @@ impl VmFd {
     ///             `kvm_userspace_memory_region` structure in the
     ///             [KVM API doc](https://www.kernel.org/doc/Documentation/virtual/kvm/api.txt).
     ///
+    /// # Safety
+    ///
+    /// This function is unsafe because there is no guarantee `userspace_addr` points to a valid
+    /// memory region, nor the memory region lives as long as the kernel needs it to.
+    ///
+    /// The caller of this method must make sure that:
+    /// - the raw pointer (`userspace_addr`) points to valid memory
+    /// - the regions provided to KVM are not overlapping other memory regions.
+    ///
     /// # Example
     ///
     /// ```rust
