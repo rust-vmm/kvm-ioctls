@@ -8,7 +8,7 @@ steps:
       platform: x86_64.metal
     plugins:
       - docker#v3.0.1:
-          image: "rustvmm/dev:v1"
+          image: "rustvmm/dev:v2"
           always-pull: true
 
   - label: "build-gnu-arm"
@@ -20,7 +20,7 @@ steps:
       platform: arm.metal
     plugins:
       - docker#v3.0.1:
-          image: "rustvmm/dev:v1"
+          image: "rustvmm/dev:v2"
           always-pull: true
 
   - label: "build-musl-x86"
@@ -32,7 +32,7 @@ steps:
       platform: x86_64.metal
     plugins:
       - docker#v3.0.1:
-          image: "rustvmm/dev:v1"
+          image: "rustvmm/dev:v2"
           always-pull: true
 
   - label: "build-musl-arm"
@@ -44,7 +44,7 @@ steps:
       platform: arm.metal
     plugins:
       - docker#v3.0.1:
-          image: "rustvmm/dev:v1"
+          image: "rustvmm/dev:v2"
           always-pull: true
 
   - label: "style"
@@ -55,7 +55,7 @@ steps:
       platform: x86_64.metal
     plugins:
       - docker#v3.0.1:
-          image: "rustvmm/dev:v1"
+          image: "rustvmm/dev:v2"
           always-pull: true
 
   - label: "unittests-gnu-x86"
@@ -68,7 +68,7 @@ steps:
     plugins:
       - docker#v3.0.1:
           privileged: true
-          image: "rustvmm/dev:v1"
+          image: "rustvmm/dev:v2"
           always-pull: true
 
   - label: "unittests-gnu-arm"
@@ -81,7 +81,7 @@ steps:
     plugins:
       - docker#v3.0.1:
           privileged: true
-          image: "rustvmm/dev:v1"
+          image: "rustvmm/dev:v2"
           always-pull: true
 
   - label: "unittests-musl-x86"
@@ -94,7 +94,7 @@ steps:
     plugins:
       - docker#v3.0.1:
           privileged: true
-          image: "rustvmm/dev:v1"
+          image: "rustvmm/dev:v2"
           always-pull: true
 
   - label: "unittests-musl-arm"
@@ -107,7 +107,7 @@ steps:
     plugins:
       - docker#v3.0.1:
           privileged: true
-          image: "rustvmm/dev:v1"
+          image: "rustvmm/dev:v2"
           always-pull: true
 
   - label: "clippy-x86"
@@ -119,7 +119,7 @@ steps:
       platform: x86_64.metal
     plugins:
       - docker#v3.0.1:
-          image: "rustvmm/dev:v1"
+          image: "rustvmm/dev:v2"
           always-pull: true
 
   - label: "coverage-x86"
@@ -132,7 +132,7 @@ steps:
     plugins:
       - docker#v3.0.1:
           privileged: true
-          image: "rustvmm/dev:v1"
+          image: "rustvmm/dev:v2"
           always-pull: true
 
   - label: "check-warnings-x86"
@@ -145,7 +145,7 @@ steps:
     plugins:
       - docker#v3.0.1:
           privileged: true
-          image: "rustvmm/dev:v1"
+          image: "rustvmm/dev:v2"
           always-pull: true
 
   - label: "check-warnings-arm"
@@ -158,5 +158,5 @@ steps:
     plugins:
       - docker#v3.0.1:
           privileged: true
-          image: "rustvmm/dev:v1"
+          image: "rustvmm/dev:v2"
           always-pull: true
