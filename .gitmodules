@@ -1,0 +1,4 @@
+[submodule "rust-vmm-ci"]
+	path = rust-vmm-ci
+	url = https://github.com/andreeaflorescu/rust-vmm-ci
+	branch = first_buildkite_pipeline
