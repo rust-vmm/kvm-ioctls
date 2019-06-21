@@ -1042,6 +1042,7 @@ mod tests {
             vcpu: unsafe { File::from_raw_fd(-1) },
             kvm_run_ptr: KvmRunWrapper {
                 kvm_run_ptr: mmap_anonymous(10),
+                mmap_size: 10,
             },
         };
 
