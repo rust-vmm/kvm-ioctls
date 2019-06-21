@@ -223,6 +223,8 @@ impl CpuId {
 /// threads as raw pointers do not implement `Send` and `Sync`.
 pub struct KvmRunWrapper {
     kvm_run_ptr: *mut u8,
+    // This field is need so we can `munmap` the memory mapped to hold `kvm_run`.
+    mmap_size: usize,
 }
 
 // Send and Sync aren't automatically inherited for the raw address pointer.
@@ -257,6 +259,7 @@ impl KvmRunWrapper {
 
         Ok(KvmRunWrapper {
             kvm_run_ptr: addr as *mut u8,
+            mmap_size: size,
         })
     }
 
@@ -269,6 +272,16 @@ impl KvmRunWrapper {
         #[allow(clippy::cast_ptr_alignment)]
         unsafe {
             &mut *(self.kvm_run_ptr as *mut kvm_run)
+        }
+    }
+}
+
+impl Drop for KvmRunWrapper {
+    fn drop(&mut self) {
+        // This is safe because we mmap the area at kvm_run_ptr ourselves,
+        // and nobody else is holding a reference to it.
+        unsafe {
+            libc::munmap(self.kvm_run_ptr as *mut libc::c_void, self.mmap_size);
         }
     }
 }
