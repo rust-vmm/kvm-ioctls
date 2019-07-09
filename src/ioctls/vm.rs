@@ -254,6 +254,54 @@ impl VmFd {
         }
     }
 
+    /// Sets the GSI routing table entries, overwriting any previously set
+    /// entries, as per the `KVM_SET_GSI_ROUTING` ioctl.
+    ///
+    /// See the documentation for `KVM_SET_GSI_ROUTING`.
+    ///
+    /// Returns an io::Error when the table could not be updated.
+    ///
+    /// # Arguments
+    ///
+    /// * kvm_irq_routing - IRQ routing configuration. Describe all routes
+    ///                     associated with GSI entries. For details check
+    ///                     the `kvm_irq_routing` and `kvm_irq_routing_entry`
+    ///                     structures in the
+    ///                     [KVM API doc](https://www.kernel.org/doc/Documentation/virtual/kvm/api.txt).
+    /// # Example
+    ///
+    /// ```rust
+    /// # extern crate kvm_ioctls;
+    /// extern crate kvm_bindings;
+    /// # use kvm_ioctls::{Kvm, VmFd};
+    /// use kvm_bindings::kvm_irq_routing;
+    ///
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    /// vm.create_irq_chip().unwrap();
+    ///
+    /// let irq_routing = kvm_irq_routing::default();
+    /// vm.set_gsi_routing(&irq_routing).unwrap();
+    /// ```
+    ///
+    #[cfg(any(
+        target_arch = "x86",
+        target_arch = "x86_64",
+        target_arch = "arm",
+        target_arch = "aarch64"
+    ))]
+    pub fn set_gsi_routing(&self, irq_routing: &kvm_irq_routing) -> Result<()> {
+        // Safe because we allocated the structure and we know the kernel
+        // will read exactly the size of the structure.
+        let ret = unsafe { ioctl_with_ref(self, KVM_SET_GSI_ROUTING(), irq_routing) };
+        if ret == 0 {
+            Ok(())
+        } else {
+            Err(io::Error::last_os_error())
+        }
+    }
+
     /// Registers an event to be signaled whenever a certain address is written to.
     ///
     /// See the documentation for `KVM_IOEVENTFD`.
@@ -900,5 +948,19 @@ mod tests {
         // picked this number as reference.
         cap.args[0] = 24;
         assert!(vm.enable_cap(&cap).is_ok());
+    }
+
+    #[test]
+    fn test_set_gsi_routing() {
+        let kvm = Kvm::new().unwrap();
+        let vm = kvm.create_vm().unwrap();
+        if cfg!(target_arch = "x86") || cfg!(target_arch = "x86_64") {
+            let irq_routing = kvm_irq_routing::default();
+            // Expect failure for x86 since the irqchip is not created yet.
+            assert!(vm.set_gsi_routing(&irq_routing).is_err());
+            vm.create_irq_chip().unwrap();
+        }
+        let irq_routing = kvm_irq_routing::default();
+        assert!(vm.set_gsi_routing(&irq_routing).is_ok());
     }
 }

@@ -40,6 +40,13 @@ ioctl_io_nr!(KVM_CREATE_IRQCHIP, KVMIO, 0x60);
     target_arch = "x86",
     target_arch = "x86_64",
     target_arch = "arm",
+    target_arch = "aarch64"
+))]
+ioctl_iow_nr!(KVM_SET_GSI_ROUTING, KVMIO, 0x6a, kvm_irq_routing);
+#[cfg(any(
+    target_arch = "x86",
+    target_arch = "x86_64",
+    target_arch = "arm",
     target_arch = "aarch64",
     target_arch = "s390"
 ))]
