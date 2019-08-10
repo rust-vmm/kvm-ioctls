@@ -535,6 +535,52 @@ impl VmFd {
         }
     }
 
+    /// Unregisters an event that will, when signaled, trigger the `gsi` IRQ.
+    ///
+    /// # Arguments
+    ///
+    /// * `fd` - Event to be signaled.
+    /// * `gsi` - IRQ to be triggered.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # extern crate kvm_ioctls;
+    /// # extern crate libc;
+    /// # use kvm_ioctls::{Kvm, VmFd};
+    /// # use libc::{eventfd, EFD_NONBLOCK};
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    /// let evtfd = unsafe { eventfd(0, EFD_NONBLOCK) };
+    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    /// vm.register_irqfd(evtfd, 0).unwrap();
+    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    /// vm.unregister_irqfd(evtfd, 0).unwrap();
+    /// ```
+    ///
+    #[cfg(any(
+        target_arch = "x86",
+        target_arch = "x86_64",
+        target_arch = "arm",
+        target_arch = "aarch64"
+    ))]
+    pub fn unregister_irqfd(&self, fd: RawFd, gsi: u32) -> Result<()> {
+        let irqfd = kvm_irqfd {
+            fd: fd as u32,
+            gsi,
+            flags: KVM_IRQFD_FLAG_DEASSIGN,
+            ..Default::default()
+        };
+        // Safe because we know that our file is a VM fd, we know the kernel will only read the
+        // correct amount of memory from our pointer, and we verify the return result.
+        let ret = unsafe { ioctl_with_ref(self, KVM_IRQFD(), &irqfd) };
+        if ret == 0 {
+            Ok(())
+        } else {
+            Err(io::Error::last_os_error())
+        }
+    }
+
     /// Creates a new KVM vCPU file descriptor and maps the memory corresponding
     /// its `kvm_run` structure.
     ///
@@ -842,6 +888,42 @@ mod tests {
         // On x86_64 this fails as the event fd was already matched with a GSI.
         assert!(vm_fd.register_irqfd(evtfd3, 4).is_err());
         assert!(vm_fd.register_irqfd(evtfd3, 5).is_err());
+    }
+
+    #[test]
+    #[cfg(any(
+        target_arch = "x86",
+        target_arch = "x86_64",
+        target_arch = "arm",
+        target_arch = "aarch64"
+    ))]
+    fn test_unregister_irqfd() {
+        let kvm = Kvm::new().unwrap();
+        let vm_fd = kvm.create_vm().unwrap();
+        let evtfd1 = unsafe { eventfd(0, EFD_NONBLOCK) };
+        let evtfd2 = unsafe { eventfd(0, EFD_NONBLOCK) };
+        let evtfd3 = unsafe { eventfd(0, EFD_NONBLOCK) };
+        if cfg!(any(target_arch = "x86", target_arch = "x86_64")) {
+            assert!(vm_fd.register_irqfd(evtfd1, 4).is_ok());
+            assert!(vm_fd.register_irqfd(evtfd2, 8).is_ok());
+            assert!(vm_fd.register_irqfd(evtfd3, 4).is_ok());
+            assert!(vm_fd.unregister_irqfd(evtfd2, 8).is_ok());
+            // KVM irqfd doesn't report failure on this case:(
+            assert!(vm_fd.unregister_irqfd(evtfd2, 8).is_ok());
+        }
+
+        // Duplicated eventfd registration.
+        // On aarch64, this fails because setting up the interrupt controller is mandatory before
+        // registering any IRQ.
+        // On x86_64 this fails as the event fd was already matched with a GSI.
+        assert!(vm_fd.register_irqfd(evtfd3, 4).is_err());
+        assert!(vm_fd.register_irqfd(evtfd3, 5).is_err());
+
+        // KVM irqfd doesn't report failure on this case:(
+        assert!(vm_fd.unregister_irqfd(evtfd3, 5).is_ok());
+
+        // Check for invalid fd.
+        assert!(vm_fd.unregister_irqfd(-1, 5).is_err());
     }
 
     #[test]
