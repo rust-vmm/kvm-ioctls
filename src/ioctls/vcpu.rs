@@ -325,7 +325,7 @@ impl VcpuFd {
     /// // Update the CPUID entries to disable the EPB feature.
     /// const ECX_EPB_SHIFT: u32 = 3;
     /// {
-    ///     let entries = kvm_cpuid.mut_entries_slice();
+    ///     let entries = kvm_cpuid.as_mut_slice();
     ///     for entry in entries.iter_mut() {
     ///         match entry.function {
     ///             6 => entry.ecx &= !(1 << ECX_EPB_SHIFT),
@@ -341,7 +341,7 @@ impl VcpuFd {
     pub fn set_cpuid2(&self, cpuid: &CpuId) -> Result<()> {
         let ret = unsafe {
             // Here we trust the kernel not to read past the end of the kvm_cpuid2 struct.
-            ioctl_with_ptr(self, KVM_SET_CPUID2(), cpuid.as_ptr())
+            ioctl_with_ptr(self, KVM_SET_CPUID2(), cpuid.as_fam_struct_ptr())
         };
         if ret < 0 {
             return Err(io::Error::last_os_error());
@@ -803,7 +803,7 @@ mod tests {
         if kvm.check_extension(Cap::ExtCpuid) {
             let vm = kvm.create_vm().unwrap();
             let mut cpuid = kvm.get_supported_cpuid(MAX_KVM_CPUID_ENTRIES).unwrap();
-            assert!(cpuid.mut_entries_slice().len() <= MAX_KVM_CPUID_ENTRIES);
+            assert!(cpuid.as_mut_slice().len() <= MAX_KVM_CPUID_ENTRIES);
             let nr_vcpus = kvm.get_nr_vcpus();
             for cpu_id in 0..nr_vcpus {
                 let vcpu = vm.create_vcpu(cpu_id as u8).unwrap();
