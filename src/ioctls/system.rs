@@ -242,7 +242,7 @@ impl Kvm {
             // ioctl is unsafe. The kernel is trusted not to write beyond the bounds of the memory
             // allocated for the struct. The limit is read from nent, which is set to the allocated
             // size(max_entries_count) above.
-            ioctl_with_mut_ptr(self, kind, cpuid.as_mut_ptr())
+            ioctl_with_mut_ptr(self, kind, cpuid.as_mut_fam_struct_ptr())
         };
         if ret < 0 {
             return Err(io::Error::last_os_error());
@@ -267,7 +267,7 @@ impl Kvm {
     ///
     /// let kvm = Kvm::new().unwrap();
     /// let mut cpuid = kvm.get_emulated_cpuid(MAX_KVM_CPUID_ENTRIES).unwrap();
-    /// let cpuid_entries = cpuid.mut_entries_slice();
+    /// let cpuid_entries = cpuid.as_mut_slice();
     /// assert!(cpuid_entries.len() <= MAX_KVM_CPUID_ENTRIES);
     /// ```
     ///
@@ -292,7 +292,7 @@ impl Kvm {
     ///
     /// let kvm = Kvm::new().unwrap();
     /// let mut cpuid = kvm.get_emulated_cpuid(MAX_KVM_CPUID_ENTRIES).unwrap();
-    /// let cpuid_entries = cpuid.mut_entries_slice();
+    /// let cpuid_entries = cpuid.as_mut_slice();
     /// assert!(cpuid_entries.len() <= MAX_KVM_CPUID_ENTRIES);
     /// ```
     ///
@@ -385,6 +385,8 @@ impl AsRawFd for Kvm {
 mod tests {
     use super::*;
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    use vmm_sys_util::fam::FamStruct;
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     use MAX_KVM_CPUID_ENTRIES;
 
     #[test]
@@ -427,7 +429,7 @@ mod tests {
     fn test_get_supported_cpuid() {
         let kvm = Kvm::new().unwrap();
         let mut cpuid = kvm.get_supported_cpuid(MAX_KVM_CPUID_ENTRIES).unwrap();
-        let cpuid_entries = cpuid.mut_entries_slice();
+        let cpuid_entries = cpuid.as_mut_slice();
         assert!(cpuid_entries.len() > 0);
         assert!(cpuid_entries.len() <= MAX_KVM_CPUID_ENTRIES);
     }
@@ -437,7 +439,7 @@ mod tests {
     fn test_get_emulated_cpuid() {
         let kvm = Kvm::new().unwrap();
         let mut cpuid = kvm.get_emulated_cpuid(MAX_KVM_CPUID_ENTRIES).unwrap();
-        let cpuid_entries = cpuid.mut_entries_slice();
+        let cpuid_entries = cpuid.as_mut_slice();
         assert!(cpuid_entries.len() > 0);
         assert!(cpuid_entries.len() <= MAX_KVM_CPUID_ENTRIES);
     }
@@ -449,7 +451,7 @@ mod tests {
         let cpuid_1 = kvm.get_supported_cpuid(MAX_KVM_CPUID_ENTRIES).unwrap();
         let mut cpuid_2 = cpuid_1.clone();
         assert!(cpuid_1 == cpuid_2);
-        cpuid_2 = unsafe { std::mem::zeroed() };
+        cpuid_2 = CpuId::new(cpuid_1.as_fam_struct_ref().len());
         assert!(cpuid_1 != cpuid_2);
     }
 
