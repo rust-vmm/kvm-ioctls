@@ -623,6 +623,34 @@ impl VmFd {
         Ok(new_vcpu(vcpu, kvm_run_ptr))
     }
 
+    /// Creates a VcpuFd object from a vcpu RawFd.
+    ///
+    /// This function is unsafe as the primitives currently returned have the contract that
+    /// they are the sole owner of the file descriptor they are wrapping. Usage of this function
+    /// could accidentally allow violating this contract which can cause memory unsafety in code
+    /// that relies on it being true.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # extern crate kvm_ioctls;
+    /// # use std::os::unix::io::AsRawFd;
+    /// # use kvm_ioctls::{Kvm, VmFd, VcpuFd};
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    /// // Create one vCPU with the ID=0.
+    /// let vcpu = vm.create_vcpu(0).unwrap();
+    /// let rawfd = unsafe { libc::dup(vcpu.as_raw_fd()) };
+    /// assert!(rawfd >= 0);
+    /// let vcpu = unsafe { vm.create_vcpu_from_rawfd(rawfd).unwrap() };
+    /// ```
+    ///
+    pub unsafe fn create_vcpu_from_rawfd(&self, fd: RawFd) -> Result<VcpuFd> {
+        let vcpu = File::from_raw_fd(fd);
+        let kvm_run_ptr = KvmRunWrapper::mmap_from_fd(&vcpu, self.run_size)?;
+        Ok(new_vcpu(vcpu, kvm_run_ptr))
+    }
+
     /// Creates an emulated device in the kernel.
     ///
     /// See the documentation for `KVM_CREATE_DEVICE`.

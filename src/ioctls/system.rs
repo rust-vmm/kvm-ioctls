@@ -373,11 +373,30 @@ impl Kvm {
             Err(io::Error::last_os_error())
         }
     }
+
+    /// Creates a VmFd object from a VM RawFd.
+    ///
+    /// This function is unsafe as the primitives currently returned have the contract that
+    /// they are the sole owner of the file descriptor they are wrapping. Usage of this function
+    /// could accidentally allow violating this contract which can cause memory unsafety in code
+    /// that relies on it being true.
+    pub unsafe fn create_vmfd_from_rawfd(&self, fd: RawFd) -> Result<VmFd> {
+        let run_mmap_size = self.get_vcpu_mmap_size()?;
+        Ok(new_vmfd(File::from_raw_fd(fd), run_mmap_size))
+    }
 }
 
 impl AsRawFd for Kvm {
     fn as_raw_fd(&self) -> RawFd {
         self.kvm.as_raw_fd()
+    }
+}
+
+impl FromRawFd for Kvm {
+    unsafe fn from_raw_fd(fd: RawFd) -> Self {
+        Kvm {
+            kvm: File::from_raw_fd(fd),
+        }
     }
 }
 
@@ -421,6 +440,11 @@ mod tests {
         let kvm = Kvm::new().unwrap();
         let vm = kvm.create_vm().unwrap();
 
+        // Test create_vmfd_from_rawfd()
+        let rawfd = unsafe { libc::dup(vm.as_raw_fd()) };
+        assert!(rawfd >= 0);
+        let vm = unsafe { kvm.create_vmfd_from_rawfd(rawfd).unwrap() };
+
         assert_eq!(vm.run_size(), kvm.get_vcpu_mmap_size().unwrap());
     }
 
@@ -448,6 +472,12 @@ mod tests {
     #[test]
     fn test_cpuid_clone() {
         let kvm = Kvm::new().unwrap();
+
+        // Test from_raw_fd()
+        let rawfd = unsafe { libc::dup(kvm.as_raw_fd()) };
+        assert!(rawfd >= 0);
+        let kvm = unsafe { Kvm::from_raw_fd(rawfd) };
+
         let cpuid_1 = kvm.get_supported_cpuid(MAX_KVM_CPUID_ENTRIES).unwrap();
         let mut cpuid_2 = cpuid_1.clone();
         assert!(cpuid_1 == cpuid_2);
