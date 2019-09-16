@@ -3,7 +3,7 @@
 
 use std::fs::File;
 use std::io;
-use std::os::unix::io::{AsRawFd, RawFd};
+use std::os::unix::io::{AsRawFd, FromRawFd, RawFd};
 
 use kvm_bindings::kvm_device_attr;
 
@@ -41,6 +41,18 @@ pub fn new_device(dev_fd: File) -> DeviceFd {
 impl AsRawFd for DeviceFd {
     fn as_raw_fd(&self) -> RawFd {
         self.fd.as_raw_fd()
+    }
+}
+
+impl FromRawFd for DeviceFd {
+    /// This function is also unsafe as the primitives currently returned have the contract that
+    /// they are the sole owner of the file descriptor they are wrapping. Usage of this function
+    /// could accidentally allow violating this contract which can cause memory unsafety in code
+    /// that relies on it being true.
+    unsafe fn from_raw_fd(fd: RawFd) -> Self {
+        DeviceFd {
+            fd: File::from_raw_fd(fd),
+        }
     }
 }
 
@@ -82,6 +94,10 @@ mod tests {
         let device_fd = vm
             .create_device(&mut gic_device)
             .expect("Cannot create KVM device");
+
+        let raw_fd = unsafe { libc::dup(device_fd.as_raw_fd()) };
+        assert!(raw_fd >= 0);
+        let device_fd = unsafe { DeviceFd::from_raw_fd(raw_fd) };
 
         let dist_attr = kvm_bindings::kvm_device_attr {
             group: KVM_DEV_VFIO_GROUP,
