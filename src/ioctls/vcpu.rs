@@ -737,6 +737,12 @@ impl VcpuFd {
             Err(io::Error::last_os_error())
         }
     }
+
+    /// Sets the `immediate_exit` flag on the `kvm_run` struct associated with this vCPU to `val`.
+    pub fn set_kvm_immediate_exit(&self, val: u8) {
+        let kvm_run = self.kvm_run_ptr.as_mut_ref();
+        kvm_run.immediate_exit = val;
+    }
 }
 
 /// Helper function to create a new `VcpuFd`.
@@ -1128,5 +1134,15 @@ mod tests {
         const PSTATE_REG_ID: u64 = 0x6030_0000_0010_0042;
         vcpu.set_one_reg(PSTATE_REG_ID, data)
             .expect("Failed to set pstate register");
+    }
+
+    #[test]
+    fn set_kvm_immediate_exit() {
+        let kvm = Kvm::new().unwrap();
+        let vm = kvm.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+        assert_eq!(vcpu.kvm_run_ptr.as_mut_ref().immediate_exit, 0);
+        vcpu.set_kvm_immediate_exit(1);
+        assert_eq!(vcpu.kvm_run_ptr.as_mut_ref().immediate_exit, 1);
     }
 }
