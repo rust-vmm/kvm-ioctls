@@ -1,3 +1,8 @@
+# Unreleased
+
+## Added
+- Support for setting vcpu `kvm_immediate_exit` flag
+
 # v0.2.0
 
 ## Added
