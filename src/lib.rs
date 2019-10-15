@@ -194,7 +194,7 @@ pub use ioctls::system::Kvm;
 pub use ioctls::vcpu::{VcpuExit, VcpuFd};
 pub use ioctls::vm::{IoEventAddress, NoDatamatch, VmFd};
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-pub use ioctls::{CpuId, MAX_KVM_CPUID_ENTRIES};
+pub use ioctls::{CpuId, KVM_MAX_MSR_ENTRIES, MAX_KVM_CPUID_ENTRIES};
 // The following example is used to verify that our public
 // structures are exported properly.
 /// # Example

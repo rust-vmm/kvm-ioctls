@@ -170,6 +170,83 @@ impl VmFd {
         }
     }
 
+    /// X86 specific call to retrieve the state of a kernel interrupt controller.
+    ///
+    /// See the documentation for `KVM_GET_IRQCHIP` in the
+    /// [KVM API doc](https://www.kernel.org/doc/Documentation/virtual/kvm/api.txt).
+    ///
+    /// # Arguments
+    ///
+    /// * `irqchip` - `kvm_irqchip` (input/output) to be read.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # extern crate kvm_bindings;
+    /// # extern crate kvm_ioctls;
+    /// # use kvm_bindings::{kvm_irqchip, KVM_IRQCHIP_PIC_MASTER};
+    /// # use kvm_ioctls::Kvm;
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    ///
+    /// vm.create_irq_chip().unwrap();
+    /// let mut irqchip = kvm_irqchip::default();
+    /// irqchip.chip_id = KVM_IRQCHIP_PIC_MASTER;
+    /// vm.get_irqchip(&mut irqchip).unwrap();
+    /// ```
+    ///
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    pub fn get_irqchip(&self, irqchip: &mut kvm_irqchip) -> Result<()> {
+        let ret = unsafe {
+            // Here we trust the kernel not to read past the end of the kvm_irqchip struct.
+            ioctl_with_mut_ref(self, KVM_GET_IRQCHIP(), irqchip)
+        };
+        if ret == 0 {
+            Ok(())
+        } else {
+            Err(io::Error::last_os_error())
+        }
+    }
+
+    /// X86 specific call to set the state of a kernel interrupt controller.
+    ///
+    /// See the documentation for `KVM_SET_IRQCHIP` in the
+    /// [KVM API doc](https://www.kernel.org/doc/Documentation/virtual/kvm/api.txt).
+    ///
+    /// # Arguments
+    ///
+    /// * `irqchip` - `kvm_irqchip` (input/output) to be written.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # extern crate kvm_bindings;
+    /// # extern crate kvm_ioctls;
+    /// # use kvm_bindings::{kvm_irqchip, KVM_IRQCHIP_PIC_MASTER};
+    /// # use kvm_ioctls::Kvm;
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    ///
+    /// vm.create_irq_chip().unwrap();
+    /// let mut irqchip = kvm_irqchip::default();
+    /// irqchip.chip_id = KVM_IRQCHIP_PIC_MASTER;
+    /// // Your `irqchip` manipulation here.
+    /// vm.set_irqchip(&mut irqchip).unwrap();
+    /// ```
+    ///
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    pub fn set_irqchip(&self, irqchip: &kvm_irqchip) -> Result<()> {
+        let ret = unsafe {
+            // Here we trust the kernel not to read past the end of the kvm_irqchip struct.
+            ioctl_with_ref(self, KVM_SET_IRQCHIP(), irqchip)
+        };
+        if ret == 0 {
+            Ok(())
+        } else {
+            Err(io::Error::last_os_error())
+        }
+    }
+
     /// Creates a PIT as per the `KVM_CREATE_PIT2` ioctl.
     ///
     /// # Arguments
@@ -195,6 +272,151 @@ impl VmFd {
         // Safe because we know that our file is a VM fd, we know the kernel will only read the
         // correct amount of memory from our pointer, and we verify the return result.
         let ret = unsafe { ioctl_with_ref(self, KVM_CREATE_PIT2(), &pit_config) };
+        if ret == 0 {
+            Ok(())
+        } else {
+            Err(io::Error::last_os_error())
+        }
+    }
+
+    /// X86 specific call to retrieve the state of the in-kernel PIT model.
+    ///
+    /// See the documentation for `KVM_GET_PIT2` in the
+    /// [KVM API doc](https://www.kernel.org/doc/Documentation/virtual/kvm/api.txt).
+    ///
+    /// # Arguments
+    ///
+    /// * `pitstate` - `kvm_pit_state2` to be read.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # extern crate kvm_bindings;
+    /// # extern crate kvm_ioctls;
+    /// # use kvm_bindings::kvm_pit_config;
+    /// # use kvm_ioctls::Kvm;
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    ///
+    /// let pit_config = kvm_pit_config::default();
+    /// vm.create_pit2(pit_config).unwrap();
+    /// let pitstate = vm.get_pit2().unwrap();
+    /// ```
+    ///
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    pub fn get_pit2(&self) -> Result<kvm_pit_state2> {
+        let mut pitstate = Default::default();
+        let ret = unsafe {
+            // Here we trust the kernel not to read past the end of the kvm_pit_state2 struct.
+            ioctl_with_mut_ref(self, KVM_GET_PIT2(), &mut pitstate)
+        };
+        if ret == 0 {
+            Ok(pitstate)
+        } else {
+            Err(io::Error::last_os_error())
+        }
+    }
+
+    /// X86 specific call to set the state of the in-kernel PIT model.
+    ///
+    /// See the documentation for `KVM_SET_PIT2` in the
+    /// [KVM API doc](https://www.kernel.org/doc/Documentation/virtual/kvm/api.txt).
+    ///
+    /// # Arguments
+    ///
+    /// * `pitstate` - `kvm_pit_state2` to be written.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # extern crate kvm_bindings;
+    /// # extern crate kvm_ioctls;
+    /// # use kvm_bindings::{kvm_pit_config, kvm_pit_state2};
+    /// # use kvm_ioctls::Kvm;
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    ///
+    /// let pit_config = kvm_pit_config::default();
+    /// vm.create_pit2(pit_config).unwrap();
+    /// let mut pitstate = kvm_pit_state2::default();
+    /// // Your `pitstate` manipulation here.
+    /// vm.set_pit2(&mut pitstate).unwrap();
+    /// ```
+    ///
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    pub fn set_pit2(&self, pitstate: &kvm_pit_state2) -> Result<()> {
+        let ret = unsafe {
+            // Here we trust the kernel not to read past the end of the kvm_pit_state2 struct.
+            ioctl_with_ref(self, KVM_SET_PIT2(), pitstate)
+        };
+        if ret == 0 {
+            Ok(())
+        } else {
+            Err(io::Error::last_os_error())
+        }
+    }
+
+    /// X86 specific call to retrieve the current timestamp of kvmclock.
+    ///
+    /// See the documentation for `KVM_GET_CLOCK` in the
+    /// [KVM API doc](https://www.kernel.org/doc/Documentation/virtual/kvm/api.txt).
+    ///
+    /// # Arguments
+    ///
+    /// * `clock` - `kvm_clock_data` to be read.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # extern crate kvm_ioctls;
+    /// # use kvm_ioctls::Kvm;
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    /// let clock = vm.get_clock().unwrap();
+    /// ```
+    ///
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    pub fn get_clock(&self) -> Result<kvm_clock_data> {
+        let mut clock = Default::default();
+        let ret = unsafe {
+            // Here we trust the kernel not to read past the end of the kvm_clock_data struct.
+            ioctl_with_mut_ref(self, KVM_GET_CLOCK(), &mut clock)
+        };
+        if ret == 0 {
+            Ok(clock)
+        } else {
+            Err(io::Error::last_os_error())
+        }
+    }
+
+    /// X86 specific call to set the current timestamp of kvmclock.
+    ///
+    /// See the documentation for `KVM_SET_CLOCK` in the
+    /// [KVM API doc](https://www.kernel.org/doc/Documentation/virtual/kvm/api.txt).
+    ///
+    /// # Arguments
+    ///
+    /// * `clock` - `kvm_clock_data` to be written.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # extern crate kvm_bindings;
+    /// # extern crate kvm_ioctls;
+    /// # use kvm_bindings::kvm_clock_data;
+    /// # use kvm_ioctls::Kvm;
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    /// let mut clock = kvm_clock_data::default();
+    /// vm.set_clock(&mut clock).unwrap();
+    /// ```
+    ///
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    pub fn set_clock(&self, clock: &kvm_clock_data) -> Result<()> {
+        let ret = unsafe {
+            // Here we trust the kernel not to read past the end of the kvm_clock_data struct.
+            ioctl_with_ref(self, KVM_SET_CLOCK(), clock)
+        };
         if ret == 0 {
             Ok(())
         } else {
@@ -845,7 +1067,7 @@ mod tests {
         target_arch = "arm",
         target_arch = "aarch64"
     ))]
-    fn test_create_irq_chip() {
+    fn test_irq_chip() {
         let kvm = Kvm::new().unwrap();
         assert!(kvm.check_extension(Cap::Irqchip));
         let vm = kvm.create_vm().unwrap();
@@ -855,14 +1077,57 @@ mod tests {
             // On arm, we expect this to fail as the irq chip needs to be created after the vcpus.
             assert!(vm.create_irq_chip().is_err());
         }
+
+        #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+        {
+            let mut irqchip = kvm_irqchip::default();
+            irqchip.chip_id = KVM_IRQCHIP_PIC_MASTER;
+            vm.get_irqchip(&mut irqchip).unwrap();
+            vm.set_irqchip(&irqchip).unwrap();
+            let mut other_irqchip = kvm_irqchip::default();
+            other_irqchip.chip_id = KVM_IRQCHIP_PIC_MASTER;
+            vm.get_irqchip(&mut other_irqchip).unwrap();
+            unsafe { assert_eq!(irqchip.chip.dummy[..], other_irqchip.chip.dummy[..]) };
+        }
     }
 
     #[test]
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-    fn test_create_pit2() {
+    fn test_pit2() {
         let kvm = Kvm::new().unwrap();
         let vm = kvm.create_vm().unwrap();
         assert!(vm.create_pit2(kvm_pit_config::default()).is_ok());
+
+        let pit2 = vm.get_pit2().unwrap();
+        vm.set_pit2(&pit2).unwrap();
+        let mut other_pit2 = vm.get_pit2().unwrap();
+        // Load time will differ, let's overwrite it so we can test equality.
+        other_pit2.channels[0].count_load_time = pit2.channels[0].count_load_time;
+        other_pit2.channels[1].count_load_time = pit2.channels[1].count_load_time;
+        other_pit2.channels[2].count_load_time = pit2.channels[2].count_load_time;
+        assert_eq!(pit2, other_pit2);
+    }
+
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[test]
+    fn test_clock() {
+        let kvm = Kvm::new().unwrap();
+        let vm = kvm.create_vm().unwrap();
+
+        // Get current time.
+        let orig = vm.get_clock().unwrap();
+
+        // Reset time.
+        let mut fudged = kvm_clock_data::default();
+        fudged.clock = 10;
+        vm.set_clock(&fudged).unwrap();
+
+        // Get new time.
+        let new = vm.get_clock().unwrap();
+
+        // Verify new time has progressed but is smaller than orig time.
+        assert!(fudged.clock < new.clock);
+        assert!(new.clock < orig.clock);
     }
 
     #[test]
@@ -989,6 +1254,24 @@ mod tests {
         let event_fd = unsafe { eventfd(0, EFD_NONBLOCK) };
         assert_eq!(
             get_raw_errno(faulty_vm_fd.register_ioevent(event_fd, &IoEventAddress::Pio(0), 0u64)),
+            badf_errno
+        );
+        assert_eq!(
+            get_raw_errno(faulty_vm_fd.get_irqchip(&mut kvm_irqchip::default())),
+            badf_errno
+        );
+        assert_eq!(
+            get_raw_errno(faulty_vm_fd.set_irqchip(&kvm_irqchip::default())),
+            badf_errno
+        );
+        assert_eq!(get_raw_errno(faulty_vm_fd.get_clock()), badf_errno);
+        assert_eq!(
+            get_raw_errno(faulty_vm_fd.set_clock(&kvm_clock_data::default())),
+            badf_errno
+        );
+        assert_eq!(get_raw_errno(faulty_vm_fd.get_pit2()), badf_errno);
+        assert_eq!(
+            get_raw_errno(faulty_vm_fd.set_pit2(&kvm_pit_state2::default())),
             badf_errno
         );
         assert_eq!(

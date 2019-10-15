@@ -68,6 +68,24 @@ ioctl_iow_nr!(KVM_IRQFD, KVMIO, 0x76, kvm_irqfd);
 ioctl_iow_nr!(KVM_CREATE_PIT2, KVMIO, 0x77, kvm_pit_config);
 /* Available with KVM_CAP_IOEVENTFD */
 ioctl_iow_nr!(KVM_IOEVENTFD, KVMIO, 0x79, kvm_ioeventfd);
+/* Available with KVM_CAP_IRQCHIP */
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+ioctl_iowr_nr!(KVM_GET_IRQCHIP, KVMIO, 0x62, kvm_irqchip);
+/* Available with KVM_CAP_IRQCHIP */
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+ioctl_ior_nr!(KVM_SET_IRQCHIP, KVMIO, 0x63, kvm_irqchip);
+/* Available with KVM_CAP_ADJUST_CLOCK */
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+ioctl_iow_nr!(KVM_SET_CLOCK, KVMIO, 0x7b, kvm_clock_data);
+/* Available with KVM_CAP_ADJUST_CLOCK */
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+ioctl_ior_nr!(KVM_GET_CLOCK, KVMIO, 0x7c, kvm_clock_data);
+/* Available with KVM_CAP_PIT_STATE2 */
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+ioctl_ior_nr!(KVM_GET_PIT2, KVMIO, 0x9f, kvm_pit_state2);
+/* Available with KVM_CAP_PIT_STATE2 */
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+ioctl_iow_nr!(KVM_SET_PIT2, KVMIO, 0xa0, kvm_pit_state2);
 
 // Ioctls for VCPU fds.
 
