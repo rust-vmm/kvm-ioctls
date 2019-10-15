@@ -2,6 +2,17 @@
 
 ## Added
 - Support for setting vcpu `kvm_immediate_exit` flag
+- Support for vcpu `KVM_GET_CPUID2`
+- Support for vcpu `KVM_GET_MP_STATE`
+- Support for vcpu `KVM_SET_MP_STATE`
+- Support for vcpu `KVM_GET_VCPU_EVENTS`
+- Support for vcpu `KVM_SET_VCPU_EVENTS`
+- Support for vcpu `KVM_GET_DEBUGREGS`
+- Support for vcpu `KVM_SET_DEBUGREGS`
+- Support for vcpu `KVM_GET_XSAVE`
+- Support for vcpu `KVM_SET_XSAVE`
+- Support for vcpu `KVM_GET_XCRS`
+- Support for vcpu `KVM_SET_XCRS`
 
 ## Changed
 - Function offering support for `KVM_SET_MSRS` also returns the number
