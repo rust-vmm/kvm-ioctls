@@ -465,6 +465,7 @@ impl VcpuFd {
     }
 
     /// Setup the model-specific registers (MSR) for this vCPU.
+    /// Returns the number of MSR entries actually written.
     ///
     /// See the documentation for `KVM_SET_MSRS`.
     ///
@@ -495,26 +496,33 @@ impl VcpuFd {
     ///
     /// // Create a vector large enough to hold the MSR entry defined above in
     /// // a `kvm_msrs`structure.
-    /// let msrs_vec: Vec<u8> =
-    ///     Vec::with_capacity(mem::size_of::<kvm_msrs>() + mem::size_of::<kvm_msr_entry>());
+    /// let mut msrs_vec: Vec<u8> =
+    ///     vec![0u8; mem::size_of::<kvm_msrs>() + mem::size_of::<kvm_msr_entry>()];
+    /// {
+    ///     let kvm_msr_entries = unsafe {
+    ///         &mut *(msrs_vec.as_mut_slice()[mem::size_of::<kvm_msrs>()..].as_mut_ptr()
+    ///             as *mut kvm_msr_entry)
+    ///     };
+    ///     *kvm_msr_entries = msrs_entries;
+    /// }
     /// let mut msrs: &mut kvm_msrs = unsafe {
     ///     &mut *(msrs_vec.as_ptr() as *mut kvm_msrs)
     /// };
     /// msrs.nmsrs = 1;
-    /// vcpu.set_msrs(msrs).unwrap();
+    /// assert_eq!(vcpu.set_msrs(msrs).unwrap(), 1);
     /// ```
     ///
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-    pub fn set_msrs(&self, msrs: &kvm_msrs) -> Result<()> {
+    pub fn set_msrs(&self, msrs: &kvm_msrs) -> Result<i32> {
         let ret = unsafe {
             // Here we trust the kernel not to read past the end of the kvm_msrs struct.
             ioctl_with_ref(self, KVM_SET_MSRS(), msrs)
         };
+        // KVM_SET_MSRS actually returns the number of msr entries written.
         if ret < 0 {
-            // KVM_SET_MSRS actually returns the number of msr entries written.
             return Err(io::Error::last_os_error());
         }
-        Ok(())
+        Ok(ret)
     }
 
     /// Sets the type of CPU to be exposed to the guest and optional features.
@@ -901,7 +909,7 @@ mod tests {
             entries.copy_from_slice(&configured_entry_vec);
         }
         msrs.nmsrs = configured_entry_vec.len() as u32;
-        vcpu.set_msrs(msrs).unwrap();
+        assert_eq!(vcpu.set_msrs(msrs).unwrap(), msrs.nmsrs as i32);
 
         //now test that GET_MSRS returns the same
         let wanted_kvm_msrs_entries = [
