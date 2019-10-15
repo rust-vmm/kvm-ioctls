@@ -348,6 +348,41 @@ impl VcpuFd {
         Ok(())
     }
 
+    /// X86 specific call to retrieve the CPUID registers.
+    ///
+    /// It requires knowledge of how many `kvm_cpuid_entry2` entries there are to get.
+    /// See the documentation for `KVM_GET_CPUID2` in the
+    /// [KVM API doc](https://www.kernel.org/doc/Documentation/virtual/kvm/api.txt).
+    ///
+    /// # Arguments
+    ///
+    /// * `num_entries` - Number of CPUID entries to be read.
+    ///
+    /// # Example
+    ///
+    ///  ```rust
+    /// # extern crate kvm_ioctls;
+    /// # extern crate kvm_bindings;
+    /// # use kvm_ioctls::{Kvm, MAX_KVM_CPUID_ENTRIES};
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    /// let vcpu = vm.create_vcpu(0).unwrap();
+    /// let cpuid = vcpu.get_cpuid2(MAX_KVM_CPUID_ENTRIES).unwrap();
+    /// ```
+    ///
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    pub fn get_cpuid2(&self, num_entries: usize) -> Result<CpuId> {
+        let mut cpuid = CpuId::new(num_entries);
+        let ret = unsafe {
+            // Here we trust the kernel not to read past the end of the kvm_cpuid2 struct.
+            ioctl_with_mut_ptr(self, KVM_GET_CPUID2(), cpuid.as_mut_fam_struct_ptr())
+        };
+        if ret != 0 {
+            return Err(io::Error::last_os_error());
+        }
+        Ok(cpuid)
+    }
+
     /// Returns the state of the LAPIC (Local Advanced Programmable Interrupt Controller).
     ///
     /// The state is returned in a `kvm_lapic_state` structure as defined in the
@@ -523,6 +558,354 @@ impl VcpuFd {
             return Err(io::Error::last_os_error());
         }
         Ok(ret)
+    }
+
+    /// Returns the vcpu's current "multiprocessing state".
+    ///
+    /// See the documentation for `KVM_GET_MP_STATE` in the
+    /// [KVM API doc](https://www.kernel.org/doc/Documentation/virtual/kvm/api.txt).
+    ///
+    /// # Arguments
+    ///
+    /// * `kvm_mp_state` - multiprocessing state to be read.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # extern crate kvm_ioctls;
+    /// # use kvm_ioctls::Kvm;
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    /// let vcpu = vm.create_vcpu(0).unwrap();
+    /// let mp_state = vcpu.get_mp_state().unwrap();
+    /// ```
+    ///
+    #[cfg(any(
+        target_arch = "x86",
+        target_arch = "x86_64",
+        target_arch = "arm",
+        target_arch = "aarch64",
+        target_arch = "s390"
+    ))]
+    pub fn get_mp_state(&self) -> Result<kvm_mp_state> {
+        let mut mp_state = Default::default();
+        let ret = unsafe {
+            // Here we trust the kernel not to read past the end of the kvm_mp_state struct.
+            ioctl_with_mut_ref(self, KVM_GET_MP_STATE(), &mut mp_state)
+        };
+        if ret != 0 {
+            return Err(io::Error::last_os_error());
+        }
+        Ok(mp_state)
+    }
+
+    /// Sets the vcpu's current "multiprocessing state".
+    ///
+    /// See the documentation for `KVM_SET_MP_STATE` in the
+    /// [KVM API doc](https://www.kernel.org/doc/Documentation/virtual/kvm/api.txt).
+    ///
+    /// # Arguments
+    ///
+    /// * `kvm_mp_state` - multiprocessing state to be written.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # extern crate kvm_ioctls;
+    /// # use kvm_ioctls::Kvm;
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    /// let vcpu = vm.create_vcpu(0).unwrap();
+    /// let mp_state = Default::default();
+    /// // Your `mp_state` manipulation here.
+    /// vcpu.set_mp_state(mp_state).unwrap();
+    /// ```
+    ///
+    #[cfg(any(
+        target_arch = "x86",
+        target_arch = "x86_64",
+        target_arch = "arm",
+        target_arch = "aarch64",
+        target_arch = "s390"
+    ))]
+    pub fn set_mp_state(&self, mp_state: kvm_mp_state) -> Result<()> {
+        let ret = unsafe {
+            // Here we trust the kernel not to read past the end of the kvm_mp_state struct.
+            ioctl_with_ref(self, KVM_SET_MP_STATE(), &mp_state)
+        };
+        if ret != 0 {
+            return Err(io::Error::last_os_error());
+        }
+        Ok(())
+    }
+
+    /// X86 specific call that returns the vcpu's current "xsave struct".
+    ///
+    /// See the documentation for `KVM_GET_XSAVE` in the
+    /// [KVM API doc](https://www.kernel.org/doc/Documentation/virtual/kvm/api.txt).
+    ///
+    /// # Arguments
+    ///
+    /// * `kvm_xsave` - xsave struct to be read.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # extern crate kvm_ioctls;
+    /// # use kvm_ioctls::Kvm;
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    /// let vcpu = vm.create_vcpu(0).unwrap();
+    /// let xsave = vcpu.get_xsave().unwrap();
+    /// ```
+    ///
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    pub fn get_xsave(&self) -> Result<kvm_xsave> {
+        let mut xsave = Default::default();
+        let ret = unsafe {
+            // Here we trust the kernel not to read past the end of the kvm_xsave struct.
+            ioctl_with_mut_ref(self, KVM_GET_XSAVE(), &mut xsave)
+        };
+        if ret != 0 {
+            return Err(io::Error::last_os_error());
+        }
+        Ok(xsave)
+    }
+
+    /// X86 specific call that sets the vcpu's current "xsave struct".
+    ///
+    /// See the documentation for `KVM_SET_XSAVE` in the
+    /// [KVM API doc](https://www.kernel.org/doc/Documentation/virtual/kvm/api.txt).
+    ///
+    /// # Arguments
+    ///
+    /// * `kvm_xsave` - xsave struct to be written.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # extern crate kvm_ioctls;
+    /// # use kvm_ioctls::Kvm;
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    /// let vcpu = vm.create_vcpu(0).unwrap();
+    /// let xsave = Default::default();
+    /// // Your `xsave` manipulation here.
+    /// vcpu.set_xsave(&xsave).unwrap();
+    /// ```
+    ///
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    pub fn set_xsave(&self, xsave: &kvm_xsave) -> Result<()> {
+        let ret = unsafe {
+            // Here we trust the kernel not to read past the end of the kvm_xsave struct.
+            ioctl_with_ref(self, KVM_SET_XSAVE(), xsave)
+        };
+        if ret != 0 {
+            return Err(io::Error::last_os_error());
+        }
+        Ok(())
+    }
+
+    /// X86 specific call that returns the vcpu's current "xcrs".
+    ///
+    /// See the documentation for `KVM_GET_XCRS` in the
+    /// [KVM API doc](https://www.kernel.org/doc/Documentation/virtual/kvm/api.txt).
+    ///
+    /// # Arguments
+    ///
+    /// * `kvm_xcrs` - xcrs to be read.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # extern crate kvm_ioctls;
+    /// # use kvm_ioctls::Kvm;
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    /// let vcpu = vm.create_vcpu(0).unwrap();
+    /// let xcrs = vcpu.get_xcrs().unwrap();
+    /// ```
+    ///
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    pub fn get_xcrs(&self) -> Result<kvm_xcrs> {
+        let mut xcrs = Default::default();
+        let ret = unsafe {
+            // Here we trust the kernel not to read past the end of the kvm_xcrs struct.
+            ioctl_with_mut_ref(self, KVM_GET_XCRS(), &mut xcrs)
+        };
+        if ret != 0 {
+            return Err(io::Error::last_os_error());
+        }
+        Ok(xcrs)
+    }
+
+    /// X86 specific call that sets the vcpu's current "xcrs".
+    ///
+    /// See the documentation for `KVM_SET_XCRS` in the
+    /// [KVM API doc](https://www.kernel.org/doc/Documentation/virtual/kvm/api.txt).
+    ///
+    /// # Arguments
+    ///
+    /// * `kvm_xcrs` - xcrs to be written.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # extern crate kvm_ioctls;
+    /// # use kvm_ioctls::Kvm;
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    /// let vcpu = vm.create_vcpu(0).unwrap();
+    /// let xcrs = Default::default();
+    /// // Your `xcrs` manipulation here.
+    /// vcpu.set_xcrs(&xcrs).unwrap();
+    /// ```
+    ///
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    pub fn set_xcrs(&self, xcrs: &kvm_xcrs) -> Result<()> {
+        let ret = unsafe {
+            // Here we trust the kernel not to read past the end of the kvm_xcrs struct.
+            ioctl_with_ref(self, KVM_SET_XCRS(), xcrs)
+        };
+        if ret != 0 {
+            return Err(io::Error::last_os_error());
+        }
+        Ok(())
+    }
+
+    /// X86 specific call that returns the vcpu's current "debug registers".
+    ///
+    /// See the documentation for `KVM_GET_DEBUGREGS` in the
+    /// [KVM API doc](https://www.kernel.org/doc/Documentation/virtual/kvm/api.txt).
+    ///
+    /// # Arguments
+    ///
+    /// * `kvm_debugregs` - debug registers to be read.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # extern crate kvm_ioctls;
+    /// # use kvm_ioctls::Kvm;
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    /// let vcpu = vm.create_vcpu(0).unwrap();
+    /// let debug_regs = vcpu.get_debug_regs().unwrap();
+    /// ```
+    ///
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    pub fn get_debug_regs(&self) -> Result<kvm_debugregs> {
+        let mut debug_regs = Default::default();
+        let ret = unsafe {
+            // Here we trust the kernel not to read past the end of the kvm_debugregs struct.
+            ioctl_with_mut_ref(self, KVM_GET_DEBUGREGS(), &mut debug_regs)
+        };
+        if ret != 0 {
+            return Err(io::Error::last_os_error());
+        }
+        Ok(debug_regs)
+    }
+
+    /// X86 specific call that sets the vcpu's current "debug registers".
+    ///
+    /// See the documentation for `KVM_SET_DEBUGREGS` in the
+    /// [KVM API doc](https://www.kernel.org/doc/Documentation/virtual/kvm/api.txt).
+    ///
+    /// # Arguments
+    ///
+    /// * `kvm_debugregs` - debug registers to be written.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # extern crate kvm_ioctls;
+    /// # use kvm_ioctls::Kvm;
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    /// let vcpu = vm.create_vcpu(0).unwrap();
+    /// let debug_regs = Default::default();
+    /// // Your `debug_regs` manipulation here.
+    /// vcpu.set_debug_regs(&debug_regs).unwrap();
+    /// ```
+    ///
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    pub fn set_debug_regs(&self, debug_regs: &kvm_debugregs) -> Result<()> {
+        let ret = unsafe {
+            // Here we trust the kernel not to read past the end of the kvm_debugregs struct.
+            ioctl_with_ref(self, KVM_SET_DEBUGREGS(), debug_regs)
+        };
+        if ret != 0 {
+            return Err(io::Error::last_os_error());
+        }
+        Ok(())
+    }
+
+    /// Returns currently pending exceptions, interrupts, and NMIs as well as related
+    /// states of the vcpu.
+    ///
+    /// See the documentation for `KVM_GET_VCPU_EVENTS` in the
+    /// [KVM API doc](https://www.kernel.org/doc/Documentation/virtual/kvm/api.txt).
+    ///
+    /// # Arguments
+    ///
+    /// * `kvm_vcpu_events` - vcpu events to be read.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # extern crate kvm_ioctls;
+    /// # use kvm_ioctls::Kvm;
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    /// let vcpu = vm.create_vcpu(0).unwrap();
+    /// let vcpu_events = vcpu.get_vcpu_events().unwrap();
+    /// ```
+    ///
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    pub fn get_vcpu_events(&self) -> Result<kvm_vcpu_events> {
+        let mut vcpu_events = Default::default();
+        let ret = unsafe {
+            // Here we trust the kernel not to read past the end of the kvm_vcpu_events struct.
+            ioctl_with_mut_ref(self, KVM_GET_VCPU_EVENTS(), &mut vcpu_events)
+        };
+        if ret != 0 {
+            return Err(io::Error::last_os_error());
+        }
+        Ok(vcpu_events)
+    }
+
+    /// Sets pending exceptions, interrupts, and NMIs as well as related states of the vcpu.
+    ///
+    /// See the documentation for `KVM_SET_VCPU_EVENTS` in the
+    /// [KVM API doc](https://www.kernel.org/doc/Documentation/virtual/kvm/api.txt).
+    ///
+    /// # Arguments
+    ///
+    /// * `kvm_vcpu_events` - vcpu events to be written.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # extern crate kvm_ioctls;
+    /// # use kvm_ioctls::Kvm;
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    /// let vcpu = vm.create_vcpu(0).unwrap();
+    /// let vcpu_events = Default::default();
+    /// // Your `vcpu_events` manipulation here.
+    /// vcpu.set_vcpu_events(&vcpu_events).unwrap();
+    /// ```
+    ///
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    pub fn set_vcpu_events(&self, vcpu_events: &kvm_vcpu_events) -> Result<()> {
+        let ret = unsafe {
+            // Here we trust the kernel not to read past the end of the kvm_vcpu_events struct.
+            ioctl_with_ref(self, KVM_SET_VCPU_EVENTS(), vcpu_events)
+        };
+        if ret != 0 {
+            return Err(io::Error::last_os_error());
+        }
+        Ok(())
     }
 
     /// Sets the type of CPU to be exposed to the guest and optional features.
@@ -811,16 +1194,20 @@ mod tests {
 
     #[cfg(target_arch = "x86_64")]
     #[test]
-    fn test_set_cpuid2() {
+    fn cpuid2_test() {
         let kvm = Kvm::new().unwrap();
         if kvm.check_extension(Cap::ExtCpuid) {
             let vm = kvm.create_vm().unwrap();
-            let mut cpuid = kvm.get_supported_cpuid(MAX_KVM_CPUID_ENTRIES).unwrap();
-            assert!(cpuid.as_mut_slice().len() <= MAX_KVM_CPUID_ENTRIES);
+            let cpuid = kvm.get_supported_cpuid(MAX_KVM_CPUID_ENTRIES).unwrap();
+            let ncpuids = cpuid.as_slice().len();
+            assert!(ncpuids <= MAX_KVM_CPUID_ENTRIES);
             let nr_vcpus = kvm.get_nr_vcpus();
-            for cpu_id in 0..nr_vcpus {
-                let vcpu = vm.create_vcpu(cpu_id as u8).unwrap();
+            for cpu_idx in 0..nr_vcpus {
+                let vcpu = vm.create_vcpu(cpu_idx as u8).unwrap();
                 vcpu.set_cpuid2(&cpuid).unwrap();
+                let retrieved_cpuid = vcpu.get_cpuid2(ncpuids).unwrap();
+                // Only check the first few leafs as some (e.g. 13) are reserved.
+                assert_eq!(cpuid.as_slice()[..3], retrieved_cpuid.as_slice()[..3]);
             }
         }
     }
@@ -945,6 +1332,72 @@ mod tests {
         for (i, entry) in returned_kvm_msr_entries.iter_mut().enumerate() {
             assert_eq!(entry, &mut configured_entry_vec[i]);
         }
+    }
+
+    #[cfg(any(
+        target_arch = "x86",
+        target_arch = "x86_64",
+        target_arch = "arm",
+        target_arch = "aarch64",
+        target_arch = "s390"
+    ))]
+    #[test]
+    fn mpstate_test() {
+        let kvm = Kvm::new().unwrap();
+        let vm = kvm.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+        let mp_state = vcpu.get_mp_state().unwrap();
+        vcpu.set_mp_state(mp_state).unwrap();
+        let other_mp_state = vcpu.get_mp_state().unwrap();
+        assert_eq!(mp_state, other_mp_state);
+    }
+
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[test]
+    fn xsave_test() {
+        let kvm = Kvm::new().unwrap();
+        let vm = kvm.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+        let xsave = vcpu.get_xsave().unwrap();
+        vcpu.set_xsave(&xsave).unwrap();
+        let other_xsave = vcpu.get_xsave().unwrap();
+        assert_eq!(&xsave.region[..], &other_xsave.region[..]);
+    }
+
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[test]
+    fn xcrs_test() {
+        let kvm = Kvm::new().unwrap();
+        let vm = kvm.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+        let xcrs = vcpu.get_xcrs().unwrap();
+        vcpu.set_xcrs(&xcrs).unwrap();
+        let other_xcrs = vcpu.get_xcrs().unwrap();
+        assert_eq!(xcrs, other_xcrs);
+    }
+
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[test]
+    fn debugregs_test() {
+        let kvm = Kvm::new().unwrap();
+        let vm = kvm.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+        let debugregs = vcpu.get_debug_regs().unwrap();
+        vcpu.set_debug_regs(&debugregs).unwrap();
+        let other_debugregs = vcpu.get_debug_regs().unwrap();
+        assert_eq!(debugregs, other_debugregs);
+    }
+
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[test]
+    fn vcpu_events_test() {
+        let kvm = Kvm::new().unwrap();
+        let vm = kvm.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+        let vcpu_events = vcpu.get_vcpu_events().unwrap();
+        vcpu.set_vcpu_events(&vcpu_events).unwrap();
+        let other_vcpu_events = vcpu.get_vcpu_events().unwrap();
+        assert_eq!(vcpu_events, other_vcpu_events);
     }
 
     #[cfg(target_arch = "x86_64")]
@@ -1089,6 +1542,7 @@ mod tests {
             ),
             badf_errno
         );
+        assert_eq!(get_raw_errno(faulty_vcpu_fd.get_cpuid2(1)), badf_errno);
         // `kvm_lapic_state` does not implement debug by default so we cannot
         // use unwrap_err here.
         assert!(faulty_vcpu_fd.get_lapic().is_err());
@@ -1102,6 +1556,31 @@ mod tests {
         );
         assert_eq!(
             get_raw_errno(faulty_vcpu_fd.set_msrs(&unsafe { std::mem::zeroed() })),
+            badf_errno
+        );
+        assert_eq!(get_raw_errno(faulty_vcpu_fd.get_mp_state()), badf_errno);
+        assert_eq!(
+            get_raw_errno(faulty_vcpu_fd.set_mp_state(kvm_mp_state::default())),
+            badf_errno
+        );
+        assert_eq!(get_raw_errno(faulty_vcpu_fd.get_xsave()), badf_errno);
+        assert_eq!(
+            get_raw_errno(faulty_vcpu_fd.set_xsave(&kvm_xsave::default())),
+            badf_errno
+        );
+        assert_eq!(get_raw_errno(faulty_vcpu_fd.get_xcrs()), badf_errno);
+        assert_eq!(
+            get_raw_errno(faulty_vcpu_fd.set_xcrs(&kvm_xcrs::default())),
+            badf_errno
+        );
+        assert_eq!(get_raw_errno(faulty_vcpu_fd.get_debug_regs()), badf_errno);
+        assert_eq!(
+            get_raw_errno(faulty_vcpu_fd.set_debug_regs(&kvm_debugregs::default())),
+            badf_errno
+        );
+        assert_eq!(get_raw_errno(faulty_vcpu_fd.get_vcpu_events()), badf_errno);
+        assert_eq!(
+            get_raw_errno(faulty_vcpu_fd.set_vcpu_events(&kvm_vcpu_events::default())),
             badf_errno
         );
         assert_eq!(get_raw_errno(faulty_vcpu_fd.run()), badf_errno);
