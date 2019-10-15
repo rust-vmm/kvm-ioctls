@@ -13,6 +13,12 @@
 - Support for vcpu `KVM_SET_XSAVE`
 - Support for vcpu `KVM_GET_XCRS`
 - Support for vcpu `KVM_SET_XCRS`
+- Support for vm `KVM_GET_IRQCHIP`
+- Support for vm `KVM_SET_IRQCHIP`
+- Support for vm `KVM_GET_CLOCK`
+- Support for vm `KVM_SET_CLOCK`
+- Support for vm `KVM_GET_PIT2`
+- Support for vm `KVM_SET_PIT2`
 
 ## Changed
 - Function offering support for `KVM_SET_MSRS` also returns the number

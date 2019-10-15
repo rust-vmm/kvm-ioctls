@@ -74,6 +74,10 @@ fn vec_with_array_field<T: Default, F>(count: usize) -> Vec<T> {
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 pub const MAX_KVM_CPUID_ENTRIES: usize = 80;
 
+/// Maximum number of MSRs KVM supports (See arch/x86/kvm/x86.c).
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+pub const KVM_MAX_MSR_ENTRIES: usize = 256;
+
 // We can't implement FamStruct directly for kvm_cpuid2.
 // We would get an "impl doesn't use types inside crate" error.
 // We have to create a shadow structure as a workaround.
