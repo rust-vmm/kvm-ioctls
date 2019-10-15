@@ -80,7 +80,7 @@ impl VmFd {
     /// # extern crate kvm_ioctls;
     /// extern crate kvm_bindings;
     ///
-    /// use kvm_ioctls::{Kvm, VmFd};
+    /// use kvm_ioctls::Kvm;
     /// use kvm_bindings::kvm_userspace_memory_region;
     ///
     /// let kvm = Kvm::new().unwrap();
@@ -121,7 +121,7 @@ impl VmFd {
     ///
     /// ```rust
     /// # extern crate kvm_ioctls;
-    /// # use kvm_ioctls::{Kvm, VmFd};
+    /// # use kvm_ioctls::Kvm;
     /// let kvm = Kvm::new().unwrap();
     /// let vm = kvm.create_vm().unwrap();
     /// vm.set_tss_address(0xfffb_d000).unwrap();
@@ -146,7 +146,7 @@ impl VmFd {
     ///
     /// ```rust
     /// # extern crate kvm_ioctls;
-    /// # use kvm_ioctls::{Kvm, VmFd};
+    /// # use kvm_ioctls::Kvm;
     /// let kvm = Kvm::new().unwrap();
     /// let vm = kvm.create_vm().unwrap();
     ///
@@ -181,7 +181,7 @@ impl VmFd {
     /// ```rust
     /// # extern crate kvm_ioctls;
     /// extern crate kvm_bindings;
-    /// # use kvm_ioctls::{Kvm, VmFd};
+    /// # use kvm_ioctls::Kvm;
     /// use kvm_bindings::kvm_pit_config;
     ///
     /// let kvm = Kvm::new().unwrap();
@@ -226,7 +226,7 @@ impl VmFd {
     /// ```rust
     /// # extern crate kvm_ioctls;
     /// extern crate kvm_bindings;
-    /// # use kvm_ioctls::{Kvm, VmFd};
+    /// # use kvm_ioctls::Kvm;
     /// use kvm_bindings::kvm_msi;
     ///
     /// let kvm = Kvm::new().unwrap();
@@ -273,7 +273,7 @@ impl VmFd {
     /// ```rust
     /// # extern crate kvm_ioctls;
     /// extern crate kvm_bindings;
-    /// # use kvm_ioctls::{Kvm, VmFd};
+    /// # use kvm_ioctls::Kvm;
     /// use kvm_bindings::kvm_irq_routing;
     ///
     /// let kvm = Kvm::new().unwrap();
@@ -320,7 +320,7 @@ impl VmFd {
     /// ```rust
     /// # extern crate kvm_ioctls;
     /// extern crate libc;
-    /// # use kvm_ioctls::{IoEventAddress, Kvm, NoDatamatch, VmFd};
+    /// # use kvm_ioctls::{IoEventAddress, Kvm, NoDatamatch};
     /// use libc::{eventfd, EFD_NONBLOCK};
     ///
     /// let kvm = Kvm::new().unwrap();
@@ -390,7 +390,7 @@ impl VmFd {
     /// # use std::io::Write;
     /// # use std::ptr::null_mut;
     /// # use std::slice;
-    /// # use kvm_ioctls::{Kvm, VmFd, VcpuFd, VcpuExit};
+    /// # use kvm_ioctls::{Kvm, VcpuExit};
     /// # use kvm_bindings::{kvm_userspace_memory_region, KVM_MEM_LOG_DIRTY_PAGES};
     /// # let kvm = Kvm::new().unwrap();
     /// # let vm = kvm.create_vm().unwrap();
@@ -504,7 +504,7 @@ impl VmFd {
     /// ```rust
     /// # extern crate kvm_ioctls;
     /// # extern crate libc;
-    /// # use kvm_ioctls::{Kvm, VmFd};
+    /// # use kvm_ioctls::Kvm;
     /// # use libc::{eventfd, EFD_NONBLOCK};
     /// let kvm = Kvm::new().unwrap();
     /// let vm = kvm.create_vm().unwrap();
@@ -547,7 +547,7 @@ impl VmFd {
     /// ```rust
     /// # extern crate kvm_ioctls;
     /// # extern crate libc;
-    /// # use kvm_ioctls::{Kvm, VmFd};
+    /// # use kvm_ioctls::Kvm;
     /// # use libc::{eventfd, EFD_NONBLOCK};
     /// let kvm = Kvm::new().unwrap();
     /// let vm = kvm.create_vm().unwrap();
@@ -599,7 +599,7 @@ impl VmFd {
     ///
     /// ```rust
     /// # extern crate kvm_ioctls;
-    /// # use kvm_ioctls::{Kvm, VmFd, VcpuFd};
+    /// # use kvm_ioctls::Kvm;
     /// let kvm = Kvm::new().unwrap();
     /// let vm = kvm.create_vm().unwrap();
     /// // Create one vCPU with the ID=0.
@@ -665,7 +665,7 @@ impl VmFd {
     /// ```rust
     /// # extern crate kvm_ioctls;
     /// # extern crate kvm_bindings;
-    /// # use kvm_ioctls::{Kvm, VmFd, VcpuFd};
+    /// # use kvm_ioctls::Kvm;
     /// use kvm_bindings::{
     ///     kvm_device_type_KVM_DEV_TYPE_VFIO,
     ///     kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V3,
@@ -713,7 +713,7 @@ impl VmFd {
     /// ```rust
     /// # extern crate kvm_ioctls;
     /// # extern crate kvm_bindings;
-    /// # use kvm_ioctls::{Kvm, VmFd, VcpuFd};
+    /// # use kvm_ioctls::Kvm;
     /// use kvm_bindings::kvm_vcpu_init;
     /// let kvm = Kvm::new().unwrap();
     /// let vm = kvm.create_vm().unwrap();
@@ -750,7 +750,7 @@ impl VmFd {
     /// # extern crate kvm_ioctls;
     /// extern crate kvm_bindings;
     ///
-    /// # use kvm_ioctls::{Cap, Kvm, VmFd};
+    /// # use kvm_ioctls::Kvm;
     /// use kvm_bindings::{kvm_enable_cap, KVM_CAP_SPLIT_IRQCHIP};
     ///
     /// let kvm = Kvm::new().unwrap();
