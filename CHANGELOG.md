@@ -3,6 +3,10 @@
 ## Added
 - Support for setting vcpu `kvm_immediate_exit` flag
 
+## Changed
+- Function offering support for `KVM_SET_MSRS` also returns the number
+  of MSR entries successfully written.
+
 # v0.2.0
 
 ## Added
