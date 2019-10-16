@@ -25,6 +25,7 @@ ioctl_iowr_nr!(KVM_GET_EMULATED_CPUID, KVMIO, 0x09, kvm_cpuid2);
 // Ioctls for VM fds.
 
 ioctl_io_nr!(KVM_CREATE_VCPU, KVMIO, 0x41);
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 ioctl_iow_nr!(KVM_GET_DIRTY_LOG, KVMIO, 0x42, kvm_dirty_log);
 /* Available with KVM_CAP_USER_MEMORY */
 ioctl_iow_nr!(
