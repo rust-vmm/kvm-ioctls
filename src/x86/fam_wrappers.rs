@@ -57,3 +57,15 @@ generate_fam_struct_impl!(
 /// the array elements, this type is implemented using
 /// [FamStructWrapper](../vmm_sys_util/fam/struct.FamStructWrapper.html).
 pub type Msrs = FamStructWrapper<kvm_msrs>;
+
+// Implement the FamStruct trait for kvm_msr_list.
+generate_fam_struct_impl!(kvm_msr_list, u32, indices, u32, nmsrs, KVM_MAX_MSR_ENTRIES);
+
+/// Wrapper over the `kvm_msr_list` structure.
+///
+/// The `kvm_msr_list` structure contains a flexible array member. For details check the
+/// [KVM API](https://www.kernel.org/doc/Documentation/virtual/kvm/api.txt)
+/// documentation on `kvm_msr_list`. To provide safe access to
+/// the array elements, this type is implemented using
+/// [FamStructWrapper](../vmm_sys_util/fam/struct.FamStructWrapper.html).
+pub type MsrList = FamStructWrapper<kvm_msr_list>;
