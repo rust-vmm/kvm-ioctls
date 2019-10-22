@@ -13,3 +13,4 @@ kvm-v4_14_0 = []
 kvm-v4_20_0 = []
 
 [dependencies]
+vmm-sys-util = ">=0.2.0"

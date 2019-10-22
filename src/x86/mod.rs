@@ -1,6 +1,8 @@
 // Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+mod fam_wrappers;
+
 #[cfg(feature = "kvm-v4_14_0")]
 mod bindings_v4_14_0;
 #[cfg(feature = "kvm-v4_20_0")]
@@ -21,4 +23,6 @@ pub mod bindings {
 
     #[cfg(all(not(feature = "kvm-v4_14_0"), not(feature = "kvm-v4_20_0")))]
     pub use super::bindings_v4_20_0::*;
+
+    pub use super::fam_wrappers::*;
 }

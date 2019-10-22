@@ -5,6 +5,10 @@
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 
+#[macro_use]
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+extern crate vmm_sys_util;
+
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 mod x86;
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
