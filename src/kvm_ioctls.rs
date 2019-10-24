@@ -187,6 +187,8 @@ ioctl_iow_nr!(KVM_ENABLE_CAP, KVMIO, 0xa3, kvm_enable_cap);
 ioctl_iow_nr!(KVM_SIGNAL_MSI, KVMIO, 0xa5, kvm_msi);
 /* Available with KVM_CAP_ONE_REG */
 #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
+ioctl_iow_nr!(KVM_GET_ONE_REG, KVMIO, 0xab, kvm_one_reg);
+#[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
 ioctl_iow_nr!(KVM_SET_ONE_REG, KVMIO, 0xac, kvm_one_reg);
 #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
 ioctl_iow_nr!(KVM_ARM_VCPU_INIT, KVMIO, 0xae, kvm_vcpu_init);
