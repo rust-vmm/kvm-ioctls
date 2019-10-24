@@ -1,24 +1,25 @@
-# Unreleased
+# v0.3.0
 
 ## Added
 - Support for setting vcpu `kvm_immediate_exit` flag
-- Support for vcpu `KVM_GET_CPUID2`
-- Support for vcpu `KVM_GET_MP_STATE`
-- Support for vcpu `KVM_SET_MP_STATE`
-- Support for vcpu `KVM_GET_VCPU_EVENTS`
-- Support for vcpu `KVM_SET_VCPU_EVENTS`
-- Support for vcpu `KVM_GET_DEBUGREGS`
-- Support for vcpu `KVM_SET_DEBUGREGS`
-- Support for vcpu `KVM_GET_XSAVE`
-- Support for vcpu `KVM_SET_XSAVE`
-- Support for vcpu `KVM_GET_XCRS`
-- Support for vcpu `KVM_SET_XCRS`
-- Support for vm `KVM_GET_IRQCHIP`
-- Support for vm `KVM_SET_IRQCHIP`
-- Support for vm `KVM_GET_CLOCK`
-- Support for vm `KVM_SET_CLOCK`
-- Support for vm `KVM_GET_PIT2`
-- Support for vm `KVM_SET_PIT2`
+- Support for the vcpu ioctl `KVM_GET_CPUID2`
+- Support for the vcpu ioctl `KVM_GET_MP_STATE`
+- Support for the vcpu ioctl `KVM_SET_MP_STATE`
+- Support for the vcpu ioctl `KVM_GET_VCPU_EVENTS`
+- Support for the vcpu ioctl `KVM_SET_VCPU_EVENTS`
+- Support for the vcpu ioctl `KVM_GET_DEBUGREGS`
+- Support for the vcpu ioctl `KVM_SET_DEBUGREGS`
+- Support for the vcpu ioctl `KVM_GET_XSAVE`
+- Support for the vcpu ioctl `KVM_SET_XSAVE`
+- Support for the vcpu ioctl `KVM_GET_XCRS`
+- Support for the vcpu ioctl `KVM_SET_XCRS`
+- Support for the vm ioctl `KVM_GET_IRQCHIP`
+- Support for the vm ioctl `KVM_SET_IRQCHIP`
+- Support for the vm ioctl `KVM_GET_CLOCK`
+- Support for the vm ioctl `KVM_SET_CLOCK`
+- Support for the vm ioctl `KVM_GET_PIT2`
+- Support for the vm ioctl `KVM_SET_PIT2`
+- Support for the vcpu ioctl `KVM_GET_ONE_REG`
 
 ## Changed
 - Function offering support for `KVM_SET_MSRS` also returns the number
