@@ -208,8 +208,8 @@ mod tests {
     use std::os::unix::io::FromRawFd;
 
     use libc::{c_char, open, O_RDWR};
+    use vmm_sys_util::ioctl::{ioctl, ioctl_with_val};
 
-    use super::super::sys_ioctl::*;
     use super::*;
     const KVM_PATH: &'static str = "/dev/kvm\0";
 
