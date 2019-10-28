@@ -798,8 +798,10 @@ impl VmFd {
     /// let kvm = Kvm::new().unwrap();
     /// let vm = kvm.create_vm().unwrap();
     /// let evtfd = unsafe { eventfd(0, EFD_NONBLOCK) };
-    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-    /// vm.register_irqfd(evtfd, 0).unwrap();
+    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))] {
+    ///     vm.create_irq_chip().unwrap();
+    ///     vm.register_irqfd(evtfd, 0).unwrap();
+    /// }
     /// ```
     ///
     #[cfg(any(
@@ -841,10 +843,11 @@ impl VmFd {
     /// let kvm = Kvm::new().unwrap();
     /// let vm = kvm.create_vm().unwrap();
     /// let evtfd = unsafe { eventfd(0, EFD_NONBLOCK) };
-    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-    /// vm.register_irqfd(evtfd, 0).unwrap();
-    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-    /// vm.unregister_irqfd(evtfd, 0).unwrap();
+    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))] {
+    ///     vm.create_irq_chip().unwrap();
+    ///     vm.register_irqfd(evtfd, 0).unwrap();
+    ///     vm.unregister_irqfd(evtfd, 0).unwrap();
+    /// }
     /// ```
     ///
     #[cfg(any(
@@ -1266,6 +1269,7 @@ mod tests {
         let evtfd2 = unsafe { eventfd(0, EFD_NONBLOCK) };
         let evtfd3 = unsafe { eventfd(0, EFD_NONBLOCK) };
         if cfg!(any(target_arch = "x86", target_arch = "x86_64")) {
+            assert!(vm_fd.create_irq_chip().is_ok());
             assert!(vm_fd.register_irqfd(evtfd1, 4).is_ok());
             assert!(vm_fd.register_irqfd(evtfd2, 8).is_ok());
             assert!(vm_fd.register_irqfd(evtfd3, 4).is_ok());
@@ -1292,6 +1296,7 @@ mod tests {
         let evtfd2 = unsafe { eventfd(0, EFD_NONBLOCK) };
         let evtfd3 = unsafe { eventfd(0, EFD_NONBLOCK) };
         if cfg!(any(target_arch = "x86", target_arch = "x86_64")) {
+            assert!(vm_fd.create_irq_chip().is_ok());
             assert!(vm_fd.register_irqfd(evtfd1, 4).is_ok());
             assert!(vm_fd.register_irqfd(evtfd2, 8).is_ok());
             assert!(vm_fd.register_irqfd(evtfd3, 4).is_ok());
