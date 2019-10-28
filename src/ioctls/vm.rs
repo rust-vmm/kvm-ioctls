@@ -20,7 +20,7 @@ use ioctls::vcpu::new_vcpu;
 use ioctls::vcpu::VcpuFd;
 use ioctls::KvmRunWrapper;
 use kvm_ioctls::*;
-use sys_ioctl::*;
+use vmm_sys_util::ioctl::{ioctl, ioctl_with_mut_ref, ioctl_with_ref, ioctl_with_val};
 
 /// An address either in programmable I/O space or in memory mapped I/O space.
 ///

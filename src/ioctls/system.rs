@@ -21,7 +21,9 @@ use ioctls::vm::{new_vmfd, VmFd};
 use ioctls::CpuId;
 use ioctls::Result;
 use kvm_ioctls::*;
-use sys_ioctl::*;
+use vmm_sys_util::ioctl::{ioctl, ioctl_with_val};
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+use vmm_sys_util::ioctl::{ioctl_with_mut_ptr, ioctl_with_mut_ref};
 
 /// Wrapper over KVM system ioctls.
 pub struct Kvm {

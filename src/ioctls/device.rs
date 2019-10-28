@@ -9,7 +9,7 @@ use kvm_bindings::kvm_device_attr;
 
 use ioctls::Result;
 use kvm_ioctls::KVM_SET_DEVICE_ATTR;
-use sys_ioctl::ioctl_with_ref;
+use vmm_sys_util::ioctl::ioctl_with_ref;
 
 /// Wrapper over the file descriptor obtained when creating an emulated device in the kernel.
 pub struct DeviceFd {

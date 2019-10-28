@@ -179,10 +179,9 @@
 
 extern crate kvm_bindings;
 extern crate libc;
+#[macro_use]
 extern crate vmm_sys_util;
 
-#[macro_use]
-mod sys_ioctl;
 #[macro_use]
 mod kvm_ioctls;
 mod cap;

@@ -15,7 +15,9 @@ use std::os::unix::io::{AsRawFd, RawFd};
 use ioctls::CpuId;
 use ioctls::{KvmRunWrapper, Result};
 use kvm_ioctls::*;
-use sys_ioctl::*;
+use vmm_sys_util::ioctl::{ioctl, ioctl_with_mut_ref, ioctl_with_ref};
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+use vmm_sys_util::ioctl::{ioctl_with_mut_ptr, ioctl_with_ptr};
 
 /// Reasons for vCPU exits.
 ///
