@@ -20,6 +20,7 @@ use ioctls::vcpu::new_vcpu;
 use ioctls::vcpu::VcpuFd;
 use ioctls::KvmRunWrapper;
 use kvm_ioctls::*;
+use vmm_sys_util::eventfd::EventFd;
 use vmm_sys_util::ioctl::{ioctl, ioctl_with_mut_ref, ioctl_with_ref, ioctl_with_val};
 
 /// An address either in programmable I/O space or in memory mapped I/O space.
@@ -530,7 +531,7 @@ impl VmFd {
     ///
     /// # Arguments
     ///
-    /// * `fd` - FD which will be signaled. When signaling, the usual `vmexit` to userspace
+    /// * `fd` - `EventFd` which will be signaled. When signaling, the usual `vmexit` to userspace
     ///           is prevented.
     /// * `addr` - Address being written to.
     /// * `datamatch` - Limits signaling `fd` to only the cases where the value being written is
@@ -542,23 +543,24 @@ impl VmFd {
     /// ```rust
     /// # extern crate kvm_ioctls;
     /// extern crate libc;
+    /// extern crate vmm_sys_util;
     /// # use kvm_ioctls::{IoEventAddress, Kvm, NoDatamatch};
     /// use libc::{eventfd, EFD_NONBLOCK};
-    ///
+    /// use vmm_sys_util::eventfd::EventFd;
     /// let kvm = Kvm::new().unwrap();
     /// let vm_fd = kvm.create_vm().unwrap();
-    /// let evtfd = unsafe { eventfd(0, EFD_NONBLOCK) };
+    /// let evtfd = EventFd::new(EFD_NONBLOCK).unwrap();
     /// vm_fd
-    ///    .register_ioevent(evtfd, &IoEventAddress::Pio(0xf4), NoDatamatch)
+    ///    .register_ioevent(&evtfd, &IoEventAddress::Pio(0xf4), NoDatamatch)
     ///    .unwrap();
     /// vm_fd
-    ///    .register_ioevent(evtfd, &IoEventAddress::Mmio(0x1000), NoDatamatch)
+    ///    .register_ioevent(&evtfd, &IoEventAddress::Mmio(0x1000), NoDatamatch)
     ///    .unwrap();
     /// ```
     ///
     pub fn register_ioevent<T: Into<u64>>(
         &self,
-        fd: RawFd,
+        fd: &EventFd,
         addr: &IoEventAddress,
         datamatch: T,
     ) -> Result<()> {
@@ -577,7 +579,7 @@ impl VmFd {
                 IoEventAddress::Pio(ref p) => *p as u64,
                 IoEventAddress::Mmio(ref m) => *m,
             },
-            fd,
+            fd: fd.as_raw_fd(),
             flags,
             ..Default::default()
         };
@@ -609,31 +611,31 @@ impl VmFd {
     /// ```rust
     /// # extern crate kvm_ioctls;
     /// extern crate libc;
+    /// extern crate vmm_sys_util;
     /// # use kvm_ioctls::{IoEventAddress, Kvm, NoDatamatch};
-    /// use libc::{eventfd, EFD_NONBLOCK};
+    /// use libc::EFD_NONBLOCK;
+    /// use vmm_sys_util::eventfd::EventFd;
     ///
     /// let kvm = Kvm::new().unwrap();
     /// let vm_fd = kvm.create_vm().unwrap();
-    /// let evtfd = unsafe { eventfd(0, EFD_NONBLOCK) };
+    /// let evtfd = EventFd::new(EFD_NONBLOCK).unwrap();
     /// let pio_addr = IoEventAddress::Pio(0xf4);
     /// let mmio_addr = IoEventAddress::Mmio(0x1000);
     /// vm_fd
-    ///    .register_ioevent(evtfd, &pio_addr, NoDatamatch)
+    ///    .register_ioevent(&evtfd, &pio_addr, NoDatamatch)
     ///    .unwrap();
     /// vm_fd
-    ///    .register_ioevent(evtfd, &mmio_addr, NoDatamatch)
+    ///    .register_ioevent(&evtfd, &mmio_addr, NoDatamatch)
     ///    .unwrap();
-    /// unsafe {
-    ///     vm_fd
-    ///         .unregister_ioevent(evtfd, &pio_addr)
-    ///         .unwrap();
-    ///     vm_fd
-    ///         .unregister_ioevent(evtfd, &mmio_addr)
-    ///         .unwrap();
-    /// };
+    /// vm_fd
+    ///    .unregister_ioevent(&evtfd, &pio_addr)
+    ///    .unwrap();
+    /// vm_fd
+    ///    .unregister_ioevent(&evtfd, &mmio_addr)
+    ///    .unwrap();
     /// ```
     ///
-    pub unsafe fn unregister_ioevent(&self, fd: RawFd, addr: &IoEventAddress) -> Result<()> {
+    pub fn unregister_ioevent(&self, fd: &EventFd, addr: &IoEventAddress) -> Result<()> {
         let mut flags = 1 << kvm_ioeventfd_flag_nr_deassign;
         if let IoEventAddress::Pio(_) = *addr {
             flags |= 1 << kvm_ioeventfd_flag_nr_pio
@@ -644,13 +646,13 @@ impl VmFd {
                 IoEventAddress::Pio(ref p) => *p as u64,
                 IoEventAddress::Mmio(ref m) => *m,
             },
-            fd,
+            fd: fd.as_raw_fd(),
             flags,
             ..Default::default()
         };
         // Safe because we know that our file is a VM fd, we know the kernel will only read the
         // correct amount of memory from our pointer, and we verify the return result.
-        let ret = ioctl_with_ref(self, KVM_IOEVENTFD(), &ioeventfd);
+        let ret = unsafe { ioctl_with_ref(self, KVM_IOEVENTFD(), &ioeventfd) };
         if ret == 0 {
             Ok(())
         } else {
@@ -785,7 +787,7 @@ impl VmFd {
     ///
     /// # Arguments
     ///
-    /// * `fd` - Event to be signaled.
+    /// * `fd` - `EventFd` to be signaled.
     /// * `gsi` - IRQ to be triggered.
     ///
     /// # Example
@@ -793,14 +795,16 @@ impl VmFd {
     /// ```rust
     /// # extern crate kvm_ioctls;
     /// # extern crate libc;
+    /// # extern crate vmm_sys_util;
     /// # use kvm_ioctls::Kvm;
-    /// # use libc::{eventfd, EFD_NONBLOCK};
+    /// # use libc::EFD_NONBLOCK;
+    /// # use vmm_sys_util::eventfd::EventFd;
     /// let kvm = Kvm::new().unwrap();
     /// let vm = kvm.create_vm().unwrap();
-    /// let evtfd = unsafe { eventfd(0, EFD_NONBLOCK) };
+    /// let evtfd = EventFd::new(EFD_NONBLOCK).unwrap();
     /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))] {
     ///     vm.create_irq_chip().unwrap();
-    ///     vm.register_irqfd(evtfd, 0).unwrap();
+    ///     vm.register_irqfd(&evtfd, 0).unwrap();
     /// }
     /// ```
     ///
@@ -810,9 +814,9 @@ impl VmFd {
         target_arch = "arm",
         target_arch = "aarch64"
     ))]
-    pub fn register_irqfd(&self, fd: RawFd, gsi: u32) -> Result<()> {
+    pub fn register_irqfd(&self, fd: &EventFd, gsi: u32) -> Result<()> {
         let irqfd = kvm_irqfd {
-            fd: fd as u32,
+            fd: fd.as_raw_fd() as u32,
             gsi,
             ..Default::default()
         };
@@ -830,7 +834,7 @@ impl VmFd {
     ///
     /// # Arguments
     ///
-    /// * `fd` - Event to be signaled.
+    /// * `fd` - `EventFd` to be signaled.
     /// * `gsi` - IRQ to be triggered.
     ///
     /// # Example
@@ -838,15 +842,17 @@ impl VmFd {
     /// ```rust
     /// # extern crate kvm_ioctls;
     /// # extern crate libc;
+    /// # extern crate vmm_sys_util;
     /// # use kvm_ioctls::Kvm;
-    /// # use libc::{eventfd, EFD_NONBLOCK};
+    /// # use libc::EFD_NONBLOCK;
+    /// # use vmm_sys_util::eventfd::EventFd;
     /// let kvm = Kvm::new().unwrap();
     /// let vm = kvm.create_vm().unwrap();
-    /// let evtfd = unsafe { eventfd(0, EFD_NONBLOCK) };
+    /// let evtfd = EventFd::new(EFD_NONBLOCK).unwrap();
     /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))] {
     ///     vm.create_irq_chip().unwrap();
-    ///     vm.register_irqfd(evtfd, 0).unwrap();
-    ///     vm.unregister_irqfd(evtfd, 0).unwrap();
+    ///     vm.register_irqfd(&evtfd, 0).unwrap();
+    ///     vm.unregister_irqfd(&evtfd, 0).unwrap();
     /// }
     /// ```
     ///
@@ -856,9 +862,9 @@ impl VmFd {
         target_arch = "arm",
         target_arch = "aarch64"
     ))]
-    pub fn unregister_irqfd(&self, fd: RawFd, gsi: u32) -> Result<()> {
+    pub fn unregister_irqfd(&self, fd: &EventFd, gsi: u32) -> Result<()> {
         let irqfd = kvm_irqfd {
-            fd: fd as u32,
+            fd: fd.as_raw_fd() as u32,
             gsi,
             flags: KVM_IRQFD_FLAG_DEASSIGN,
             ..Default::default()
@@ -1106,7 +1112,7 @@ mod tests {
     use super::*;
     use {Cap, Kvm};
 
-    use libc::{eventfd, EFD_NONBLOCK};
+    use libc::EFD_NONBLOCK;
 
     #[test]
     fn test_set_invalid_memory() {
@@ -1206,24 +1212,24 @@ mod tests {
 
         let kvm = Kvm::new().unwrap();
         let vm_fd = kvm.create_vm().unwrap();
-        let evtfd = unsafe { eventfd(0, EFD_NONBLOCK) };
+        let evtfd = EventFd::new(EFD_NONBLOCK).unwrap();
         assert!(vm_fd
-            .register_ioevent(evtfd, &IoEventAddress::Pio(0xf4), NoDatamatch)
+            .register_ioevent(&evtfd, &IoEventAddress::Pio(0xf4), NoDatamatch)
             .is_ok());
         assert!(vm_fd
-            .register_ioevent(evtfd, &IoEventAddress::Mmio(0x1000), NoDatamatch)
+            .register_ioevent(&evtfd, &IoEventAddress::Mmio(0x1000), NoDatamatch)
             .is_ok());
         assert!(vm_fd
-            .register_ioevent(evtfd, &IoEventAddress::Pio(0xc1), 0x7fu8)
+            .register_ioevent(&evtfd, &IoEventAddress::Pio(0xc1), 0x7fu8)
             .is_ok());
         assert!(vm_fd
-            .register_ioevent(evtfd, &IoEventAddress::Pio(0xc2), 0x1337u16)
+            .register_ioevent(&evtfd, &IoEventAddress::Pio(0xc2), 0x1337u16)
             .is_ok());
         assert!(vm_fd
-            .register_ioevent(evtfd, &IoEventAddress::Pio(0xc4), 0xdead_beefu32)
+            .register_ioevent(&evtfd, &IoEventAddress::Pio(0xc4), 0xdead_beefu32)
             .is_ok());
         assert!(vm_fd
-            .register_ioevent(evtfd, &IoEventAddress::Pio(0xc8), 0xdead_beef_dead_beefu64)
+            .register_ioevent(&evtfd, &IoEventAddress::Pio(0xc8), 0xdead_beef_dead_beefu64)
             .is_ok());
     }
 
@@ -1233,26 +1239,26 @@ mod tests {
 
         let kvm = Kvm::new().unwrap();
         let vm_fd = kvm.create_vm().unwrap();
-        let evtfd = unsafe { eventfd(0, EFD_NONBLOCK) };
+        let evtfd = EventFd::new(EFD_NONBLOCK).unwrap();
         let pio_addr = IoEventAddress::Pio(0xf4);
         let mmio_addr = IoEventAddress::Mmio(0x1000);
 
         // First try to unregister addresses which have not been registered.
-        assert!(unsafe { vm_fd.unregister_ioevent(evtfd, &pio_addr) }.is_err());
-        assert!(unsafe { vm_fd.unregister_ioevent(evtfd, &mmio_addr) }.is_err());
+        assert!(vm_fd.unregister_ioevent(&evtfd, &pio_addr).is_err());
+        assert!(vm_fd.unregister_ioevent(&evtfd, &mmio_addr).is_err());
 
         // Now register the addresses
         assert!(vm_fd
-            .register_ioevent(evtfd, &pio_addr, NoDatamatch)
+            .register_ioevent(&evtfd, &pio_addr, NoDatamatch)
             .is_ok());
         assert!(vm_fd
-            .register_ioevent(evtfd, &mmio_addr, NoDatamatch)
+            .register_ioevent(&evtfd, &mmio_addr, NoDatamatch)
             .is_ok());
 
         // Try again unregistering the addresses. This time it should work
         // since they have been previously registered.
-        assert!(unsafe { vm_fd.unregister_ioevent(evtfd, &pio_addr) }.is_ok());
-        assert!(unsafe { vm_fd.unregister_ioevent(evtfd, &mmio_addr) }.is_ok());
+        assert!(vm_fd.unregister_ioevent(&evtfd, &pio_addr).is_ok());
+        assert!(vm_fd.unregister_ioevent(&evtfd, &mmio_addr).is_ok());
     }
 
     #[test]
@@ -1265,21 +1271,21 @@ mod tests {
     fn test_register_irqfd() {
         let kvm = Kvm::new().unwrap();
         let vm_fd = kvm.create_vm().unwrap();
-        let evtfd1 = unsafe { eventfd(0, EFD_NONBLOCK) };
-        let evtfd2 = unsafe { eventfd(0, EFD_NONBLOCK) };
-        let evtfd3 = unsafe { eventfd(0, EFD_NONBLOCK) };
+        let evtfd1 = EventFd::new(EFD_NONBLOCK).unwrap();
+        let evtfd2 = EventFd::new(EFD_NONBLOCK).unwrap();
+        let evtfd3 = EventFd::new(EFD_NONBLOCK).unwrap();
         if cfg!(any(target_arch = "x86", target_arch = "x86_64")) {
             assert!(vm_fd.create_irq_chip().is_ok());
-            assert!(vm_fd.register_irqfd(evtfd1, 4).is_ok());
-            assert!(vm_fd.register_irqfd(evtfd2, 8).is_ok());
-            assert!(vm_fd.register_irqfd(evtfd3, 4).is_ok());
+            assert!(vm_fd.register_irqfd(&evtfd1, 4).is_ok());
+            assert!(vm_fd.register_irqfd(&evtfd2, 8).is_ok());
+            assert!(vm_fd.register_irqfd(&evtfd3, 4).is_ok());
         }
 
         // On aarch64, this fails because setting up the interrupt controller is mandatory before
         // registering any IRQ.
         // On x86_64 this fails as the event fd was already matched with a GSI.
-        assert!(vm_fd.register_irqfd(evtfd3, 4).is_err());
-        assert!(vm_fd.register_irqfd(evtfd3, 5).is_err());
+        assert!(vm_fd.register_irqfd(&evtfd3, 4).is_err());
+        assert!(vm_fd.register_irqfd(&evtfd3, 5).is_err());
     }
 
     #[test]
@@ -1292,31 +1298,28 @@ mod tests {
     fn test_unregister_irqfd() {
         let kvm = Kvm::new().unwrap();
         let vm_fd = kvm.create_vm().unwrap();
-        let evtfd1 = unsafe { eventfd(0, EFD_NONBLOCK) };
-        let evtfd2 = unsafe { eventfd(0, EFD_NONBLOCK) };
-        let evtfd3 = unsafe { eventfd(0, EFD_NONBLOCK) };
+        let evtfd1 = EventFd::new(EFD_NONBLOCK).unwrap();
+        let evtfd2 = EventFd::new(EFD_NONBLOCK).unwrap();
+        let evtfd3 = EventFd::new(EFD_NONBLOCK).unwrap();
         if cfg!(any(target_arch = "x86", target_arch = "x86_64")) {
             assert!(vm_fd.create_irq_chip().is_ok());
-            assert!(vm_fd.register_irqfd(evtfd1, 4).is_ok());
-            assert!(vm_fd.register_irqfd(evtfd2, 8).is_ok());
-            assert!(vm_fd.register_irqfd(evtfd3, 4).is_ok());
-            assert!(vm_fd.unregister_irqfd(evtfd2, 8).is_ok());
+            assert!(vm_fd.register_irqfd(&evtfd1, 4).is_ok());
+            assert!(vm_fd.register_irqfd(&evtfd2, 8).is_ok());
+            assert!(vm_fd.register_irqfd(&evtfd3, 4).is_ok());
+            assert!(vm_fd.unregister_irqfd(&evtfd2, 8).is_ok());
             // KVM irqfd doesn't report failure on this case:(
-            assert!(vm_fd.unregister_irqfd(evtfd2, 8).is_ok());
+            assert!(vm_fd.unregister_irqfd(&evtfd2, 8).is_ok());
         }
 
         // Duplicated eventfd registration.
         // On aarch64, this fails because setting up the interrupt controller is mandatory before
         // registering any IRQ.
         // On x86_64 this fails as the event fd was already matched with a GSI.
-        assert!(vm_fd.register_irqfd(evtfd3, 4).is_err());
-        assert!(vm_fd.register_irqfd(evtfd3, 5).is_err());
+        assert!(vm_fd.register_irqfd(&evtfd3, 4).is_err());
+        assert!(vm_fd.register_irqfd(&evtfd3, 5).is_err());
 
         // KVM irqfd doesn't report failure on this case:(
-        assert!(vm_fd.unregister_irqfd(evtfd3, 5).is_ok());
-
-        // Check for invalid fd.
-        assert!(vm_fd.unregister_irqfd(-1, 5).is_err());
+        assert!(vm_fd.unregister_irqfd(&evtfd3, 5).is_ok());
     }
 
     #[test]
@@ -1351,9 +1354,9 @@ mod tests {
             get_raw_errno(faulty_vm_fd.create_pit2(kvm_pit_config::default())),
             badf_errno
         );
-        let event_fd = unsafe { eventfd(0, EFD_NONBLOCK) };
+        let event_fd = EventFd::new(EFD_NONBLOCK).unwrap();
         assert_eq!(
-            get_raw_errno(faulty_vm_fd.register_ioevent(event_fd, &IoEventAddress::Pio(0), 0u64)),
+            get_raw_errno(faulty_vm_fd.register_ioevent(&event_fd, &IoEventAddress::Pio(0), 0u64)),
             badf_errno
         );
         assert_eq!(
@@ -1375,7 +1378,7 @@ mod tests {
             badf_errno
         );
         assert_eq!(
-            get_raw_errno(faulty_vm_fd.register_irqfd(event_fd, 0)),
+            get_raw_errno(faulty_vm_fd.register_irqfd(&event_fd, 0)),
             badf_errno
         );
 
