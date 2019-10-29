@@ -591,6 +591,73 @@ impl VmFd {
         }
     }
 
+    /// Unregisters an event from a certain address it has been previously registered to.
+    ///
+    /// See the documentation for `KVM_IOEVENTFD`.
+    ///
+    /// # Arguments
+    ///
+    /// * `fd` - FD which will be unregistered.
+    /// * `addr` - Address being written to.
+    ///
+    /// # Safety
+    ///
+    /// This function is unsafe because it relies on RawFd.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # extern crate kvm_ioctls;
+    /// extern crate libc;
+    /// # use kvm_ioctls::{IoEventAddress, Kvm, NoDatamatch};
+    /// use libc::{eventfd, EFD_NONBLOCK};
+    ///
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm_fd = kvm.create_vm().unwrap();
+    /// let evtfd = unsafe { eventfd(0, EFD_NONBLOCK) };
+    /// let pio_addr = IoEventAddress::Pio(0xf4);
+    /// let mmio_addr = IoEventAddress::Mmio(0x1000);
+    /// vm_fd
+    ///    .register_ioevent(evtfd, &pio_addr, NoDatamatch)
+    ///    .unwrap();
+    /// vm_fd
+    ///    .register_ioevent(evtfd, &mmio_addr, NoDatamatch)
+    ///    .unwrap();
+    /// unsafe {
+    ///     vm_fd
+    ///         .unregister_ioevent(evtfd, &pio_addr)
+    ///         .unwrap();
+    ///     vm_fd
+    ///         .unregister_ioevent(evtfd, &mmio_addr)
+    ///         .unwrap();
+    /// };
+    /// ```
+    ///
+    pub unsafe fn unregister_ioevent(&self, fd: RawFd, addr: &IoEventAddress) -> Result<()> {
+        let mut flags = 1 << kvm_ioeventfd_flag_nr_deassign;
+        if let IoEventAddress::Pio(_) = *addr {
+            flags |= 1 << kvm_ioeventfd_flag_nr_pio
+        }
+
+        let ioeventfd = kvm_ioeventfd {
+            addr: match addr {
+                IoEventAddress::Pio(ref p) => *p as u64,
+                IoEventAddress::Mmio(ref m) => *m,
+            },
+            fd,
+            flags,
+            ..Default::default()
+        };
+        // Safe because we know that our file is a VM fd, we know the kernel will only read the
+        // correct amount of memory from our pointer, and we verify the return result.
+        let ret = ioctl_with_ref(self, KVM_IOEVENTFD(), &ioeventfd);
+        if ret == 0 {
+            Ok(())
+        } else {
+            Err(io::Error::last_os_error())
+        }
+    }
+
     /// Gets the bitmap of pages dirtied since the last call of this function.
     ///
     /// Leverages the dirty page logging feature in KVM. As a side-effect, this also resets the
@@ -1155,6 +1222,34 @@ mod tests {
         assert!(vm_fd
             .register_ioevent(evtfd, &IoEventAddress::Pio(0xc8), 0xdead_beef_dead_beefu64)
             .is_ok());
+    }
+
+    #[test]
+    fn test_unregister_ioevent() {
+        assert_eq!(std::mem::size_of::<NoDatamatch>(), 0);
+
+        let kvm = Kvm::new().unwrap();
+        let vm_fd = kvm.create_vm().unwrap();
+        let evtfd = unsafe { eventfd(0, EFD_NONBLOCK) };
+        let pio_addr = IoEventAddress::Pio(0xf4);
+        let mmio_addr = IoEventAddress::Mmio(0x1000);
+
+        // First try to unregister addresses which have not been registered.
+        assert!(unsafe { vm_fd.unregister_ioevent(evtfd, &pio_addr) }.is_err());
+        assert!(unsafe { vm_fd.unregister_ioevent(evtfd, &mmio_addr) }.is_err());
+
+        // Now register the addresses
+        assert!(vm_fd
+            .register_ioevent(evtfd, &pio_addr, NoDatamatch)
+            .is_ok());
+        assert!(vm_fd
+            .register_ioevent(evtfd, &mmio_addr, NoDatamatch)
+            .is_ok());
+
+        // Try again unregistering the addresses. This time it should work
+        // since they have been previously registered.
+        assert!(unsafe { vm_fd.unregister_ioevent(evtfd, &pio_addr) }.is_ok());
+        assert!(unsafe { vm_fd.unregister_ioevent(evtfd, &mmio_addr) }.is_ok());
     }
 
     #[test]
