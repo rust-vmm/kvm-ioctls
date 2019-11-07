@@ -13,7 +13,7 @@ use std::os::unix::io::{AsRawFd, RawFd};
 
 use ioctls::{KvmRunWrapper, Result};
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-use kvm_bindings::CpuId;
+use kvm_bindings::{CpuId, Msrs};
 use kvm_ioctls::*;
 use vmm_sys_util::ioctl::{ioctl, ioctl_with_mut_ref, ioctl_with_ref};
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
@@ -483,24 +483,35 @@ impl VcpuFd {
     /// # extern crate kvm_ioctls;
     /// # extern crate kvm_bindings;
     /// # use kvm_ioctls::Kvm;
-    /// # use kvm_bindings::kvm_msrs;
+    /// # use kvm_bindings::{kvm_msr_entry, Msrs};
     /// let kvm = Kvm::new().unwrap();
     /// let vm = kvm.create_vm().unwrap();
     /// let vcpu = vm.create_vcpu(0).unwrap();
-    /// let mut msrs = kvm_msrs::default();
-    /// vcpu.get_msrs(&mut msrs).unwrap();
+    /// // Configure the struct to say which entries we want to get.
+    /// let mut msrs = Msrs::from_entries(&[
+    ///     kvm_msr_entry {
+    ///         index: 0x0000_0174,
+    ///         ..Default::default()
+    ///     },
+    ///     kvm_msr_entry {
+    ///         index: 0x0000_0175,
+    ///         ..Default::default()
+    ///     },
+    /// ]);
+    /// let read = vcpu.get_msrs(&mut msrs).unwrap();
+    /// assert_eq!(read, 2);
     /// ```
     ///
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-    pub fn get_msrs(&self, msrs: &mut kvm_msrs) -> Result<(i32)> {
+    pub fn get_msrs(&self, msrs: &mut Msrs) -> Result<usize> {
         let ret = unsafe {
             // Here we trust the kernel not to read past the end of the kvm_msrs struct.
-            ioctl_with_mut_ref(self, KVM_GET_MSRS(), msrs)
+            ioctl_with_mut_ptr(self, KVM_GET_MSRS(), msrs.as_mut_fam_struct_ptr())
         };
         if ret < 0 {
             return Err(io::Error::last_os_error());
         }
-        Ok(ret)
+        Ok(ret as usize)
     }
 
     /// Setup the model-specific registers (MSR) for this vCPU.
@@ -518,50 +529,33 @@ impl VcpuFd {
     /// # extern crate kvm_ioctls;
     /// # extern crate kvm_bindings;
     /// # use kvm_ioctls::Kvm;
-    /// # use kvm_bindings::{kvm_msrs, kvm_msr_entry};
-    /// # use std::mem;
+    /// # use kvm_bindings::{kvm_msr_entry, Msrs};
     /// let kvm = Kvm::new().unwrap();
     /// let vm = kvm.create_vm().unwrap();
     /// let vcpu = vm.create_vcpu(0).unwrap();
-    /// let mut msrs = kvm_msrs::default();
-    /// vcpu.get_msrs(&mut msrs).unwrap();
     ///
-    /// let msrs_entries = {
+    /// // Configure the entries we want to set.
+    /// let mut msrs = Msrs::from_entries(&[
     ///     kvm_msr_entry {
     ///         index: 0x0000_0174,
     ///         ..Default::default()
-    ///     }
-    /// };
-    ///
-    /// // Create a vector large enough to hold the MSR entry defined above in
-    /// // a `kvm_msrs`structure.
-    /// let mut msrs_vec: Vec<u8> =
-    ///     vec![0u8; mem::size_of::<kvm_msrs>() + mem::size_of::<kvm_msr_entry>()];
-    /// {
-    ///     let kvm_msr_entries = unsafe {
-    ///         &mut *(msrs_vec.as_mut_slice()[mem::size_of::<kvm_msrs>()..].as_mut_ptr()
-    ///             as *mut kvm_msr_entry)
-    ///     };
-    ///     *kvm_msr_entries = msrs_entries;
-    /// }
-    /// let mut msrs: &mut kvm_msrs = unsafe {
-    ///     &mut *(msrs_vec.as_ptr() as *mut kvm_msrs)
-    /// };
-    /// msrs.nmsrs = 1;
-    /// assert_eq!(vcpu.set_msrs(msrs).unwrap(), 1);
+    ///     },
+    /// ]);
+    /// let written = vcpu.set_msrs(&msrs).unwrap();
+    /// assert_eq!(written, 1);
     /// ```
     ///
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-    pub fn set_msrs(&self, msrs: &kvm_msrs) -> Result<i32> {
+    pub fn set_msrs(&self, msrs: &Msrs) -> Result<usize> {
         let ret = unsafe {
             // Here we trust the kernel not to read past the end of the kvm_msrs struct.
-            ioctl_with_ref(self, KVM_SET_MSRS(), msrs)
+            ioctl_with_ptr(self, KVM_SET_MSRS(), msrs.as_fam_struct_ptr())
         };
         // KVM_SET_MSRS actually returns the number of msr entries written.
         if ret < 0 {
             return Err(io::Error::last_os_error());
         }
-        Ok(ret)
+        Ok(ret as usize)
     }
 
     /// Returns the vcpu's current "multiprocessing state".
@@ -1297,37 +1291,30 @@ mod tests {
     #[cfg(target_arch = "x86_64")]
     #[test]
     fn msrs_test() {
-        use std::mem;
+        use vmm_sys_util::fam::FamStruct;
         let kvm = Kvm::new().unwrap();
         let vm = kvm.create_vm().unwrap();
         let vcpu = vm.create_vcpu(0).unwrap();
-        let mut configured_entry_vec = Vec::<kvm_msr_entry>::new();
 
-        configured_entry_vec.push(kvm_msr_entry {
-            index: 0x0000_0174,
-            data: 0x0,
-            ..Default::default()
-        });
-        configured_entry_vec.push(kvm_msr_entry {
-            index: 0x0000_0175,
-            data: 0x1,
-            ..Default::default()
-        });
+        // Set the following MSRs.
+        let msrs_to_set = [
+            kvm_msr_entry {
+                index: 0x0000_0174,
+                data: 0x0,
+                ..Default::default()
+            },
+            kvm_msr_entry {
+                index: 0x0000_0175,
+                data: 0x1,
+                ..Default::default()
+            },
+        ];
+        let msrs_wrapper = Msrs::from_entries(&msrs_to_set);
+        vcpu.set_msrs(&msrs_wrapper).unwrap();
 
-        let vec_size_bytes = mem::size_of::<kvm_msrs>()
-            + (configured_entry_vec.len() * mem::size_of::<kvm_msr_entry>());
-        let vec: Vec<u8> = Vec::with_capacity(vec_size_bytes);
-        let msrs: &mut kvm_msrs = unsafe { &mut *(vec.as_ptr() as *mut kvm_msrs) };
-        unsafe {
-            let entries: &mut [kvm_msr_entry] =
-                msrs.entries.as_mut_slice(configured_entry_vec.len());
-            entries.copy_from_slice(&configured_entry_vec);
-        }
-        msrs.nmsrs = configured_entry_vec.len() as u32;
-        assert_eq!(vcpu.set_msrs(msrs).unwrap(), msrs.nmsrs as i32);
-
-        //now test that GET_MSRS returns the same
-        let wanted_kvm_msrs_entries = [
+        // Now test that GET_MSRS returns the same.
+        // Configure the struct to say which entries we want.
+        let mut returned_kvm_msrs = Msrs::from_entries(&[
             kvm_msr_entry {
                 index: 0x0000_0174,
                 ..Default::default()
@@ -1336,29 +1323,17 @@ mod tests {
                 index: 0x0000_0175,
                 ..Default::default()
             },
-        ];
-        let vec2: Vec<u8> = Vec::with_capacity(vec_size_bytes);
-        let mut msrs2: &mut kvm_msrs = unsafe {
-            // Converting the vector's memory to a struct is unsafe.  Carefully using the read-only
-            // vector to size and set the members ensures no out-of-bounds errors below.
-            &mut *(vec2.as_ptr() as *mut kvm_msrs)
-        };
+        ]);
+        let nmsrs = vcpu.get_msrs(&mut returned_kvm_msrs).unwrap();
 
-        unsafe {
-            let entries: &mut [kvm_msr_entry] =
-                msrs2.entries.as_mut_slice(configured_entry_vec.len());
-            entries.copy_from_slice(&wanted_kvm_msrs_entries);
-        }
-        msrs2.nmsrs = configured_entry_vec.len() as u32;
+        // Verify the lengths match.
+        assert_eq!(nmsrs, msrs_to_set.len());
+        assert_eq!(nmsrs, returned_kvm_msrs.as_fam_struct_ref().len() as usize);
 
-        let read_msrs = vcpu.get_msrs(&mut msrs2).unwrap();
-        assert_eq!(read_msrs, configured_entry_vec.len() as i32);
-
-        let returned_kvm_msr_entries: &mut [kvm_msr_entry] =
-            unsafe { msrs2.entries.as_mut_slice(msrs2.nmsrs as usize) };
-
-        for (i, entry) in returned_kvm_msr_entries.iter_mut().enumerate() {
-            assert_eq!(entry, &mut configured_entry_vec[i]);
+        // Verify the contents match.
+        let returned_kvm_msr_entries = returned_kvm_msrs.as_slice();
+        for (i, entry) in returned_kvm_msr_entries.iter().enumerate() {
+            assert_eq!(entry, &msrs_to_set[i]);
         }
     }
 
@@ -1579,11 +1554,11 @@ mod tests {
             badf_errno
         );
         assert_eq!(
-            get_raw_errno(faulty_vcpu_fd.get_msrs(&mut kvm_msrs::default())),
+            get_raw_errno(faulty_vcpu_fd.get_msrs(&mut Msrs::new(1))),
             badf_errno
         );
         assert_eq!(
-            get_raw_errno(faulty_vcpu_fd.set_msrs(&unsafe { std::mem::zeroed() })),
+            get_raw_errno(faulty_vcpu_fd.set_msrs(&mut Msrs::new(1))),
             badf_errno
         );
         assert_eq!(get_raw_errno(faulty_vcpu_fd.get_mp_state()), badf_errno);
