@@ -13,10 +13,6 @@ use std::ptr::null_mut;
 use std::result;
 
 use kvm_bindings::kvm_run;
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-use kvm_bindings::{kvm_cpuid2, kvm_cpuid_entry2};
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-use vmm_sys_util::fam::{FamStruct, FamStructWrapper};
 
 /// Wrappers over KVM device ioctls.
 pub mod device;
@@ -65,80 +61,6 @@ fn vec_with_array_field<T: Default, F>(count: usize) -> Vec<T> {
     let vec_size_bytes = size_of::<T>() + element_space;
     vec_with_size_in_bytes(vec_size_bytes)
 }
-
-/// Maximum number of CPUID entries that can be returned by a call to KVM ioctls.
-///
-/// This value is taken from Linux Kernel v4.14.13 (arch/x86/include/asm/kvm_host.h).
-/// It can be used for calls to [get_supported_cpuid](struct.Kvm.html#method.get_supported_cpuid) and
-/// [get_emulated_cpuid](struct.Kvm.html#method.get_emulated_cpuid).
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-pub const MAX_KVM_CPUID_ENTRIES: usize = 80;
-
-/// Maximum number of MSRs KVM supports (See arch/x86/kvm/x86.c).
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-pub const KVM_MAX_MSR_ENTRIES: usize = 256;
-
-// We can't implement FamStruct directly for kvm_cpuid2.
-// We would get an "impl doesn't use types inside crate" error.
-// We have to create a shadow structure as a workaround.
-#[derive(Default)]
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-pub struct KvmCpuId(kvm_cpuid2);
-
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-impl Clone for KvmCpuId {
-    fn clone(&self) -> Self {
-        let KvmCpuId(cpuid) = self;
-        KvmCpuId(kvm_cpuid2 {
-            nent: cpuid.nent,
-            padding: cpuid.padding,
-            entries: cpuid.entries.clone(),
-        })
-    }
-}
-
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-unsafe impl FamStruct for KvmCpuId {
-    type Entry = kvm_cpuid_entry2;
-
-    fn len(&self) -> usize {
-        let KvmCpuId(cpuid) = self;
-        cpuid.nent as usize
-    }
-
-    fn set_len(&mut self, len: usize) {
-        let KvmCpuId(cpuid) = self;
-        cpuid.nent = len as u32;
-    }
-
-    fn max_len() -> usize {
-        MAX_KVM_CPUID_ENTRIES
-    }
-
-    fn as_slice(&self) -> &[Self::Entry] {
-        let len = self.len();
-        let KvmCpuId(cpuid) = self;
-        // This is safe because the provided length is correct.
-        unsafe { cpuid.entries.as_slice(len) }
-    }
-
-    fn as_mut_slice(&mut self) -> &mut [Self::Entry] {
-        let len = self.len();
-        let KvmCpuId(cpuid) = self;
-        // This is safe because the provided length is correct.
-        unsafe { cpuid.entries.as_mut_slice(len) }
-    }
-}
-
-/// Wrapper over the `kvm_cpuid2` structure.
-///
-/// The `kvm_cpuid2` structure contains a flexible array member. For details check the
-/// [KVM API](https://www.kernel.org/doc/Documentation/virtual/kvm/api.txt)
-/// documentation on `kvm_cpuid2`. To provide safe access to
-/// the array elements, this type is implemented using
-/// [FamStructWrapper](../vmm_sys_util/fam/struct.FamStructWrapper.html).
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-pub type CpuId = FamStructWrapper<KvmCpuId>;
 
 /// Safe wrapper over the `kvm_run` struct.
 ///
