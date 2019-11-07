@@ -14,12 +14,11 @@ use std::os::raw::{c_char, c_ulong};
 use std::os::unix::io::{AsRawFd, FromRawFd, RawFd};
 
 use cap::Cap;
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 use ioctls::vec_with_array_field;
 use ioctls::vm::{new_vmfd, VmFd};
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-use ioctls::CpuId;
 use ioctls::Result;
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+use kvm_bindings::CpuId;
 use kvm_ioctls::*;
 use vmm_sys_util::ioctl::{ioctl, ioctl_with_val};
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
@@ -265,12 +264,14 @@ impl Kvm {
     /// # Example
     ///
     /// ```
-    /// use kvm_ioctls::{Kvm, MAX_KVM_CPUID_ENTRIES};
+    /// extern crate kvm_bindings;
+    /// use kvm_bindings::KVM_MAX_CPUID_ENTRIES;
+    /// use kvm_ioctls::Kvm;
     ///
     /// let kvm = Kvm::new().unwrap();
-    /// let mut cpuid = kvm.get_emulated_cpuid(MAX_KVM_CPUID_ENTRIES).unwrap();
+    /// let mut cpuid = kvm.get_emulated_cpuid(KVM_MAX_CPUID_ENTRIES).unwrap();
     /// let cpuid_entries = cpuid.as_mut_slice();
-    /// assert!(cpuid_entries.len() <= MAX_KVM_CPUID_ENTRIES);
+    /// assert!(cpuid_entries.len() <= KVM_MAX_CPUID_ENTRIES);
     /// ```
     ///
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
@@ -290,12 +291,14 @@ impl Kvm {
     /// # Example
     ///
     /// ```
-    /// use kvm_ioctls::{Kvm, MAX_KVM_CPUID_ENTRIES};
+    /// extern crate kvm_bindings;
+    /// use kvm_bindings::KVM_MAX_CPUID_ENTRIES;
+    /// use kvm_ioctls::Kvm;
     ///
     /// let kvm = Kvm::new().unwrap();
-    /// let mut cpuid = kvm.get_emulated_cpuid(MAX_KVM_CPUID_ENTRIES).unwrap();
+    /// let mut cpuid = kvm.get_emulated_cpuid(KVM_MAX_CPUID_ENTRIES).unwrap();
     /// let cpuid_entries = cpuid.as_mut_slice();
-    /// assert!(cpuid_entries.len() <= MAX_KVM_CPUID_ENTRIES);
+    /// assert!(cpuid_entries.len() <= KVM_MAX_CPUID_ENTRIES);
     /// ```
     ///
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
@@ -310,7 +313,7 @@ impl Kvm {
     /// # Example
     ///
     /// ```
-    /// use kvm_ioctls::{Kvm, MAX_KVM_CPUID_ENTRIES};
+    /// use kvm_ioctls::Kvm;
     ///
     /// let kvm = Kvm::new().unwrap();
     /// let msr_index_list = kvm.get_msr_index_list().unwrap();
@@ -406,9 +409,9 @@ impl FromRawFd for Kvm {
 mod tests {
     use super::*;
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-    use vmm_sys_util::fam::FamStruct;
+    use kvm_bindings::KVM_MAX_CPUID_ENTRIES;
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-    use MAX_KVM_CPUID_ENTRIES;
+    use vmm_sys_util::fam::FamStruct;
 
     #[test]
     fn test_kvm_new() {
@@ -454,20 +457,20 @@ mod tests {
     #[test]
     fn test_get_supported_cpuid() {
         let kvm = Kvm::new().unwrap();
-        let mut cpuid = kvm.get_supported_cpuid(MAX_KVM_CPUID_ENTRIES).unwrap();
+        let mut cpuid = kvm.get_supported_cpuid(KVM_MAX_CPUID_ENTRIES).unwrap();
         let cpuid_entries = cpuid.as_mut_slice();
         assert!(cpuid_entries.len() > 0);
-        assert!(cpuid_entries.len() <= MAX_KVM_CPUID_ENTRIES);
+        assert!(cpuid_entries.len() <= KVM_MAX_CPUID_ENTRIES);
     }
 
     #[test]
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     fn test_get_emulated_cpuid() {
         let kvm = Kvm::new().unwrap();
-        let mut cpuid = kvm.get_emulated_cpuid(MAX_KVM_CPUID_ENTRIES).unwrap();
+        let mut cpuid = kvm.get_emulated_cpuid(KVM_MAX_CPUID_ENTRIES).unwrap();
         let cpuid_entries = cpuid.as_mut_slice();
         assert!(cpuid_entries.len() > 0);
-        assert!(cpuid_entries.len() <= MAX_KVM_CPUID_ENTRIES);
+        assert!(cpuid_entries.len() <= KVM_MAX_CPUID_ENTRIES);
     }
 
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
@@ -480,10 +483,8 @@ mod tests {
         assert!(rawfd >= 0);
         let kvm = unsafe { Kvm::from_raw_fd(rawfd) };
 
-        let cpuid_1 = kvm.get_supported_cpuid(MAX_KVM_CPUID_ENTRIES).unwrap();
-        let mut cpuid_2 = cpuid_1.clone();
-        assert!(cpuid_1 == cpuid_2);
-        cpuid_2 = CpuId::new(cpuid_1.as_fam_struct_ref().len());
+        let cpuid_1 = kvm.get_supported_cpuid(KVM_MAX_CPUID_ENTRIES).unwrap();
+        let cpuid_2 = CpuId::new(cpuid_1.as_fam_struct_ref().len());
         assert!(cpuid_1 != cpuid_2);
     }
 

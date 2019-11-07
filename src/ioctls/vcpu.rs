@@ -11,9 +11,9 @@ use std::fs::File;
 use std::io;
 use std::os::unix::io::{AsRawFd, RawFd};
 
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-use ioctls::CpuId;
 use ioctls::{KvmRunWrapper, Result};
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+use kvm_bindings::CpuId;
 use kvm_ioctls::*;
 use vmm_sys_util::ioctl::{ioctl, ioctl_with_mut_ref, ioctl_with_ref};
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
@@ -317,9 +317,10 @@ impl VcpuFd {
     ///  ```rust
     /// # extern crate kvm_ioctls;
     /// # extern crate kvm_bindings;
-    /// # use kvm_ioctls::{Kvm, MAX_KVM_CPUID_ENTRIES};
+    /// # use kvm_bindings::KVM_MAX_CPUID_ENTRIES;
+    /// # use kvm_ioctls::Kvm;
     /// let kvm = Kvm::new().unwrap();
-    /// let mut kvm_cpuid = kvm.get_supported_cpuid(MAX_KVM_CPUID_ENTRIES).unwrap();
+    /// let mut kvm_cpuid = kvm.get_supported_cpuid(KVM_MAX_CPUID_ENTRIES).unwrap();
     /// let vm = kvm.create_vm().unwrap();
     /// let vcpu = vm.create_vcpu(0).unwrap();
     ///
@@ -365,11 +366,12 @@ impl VcpuFd {
     ///  ```rust
     /// # extern crate kvm_ioctls;
     /// # extern crate kvm_bindings;
-    /// # use kvm_ioctls::{Kvm, MAX_KVM_CPUID_ENTRIES};
+    /// # use kvm_bindings::KVM_MAX_CPUID_ENTRIES;
+    /// # use kvm_ioctls::Kvm;
     /// let kvm = Kvm::new().unwrap();
     /// let vm = kvm.create_vm().unwrap();
     /// let vcpu = vm.create_vcpu(0).unwrap();
-    /// let cpuid = vcpu.get_cpuid2(MAX_KVM_CPUID_ENTRIES).unwrap();
+    /// let cpuid = vcpu.get_cpuid2(KVM_MAX_CPUID_ENTRIES).unwrap();
     /// ```
     ///
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
@@ -1185,7 +1187,7 @@ mod tests {
     use super::*;
     use ioctls::system::Kvm;
     #[cfg(target_arch = "x86_64")]
-    use {Cap, MAX_KVM_CPUID_ENTRIES};
+    use Cap;
 
     // Helper function for memory mapping `size` bytes of anonymous memory.
     // Panics if the mmap fails.
@@ -1224,9 +1226,9 @@ mod tests {
         let kvm = Kvm::new().unwrap();
         if kvm.check_extension(Cap::ExtCpuid) {
             let vm = kvm.create_vm().unwrap();
-            let cpuid = kvm.get_supported_cpuid(MAX_KVM_CPUID_ENTRIES).unwrap();
+            let cpuid = kvm.get_supported_cpuid(KVM_MAX_CPUID_ENTRIES).unwrap();
             let ncpuids = cpuid.as_slice().len();
-            assert!(ncpuids <= MAX_KVM_CPUID_ENTRIES);
+            assert!(ncpuids <= KVM_MAX_CPUID_ENTRIES);
             let nr_vcpus = kvm.get_nr_vcpus();
             for cpu_idx in 0..nr_vcpus {
                 let vcpu = vm.create_vcpu(cpu_idx as u8).unwrap();
@@ -1562,7 +1564,7 @@ mod tests {
                 faulty_vcpu_fd.set_cpuid2(
                     &Kvm::new()
                         .unwrap()
-                        .get_supported_cpuid(MAX_KVM_CPUID_ENTRIES)
+                        .get_supported_cpuid(KVM_MAX_CPUID_ENTRIES)
                         .unwrap()
                 )
             ),

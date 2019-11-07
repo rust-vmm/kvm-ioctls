@@ -10,7 +10,7 @@ license = "Apache-2.0 OR MIT"
 
 [dependencies]
 libc = ">=0.2.39"
-kvm-bindings = ">=0.1.0"
+kvm-bindings = { version = ">=0.2.0", features = ["fam-wrappers"] }
 vmm-sys-util = ">=0.1.1"
 
 [dev-dependencies]
