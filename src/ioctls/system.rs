@@ -6,19 +6,28 @@
 // found in the THIRD-PARTY file.
 use libc::{open, O_CLOEXEC, O_RDWR};
 use std::fs::File;
-use std::io;
 use std::os::raw::{c_char, c_ulong};
 use std::os::unix::io::{AsRawFd, FromRawFd, RawFd};
 
 use cap::Cap;
 use ioctls::vm::{new_vmfd, VmFd};
-use ioctls::Result;
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 use kvm_bindings::{CpuId, MsrList, KVM_MAX_MSR_ENTRIES};
 use kvm_ioctls::*;
+use vmm_sys_util::errno;
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 use vmm_sys_util::ioctl::ioctl_with_mut_ptr;
 use vmm_sys_util::ioctl::{ioctl, ioctl_with_val};
+
+/// A specialized `Result` type for system KVM ioctls.
+///
+/// This typedef is generally used to avoid writing out errno::Error directly and
+/// is otherwise a direct mapping to Result.
+///
+/// This is temporary until all io::Errors have been converted to errno::Errors and will
+/// be removed in a later commit. I've chosen to temporarily add it so that each individual
+/// commit is buildable and functioning.
+pub type Result<T> = std::result::Result<T, errno::Error>;
 
 /// Wrapper over KVM system ioctls.
 pub struct Kvm {
@@ -84,7 +93,7 @@ impl Kvm {
         // Safe because we give a constant nul-terminated string and verify the result.
         let ret = unsafe { open("/dev/kvm\0".as_ptr() as *const c_char, open_flags) };
         if ret < 0 {
-            Err(io::Error::last_os_error())
+            Err(errno::Error::last())
         } else {
             Ok(ret)
         }
@@ -159,7 +168,7 @@ impl Kvm {
         if res > 0 {
             Ok(res as usize)
         } else {
-            Err(io::Error::last_os_error())
+            Err(errno::Error::last())
         }
     }
 
@@ -242,7 +251,7 @@ impl Kvm {
             ioctl_with_mut_ptr(self, kind, cpuid.as_mut_fam_struct_ptr())
         };
         if ret < 0 {
-            return Err(io::Error::last_os_error());
+            return Err(errno::Error::last());
         }
 
         Ok(cpuid)
@@ -329,7 +338,7 @@ impl Kvm {
             )
         };
         if ret < 0 {
-            return Err(io::Error::last_os_error());
+            return Err(errno::Error::last());
         }
 
         // The ioctl will also update the internal `nmsrs` with the actual count.
@@ -362,7 +371,7 @@ impl Kvm {
             let run_mmap_size = self.get_vcpu_mmap_size()?;
             Ok(new_vmfd(vm_file, run_mmap_size))
         } else {
-            Err(io::Error::last_os_error())
+            Err(errno::Error::last())
         }
     }
 
@@ -483,10 +492,6 @@ mod tests {
         assert!(msr_list.as_slice().len() >= 2);
     }
 
-    fn get_raw_errno<T>(result: super::Result<T>) -> i32 {
-        result.err().unwrap().raw_os_error().unwrap()
-    }
-
     #[test]
     fn test_bad_kvm_fd() {
         let badf_errno = libc::EBADF;
@@ -495,16 +500,28 @@ mod tests {
             kvm: unsafe { File::from_raw_fd(-1) },
         };
 
-        assert_eq!(get_raw_errno(faulty_kvm.get_vcpu_mmap_size()), badf_errno);
+        assert_eq!(
+            faulty_kvm.get_vcpu_mmap_size().unwrap_err().errno(),
+            badf_errno
+        );
         assert_eq!(faulty_kvm.get_nr_vcpus(), 4);
         assert_eq!(faulty_kvm.get_nr_memslots(), 32);
         #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
         {
-            assert_eq!(get_raw_errno(faulty_kvm.get_emulated_cpuid(4)), badf_errno);
-            assert_eq!(get_raw_errno(faulty_kvm.get_supported_cpuid(4)), badf_errno);
+            assert_eq!(
+                faulty_kvm.get_emulated_cpuid(4).err().unwrap().errno(),
+                badf_errno
+            );
+            assert_eq!(
+                faulty_kvm.get_supported_cpuid(4).err().unwrap().errno(),
+                badf_errno
+            );
 
-            assert_eq!(get_raw_errno(faulty_kvm.get_msr_index_list()), badf_errno);
+            assert_eq!(
+                faulty_kvm.get_msr_index_list().err().unwrap().errno(),
+                badf_errno
+            );
         }
-        assert_eq!(get_raw_errno(faulty_kvm.create_vm()), badf_errno);
+        assert_eq!(faulty_kvm.create_vm().err().unwrap().errno(), badf_errno);
     }
 }
