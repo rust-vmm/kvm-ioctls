@@ -5,10 +5,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the THIRD-PARTY file.
 
-use ioctls::Result;
 use kvm_bindings::*;
 use std::fs::File;
-use std::io;
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 use std::os::raw::c_void;
 use std::os::raw::{c_int, c_ulong};
@@ -20,8 +18,19 @@ use ioctls::vcpu::new_vcpu;
 use ioctls::vcpu::VcpuFd;
 use ioctls::KvmRunWrapper;
 use kvm_ioctls::*;
+use vmm_sys_util::errno;
 use vmm_sys_util::eventfd::EventFd;
 use vmm_sys_util::ioctl::{ioctl, ioctl_with_mut_ref, ioctl_with_ref, ioctl_with_val};
+
+/// A specialized `Result` type for vm KVM ioctls.
+///
+/// This typedef is generally used to avoid writing out errno::Error directly and
+/// is otherwise a direct mapping to Result.
+///
+/// This is temporary until all io::Errors have been converted to errno::Errors and will
+/// be removed in a later commit. I've chosen to temporarily add it so that each individual
+/// commit is buildable and functioning.
+pub type Result<T> = std::result::Result<T, errno::Error>;
 
 /// An address either in programmable I/O space or in memory mapped I/O space.
 ///
@@ -106,7 +115,7 @@ impl VmFd {
         if ret == 0 {
             Ok(())
         } else {
-            Err(io::Error::last_os_error())
+            Err(errno::Error::last())
         }
     }
 
@@ -135,7 +144,7 @@ impl VmFd {
         if ret == 0 {
             Ok(())
         } else {
-            Err(io::Error::last_os_error())
+            Err(errno::Error::last())
         }
     }
 
@@ -167,7 +176,7 @@ impl VmFd {
         if ret == 0 {
             Ok(())
         } else {
-            Err(io::Error::last_os_error())
+            Err(errno::Error::last())
         }
     }
 
@@ -205,7 +214,7 @@ impl VmFd {
         if ret == 0 {
             Ok(())
         } else {
-            Err(io::Error::last_os_error())
+            Err(errno::Error::last())
         }
     }
 
@@ -244,7 +253,7 @@ impl VmFd {
         if ret == 0 {
             Ok(())
         } else {
-            Err(io::Error::last_os_error())
+            Err(errno::Error::last())
         }
     }
 
@@ -276,7 +285,7 @@ impl VmFd {
         if ret == 0 {
             Ok(())
         } else {
-            Err(io::Error::last_os_error())
+            Err(errno::Error::last())
         }
     }
 
@@ -314,7 +323,7 @@ impl VmFd {
         if ret == 0 {
             Ok(pitstate)
         } else {
-            Err(io::Error::last_os_error())
+            Err(errno::Error::last())
         }
     }
 
@@ -353,7 +362,7 @@ impl VmFd {
         if ret == 0 {
             Ok(())
         } else {
-            Err(io::Error::last_os_error())
+            Err(errno::Error::last())
         }
     }
 
@@ -386,7 +395,7 @@ impl VmFd {
         if ret == 0 {
             Ok(clock)
         } else {
-            Err(io::Error::last_os_error())
+            Err(errno::Error::last())
         }
     }
 
@@ -421,7 +430,7 @@ impl VmFd {
         if ret == 0 {
             Ok(())
         } else {
-            Err(io::Error::last_os_error())
+            Err(errno::Error::last())
         }
     }
 
@@ -473,7 +482,7 @@ impl VmFd {
         if ret >= 0 {
             Ok(ret)
         } else {
-            Err(io::Error::last_os_error())
+            Err(errno::Error::last())
         }
     }
 
@@ -521,7 +530,7 @@ impl VmFd {
         if ret == 0 {
             Ok(())
         } else {
-            Err(io::Error::last_os_error())
+            Err(errno::Error::last())
         }
     }
 
@@ -589,7 +598,7 @@ impl VmFd {
         if ret == 0 {
             Ok(())
         } else {
-            Err(io::Error::last_os_error())
+            Err(errno::Error::last())
         }
     }
 
@@ -656,7 +665,7 @@ impl VmFd {
         if ret == 0 {
             Ok(())
         } else {
-            Err(io::Error::last_os_error())
+            Err(errno::Error::last())
         }
     }
 
@@ -779,7 +788,7 @@ impl VmFd {
         if ret == 0 {
             Ok(bitmap)
         } else {
-            Err(io::Error::last_os_error())
+            Err(errno::Error::last())
         }
     }
 
@@ -826,7 +835,7 @@ impl VmFd {
         if ret == 0 {
             Ok(())
         } else {
-            Err(io::Error::last_os_error())
+            Err(errno::Error::last())
         }
     }
 
@@ -875,7 +884,7 @@ impl VmFd {
         if ret == 0 {
             Ok(())
         } else {
-            Err(io::Error::last_os_error())
+            Err(errno::Error::last())
         }
     }
 
@@ -909,7 +918,7 @@ impl VmFd {
         #[allow(clippy::cast_lossless)]
         let vcpu_fd = unsafe { ioctl_with_val(&self.vm, KVM_CREATE_VCPU(), id as c_ulong) };
         if vcpu_fd < 0 {
-            return Err(io::Error::last_os_error());
+            return Err(errno::Error::last());
         }
 
         // Wrap the vCPU now in case the following ? returns early. This is safe because we verified
@@ -992,7 +1001,7 @@ impl VmFd {
         if ret == 0 {
             Ok(new_device(unsafe { File::from_raw_fd(device.fd as i32) }))
         } else {
-            Err(io::Error::last_os_error())
+            Err(errno::Error::last())
         }
     }
 
@@ -1025,7 +1034,7 @@ impl VmFd {
         // kernel will write exactly the size of the struct.
         let ret = unsafe { ioctl_with_mut_ref(self, KVM_ARM_PREFERRED_TARGET(), kvi) };
         if ret != 0 {
-            return Err(io::Error::last_os_error());
+            return Err(errno::Error::last());
         }
         Ok(())
     }
@@ -1082,7 +1091,7 @@ impl VmFd {
         if ret == 0 {
             Ok(())
         } else {
-            Err(io::Error::last_os_error())
+            Err(errno::Error::last())
         }
     }
 
@@ -1340,51 +1349,85 @@ mod tests {
             flags: 0,
         };
 
-        fn get_raw_errno<T>(result: super::Result<T>) -> i32 {
-            result.err().unwrap().raw_os_error().unwrap()
-        }
-
         assert_eq!(
-            get_raw_errno(unsafe { faulty_vm_fd.set_user_memory_region(invalid_mem_region) }),
+            unsafe {
+                faulty_vm_fd
+                    .set_user_memory_region(invalid_mem_region)
+                    .unwrap_err()
+                    .errno()
+            },
             badf_errno
         );
-        assert_eq!(get_raw_errno(faulty_vm_fd.set_tss_address(0)), badf_errno);
-        assert_eq!(get_raw_errno(faulty_vm_fd.create_irq_chip()), badf_errno);
         assert_eq!(
-            get_raw_errno(faulty_vm_fd.create_pit2(kvm_pit_config::default())),
+            faulty_vm_fd.set_tss_address(0).unwrap_err().errno(),
+            badf_errno
+        );
+        assert_eq!(
+            faulty_vm_fd.create_irq_chip().unwrap_err().errno(),
+            badf_errno
+        );
+        assert_eq!(
+            faulty_vm_fd
+                .create_pit2(kvm_pit_config::default())
+                .unwrap_err()
+                .errno(),
             badf_errno
         );
         let event_fd = EventFd::new(EFD_NONBLOCK).unwrap();
         assert_eq!(
-            get_raw_errno(faulty_vm_fd.register_ioevent(&event_fd, &IoEventAddress::Pio(0), 0u64)),
+            faulty_vm_fd
+                .register_ioevent(&event_fd, &IoEventAddress::Pio(0), 0u64)
+                .unwrap_err()
+                .errno(),
             badf_errno
         );
         assert_eq!(
-            get_raw_errno(faulty_vm_fd.get_irqchip(&mut kvm_irqchip::default())),
+            faulty_vm_fd
+                .get_irqchip(&mut kvm_irqchip::default())
+                .unwrap_err()
+                .errno(),
             badf_errno
         );
         assert_eq!(
-            get_raw_errno(faulty_vm_fd.set_irqchip(&kvm_irqchip::default())),
+            faulty_vm_fd
+                .set_irqchip(&kvm_irqchip::default())
+                .unwrap_err()
+                .errno(),
             badf_errno
         );
-        assert_eq!(get_raw_errno(faulty_vm_fd.get_clock()), badf_errno);
+        assert_eq!(faulty_vm_fd.get_clock().unwrap_err().errno(), badf_errno);
         assert_eq!(
-            get_raw_errno(faulty_vm_fd.set_clock(&kvm_clock_data::default())),
+            faulty_vm_fd
+                .set_clock(&kvm_clock_data::default())
+                .unwrap_err()
+                .errno(),
             badf_errno
         );
-        assert_eq!(get_raw_errno(faulty_vm_fd.get_pit2()), badf_errno);
+        assert_eq!(faulty_vm_fd.get_pit2().unwrap_err().errno(), badf_errno);
         assert_eq!(
-            get_raw_errno(faulty_vm_fd.set_pit2(&kvm_pit_state2::default())),
+            faulty_vm_fd
+                .set_pit2(&kvm_pit_state2::default())
+                .unwrap_err()
+                .errno(),
             badf_errno
         );
         assert_eq!(
-            get_raw_errno(faulty_vm_fd.register_irqfd(&event_fd, 0)),
+            faulty_vm_fd
+                .register_irqfd(&event_fd, 0)
+                .unwrap_err()
+                .errno(),
             badf_errno
         );
 
-        assert_eq!(get_raw_errno(faulty_vm_fd.create_vcpu(0)), badf_errno);
+        assert_eq!(
+            faulty_vm_fd.create_vcpu(0).err().unwrap().errno(),
+            badf_errno
+        );
 
-        assert_eq!(get_raw_errno(faulty_vm_fd.get_dirty_log(0, 0)), badf_errno);
+        assert_eq!(
+            faulty_vm_fd.get_dirty_log(0, 0).unwrap_err().errno(),
+            badf_errno
+        );
     }
 
     #[test]
