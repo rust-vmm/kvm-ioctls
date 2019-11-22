@@ -2,14 +2,23 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 use std::fs::File;
-use std::io;
 use std::os::unix::io::{AsRawFd, FromRawFd, RawFd};
 
 use kvm_bindings::kvm_device_attr;
 
-use ioctls::Result;
 use kvm_ioctls::KVM_SET_DEVICE_ATTR;
+use vmm_sys_util::errno;
 use vmm_sys_util::ioctl::ioctl_with_ref;
+
+/// A specialized `Result` type for device KVM ioctls.
+///
+/// This typedef is generally used to avoid writing out errno::Error directly and
+/// is otherwise a direct mapping to Result.
+///
+/// This is temporary until all io::Errors have been converted to errno::Errors and will
+/// be removed in a later commit. I've chosen to temporarily add it so that each individual
+/// commit is buildable and functioning.
+pub type Result<T> = std::result::Result<T, errno::Error>;
 
 /// Wrapper over the file descriptor obtained when creating an emulated device in the kernel.
 pub struct DeviceFd {
@@ -27,7 +36,7 @@ impl DeviceFd {
     pub fn set_device_attr(&self, device_attr: &kvm_device_attr) -> Result<()> {
         let ret = unsafe { ioctl_with_ref(self, KVM_SET_DEVICE_ATTR(), device_attr) };
         if ret != 0 {
-            return Err(io::Error::last_os_error());
+            return Err(errno::Error::last());
         }
         Ok(())
     }
@@ -109,6 +118,6 @@ mod tests {
         // We are just creating a test device. Creating a real device would make the CI dependent
         // on host configuration (like having /dev/vfio). We expect this to fail.
         assert!(device_fd.set_device_attr(&dist_attr).is_err());
-        assert_eq!(io::Error::last_os_error().raw_os_error().unwrap(), 25);
+        assert_eq!(errno::Error::last().errno(), 25);
     }
 }
