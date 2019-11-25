@@ -16,21 +16,11 @@ use ioctls::device::new_device;
 use ioctls::device::DeviceFd;
 use ioctls::vcpu::new_vcpu;
 use ioctls::vcpu::VcpuFd;
-use ioctls::KvmRunWrapper;
+use ioctls::{KvmRunWrapper, Result};
 use kvm_ioctls::*;
 use vmm_sys_util::errno;
 use vmm_sys_util::eventfd::EventFd;
 use vmm_sys_util::ioctl::{ioctl, ioctl_with_mut_ref, ioctl_with_ref, ioctl_with_val};
-
-/// A specialized `Result` type for vm KVM ioctls.
-///
-/// This typedef is generally used to avoid writing out errno::Error directly and
-/// is otherwise a direct mapping to Result.
-///
-/// This is temporary until all io::Errors have been converted to errno::Errors and will
-/// be removed in a later commit. I've chosen to temporarily add it so that each individual
-/// commit is buildable and functioning.
-pub type Result<T> = std::result::Result<T, errno::Error>;
 
 /// An address either in programmable I/O space or in memory mapped I/O space.
 ///

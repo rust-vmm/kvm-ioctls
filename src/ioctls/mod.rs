@@ -5,12 +5,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the THIRD-PARTY file.
 
-use std::io;
 use std::os::unix::io::AsRawFd;
 use std::ptr::null_mut;
-use std::result;
 
 use kvm_bindings::kvm_run;
+use vmm_sys_util::errno;
 
 /// Wrappers over KVM device ioctls.
 pub mod device;
@@ -23,9 +22,9 @@ pub mod vm;
 
 /// A specialized `Result` type for KVM ioctls.
 ///
-/// This typedef is generally used to avoid writing out io::Error directly and
+/// This typedef is generally used to avoid writing out errno::Error directly and
 /// is otherwise a direct mapping to Result.
-pub type Result<T> = result::Result<T, io::Error>;
+pub type Result<T> = std::result::Result<T, errno::Error>;
 
 /// Safe wrapper over the `kvm_run` struct.
 ///
@@ -64,7 +63,7 @@ impl KvmRunWrapper {
             )
         };
         if addr == libc::MAP_FAILED {
-            return Err(io::Error::last_os_error());
+            return Err(errno::Error::last());
         }
 
         Ok(KvmRunWrapper {

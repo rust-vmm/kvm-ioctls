@@ -4,21 +4,11 @@
 use std::fs::File;
 use std::os::unix::io::{AsRawFd, FromRawFd, RawFd};
 
+use ioctls::Result;
 use kvm_bindings::kvm_device_attr;
-
 use kvm_ioctls::KVM_SET_DEVICE_ATTR;
 use vmm_sys_util::errno;
 use vmm_sys_util::ioctl::ioctl_with_ref;
-
-/// A specialized `Result` type for device KVM ioctls.
-///
-/// This typedef is generally used to avoid writing out errno::Error directly and
-/// is otherwise a direct mapping to Result.
-///
-/// This is temporary until all io::Errors have been converted to errno::Errors and will
-/// be removed in a later commit. I've chosen to temporarily add it so that each individual
-/// commit is buildable and functioning.
-pub type Result<T> = std::result::Result<T, errno::Error>;
 
 /// Wrapper over the file descriptor obtained when creating an emulated device in the kernel.
 pub struct DeviceFd {

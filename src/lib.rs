@@ -198,6 +198,7 @@ pub use ioctls::vm::{IoEventAddress, NoDatamatch, VmFd};
 ///
 /// ```
 /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-/// use kvm_ioctls::{KvmRunWrapper, Result};
+/// use kvm_ioctls::{KvmRunWrapper, Error};
 /// ```
-pub use ioctls::{KvmRunWrapper, Result};
+pub use ioctls::KvmRunWrapper;
+pub use vmm_sys_util::errno::Error;

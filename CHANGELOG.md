@@ -1,3 +1,13 @@
+# Unreleased
+
+## Changed
+- Now exporting kvm_ioctls::Error type definition so that users of this
+  crate can create their own wrapping errors without having to know the
+  Error type used internally by this crate.
+- No longer exporting kvm_ioctls::Result. Users of this crate should
+  not have to use kvm_ioctls::Result outside the crate.
+- kvm_ioctls::Error now works with errno::Error instead of io::Error.
+
 # v0.3.0
 
 ## Added
