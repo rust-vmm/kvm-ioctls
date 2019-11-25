@@ -1203,7 +1203,7 @@ mod tests {
             panic!("mmap failed.");
         }
 
-        return addr as *mut u8;
+        addr as *mut u8
     }
 
     #[test]
@@ -1443,7 +1443,7 @@ mod tests {
             // Get a mutable slice of `mem_size` from `load_addr`.
             // This is safe because we mapped it before.
             let mut slice = std::slice::from_raw_parts_mut(load_addr, mem_size);
-            slice.write(&code).unwrap();
+            slice.write_all(&code).unwrap();
         }
 
         let vcpu_fd = vm.create_vcpu(0).unwrap();
@@ -1488,10 +1488,10 @@ mod tests {
                     // * one when the code itself is loaded in memory;
                     // * and one more from the `movl` that writes to address 0x8000
                     let dirty_pages_bitmap = vm.get_dirty_log(slot, mem_size).unwrap();
-                    let dirty_pages = dirty_pages_bitmap
+                    let dirty_pages: u32 = dirty_pages_bitmap
                         .into_iter()
                         .map(|page| page.count_ones())
-                        .fold(0, |dirty_page_count, i| dirty_page_count + i);
+                        .sum();
                     assert_eq!(dirty_pages, 2);
                     break;
                 }
@@ -1573,10 +1573,7 @@ mod tests {
             badf_errno
         );
         assert_eq!(
-            faulty_vcpu_fd
-                .set_msrs(&mut Msrs::new(1))
-                .unwrap_err()
-                .errno(),
+            faulty_vcpu_fd.set_msrs(&Msrs::new(1)).unwrap_err().errno(),
             badf_errno
         );
         assert_eq!(

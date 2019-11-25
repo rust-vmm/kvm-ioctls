@@ -446,7 +446,7 @@ mod tests {
         let kvm = Kvm::new().unwrap();
         let mut cpuid = kvm.get_supported_cpuid(KVM_MAX_CPUID_ENTRIES).unwrap();
         let cpuid_entries = cpuid.as_mut_slice();
-        assert!(cpuid_entries.len() > 0);
+        assert!(!cpuid_entries.is_empty());
         assert!(cpuid_entries.len() <= KVM_MAX_CPUID_ENTRIES);
     }
 
@@ -456,7 +456,7 @@ mod tests {
         let kvm = Kvm::new().unwrap();
         let mut cpuid = kvm.get_emulated_cpuid(KVM_MAX_CPUID_ENTRIES).unwrap();
         let cpuid_entries = cpuid.as_mut_slice();
-        assert!(cpuid_entries.len() > 0);
+        assert!(!cpuid_entries.is_empty());
         assert!(cpuid_entries.len() <= KVM_MAX_CPUID_ENTRIES);
     }
 

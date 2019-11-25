@@ -100,7 +100,7 @@ mod tests {
 
         let dist_attr = kvm_bindings::kvm_device_attr {
             group: KVM_DEV_VFIO_GROUP,
-            attr: KVM_DEV_VFIO_GROUP_ADD as u64,
+            attr: u64::from(KVM_DEV_VFIO_GROUP_ADD),
             addr: 0x0,
             flags: 0,
         };

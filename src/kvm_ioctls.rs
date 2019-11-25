@@ -211,7 +211,7 @@ mod tests {
     use vmm_sys_util::ioctl::{ioctl, ioctl_with_val};
 
     use super::*;
-    const KVM_PATH: &'static str = "/dev/kvm\0";
+    const KVM_PATH: &str = "/dev/kvm\0";
 
     #[test]
     fn get_version() {
