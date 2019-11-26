@@ -62,7 +62,12 @@ pub enum Cap {
     XenHvm = KVM_CAP_XEN_HVM,
     AdjustClock = KVM_CAP_ADJUST_CLOCK,
     InternalErrorData = KVM_CAP_INTERNAL_ERROR_DATA,
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(any(
+        target_arch = "x86",
+        target_arch = "x86_64",
+        target_arch = "arm",
+        target_arch = "aarch64"
+    ))]
     VcpuEvents = KVM_CAP_VCPU_EVENTS,
     S390Psw = KVM_CAP_S390_PSW,
     PpcSegstate = KVM_CAP_PPC_SEGSTATE,
