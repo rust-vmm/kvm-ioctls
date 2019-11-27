@@ -1,12 +1,27 @@
-# Unreleased
+# v0.4.0
+
+## Added
+- Support for unregistering ioeventfds through `KVM_IOEVENTFD`.
 
 ## Changed
+- Functions working with event FDs now require
+  vmm_sys_util::eventfd::EventFd in their interface instead of
+  RawFd.
+- Functions working with FAM structs kvm_msr_list and kvm_msrs, were
+  changed to work with their respective safe counterparts MsrList and
+  respectively Msrs.
 - Now exporting kvm_ioctls::Error type definition so that users of this
   crate can create their own wrapping errors without having to know the
   Error type used internally by this crate.
 - No longer exporting kvm_ioctls::Result. Users of this crate should
   not have to use kvm_ioctls::Result outside the crate.
 - kvm_ioctls::Error now works with errno::Error instead of io::Error.
+
+## Removed
+- CpuId safe wrapper over FAM struct kvm_cpuid2. The safe wrapper is
+  now provided by the kvm_bindings crate starting with v0.2.0.
+- KVM_MAX_MSR_ENTRIES and MAX_KVM_CPUID_ENTRIES. Equivalent constants
+  are provided by the kvm_bindings crate starting with v0.2.0.
 
 # v0.3.0
 
