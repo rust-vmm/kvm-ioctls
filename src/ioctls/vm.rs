@@ -1106,6 +1106,32 @@ impl AsRawFd for VmFd {
     }
 }
 
+/// Creates a dummy GIC device.
+///
+/// # Arguments
+///
+/// * `vm` - The vm file descriptor.
+/// * `flags` - Flags to be passed to `KVM_CREATE_DEVICE`.
+///
+#[cfg(test)]
+#[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
+pub(crate) fn create_gic_device(vm: &VmFd, flags: u32) -> DeviceFd {
+    let mut gic_device = kvm_bindings::kvm_create_device {
+        type_: kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V3,
+        fd: 0,
+        flags,
+    };
+    let device_fd = match vm.create_device(&mut gic_device) {
+        Ok(fd) => fd,
+        Err(_) => {
+            gic_device.type_ = kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V2;
+            vm.create_device(&mut gic_device)
+                .expect("Cannot create KVM vGIC device")
+        }
+    };
+    device_fd
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1258,62 +1284,76 @@ mod tests {
     }
 
     #[test]
-    #[cfg(any(
-        target_arch = "x86",
-        target_arch = "x86_64",
-        target_arch = "arm",
-        target_arch = "aarch64"
-    ))]
-    fn test_register_irqfd() {
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    fn test_register_unregister_irqfd() {
         let kvm = Kvm::new().unwrap();
         let vm_fd = kvm.create_vm().unwrap();
         let evtfd1 = EventFd::new(EFD_NONBLOCK).unwrap();
         let evtfd2 = EventFd::new(EFD_NONBLOCK).unwrap();
         let evtfd3 = EventFd::new(EFD_NONBLOCK).unwrap();
-        if cfg!(any(target_arch = "x86", target_arch = "x86_64")) {
-            assert!(vm_fd.create_irq_chip().is_ok());
-            assert!(vm_fd.register_irqfd(&evtfd1, 4).is_ok());
-            assert!(vm_fd.register_irqfd(&evtfd2, 8).is_ok());
-            assert!(vm_fd.register_irqfd(&evtfd3, 4).is_ok());
-        }
 
-        // On aarch64, this fails because setting up the interrupt controller is mandatory before
-        // registering any IRQ.
+        assert!(vm_fd.create_irq_chip().is_ok());
+
+        assert!(vm_fd.register_irqfd(&evtfd1, 4).is_ok());
+        assert!(vm_fd.register_irqfd(&evtfd2, 8).is_ok());
+        assert!(vm_fd.register_irqfd(&evtfd3, 4).is_ok());
+        assert!(vm_fd.unregister_irqfd(&evtfd2, 8).is_ok());
+        // KVM irqfd doesn't report failure on this case:(
+        assert!(vm_fd.unregister_irqfd(&evtfd2, 8).is_ok());
+
+        // Duplicated eventfd registration.
         // On x86_64 this fails as the event fd was already matched with a GSI.
         assert!(vm_fd.register_irqfd(&evtfd3, 4).is_err());
         assert!(vm_fd.register_irqfd(&evtfd3, 5).is_err());
+        // KVM irqfd doesn't report failure on this case:(
+        assert!(vm_fd.unregister_irqfd(&evtfd3, 5).is_ok());
     }
 
     #[test]
-    #[cfg(any(
-        target_arch = "x86",
-        target_arch = "x86_64",
-        target_arch = "arm",
-        target_arch = "aarch64"
-    ))]
-    fn test_unregister_irqfd() {
+    #[cfg(target_arch = "aarch64")]
+    fn test_register_unregister_irqfd() {
         let kvm = Kvm::new().unwrap();
         let vm_fd = kvm.create_vm().unwrap();
         let evtfd1 = EventFd::new(EFD_NONBLOCK).unwrap();
         let evtfd2 = EventFd::new(EFD_NONBLOCK).unwrap();
         let evtfd3 = EventFd::new(EFD_NONBLOCK).unwrap();
-        if cfg!(any(target_arch = "x86", target_arch = "x86_64")) {
-            assert!(vm_fd.create_irq_chip().is_ok());
-            assert!(vm_fd.register_irqfd(&evtfd1, 4).is_ok());
-            assert!(vm_fd.register_irqfd(&evtfd2, 8).is_ok());
-            assert!(vm_fd.register_irqfd(&evtfd3, 4).is_ok());
-            assert!(vm_fd.unregister_irqfd(&evtfd2, 8).is_ok());
-            // KVM irqfd doesn't report failure on this case:(
-            assert!(vm_fd.unregister_irqfd(&evtfd2, 8).is_ok());
-        }
+
+        // Create the vGIC device.
+        let vgic_fd = create_gic_device(&vm_fd, 0);
+
+        // Dummy interrupt for testing on aarch64.
+        let nr_irqs: u32 = 128;
+
+        // We need to tell the kernel how many irqs to support with this vgic.
+        let vgic_attr = kvm_bindings::kvm_device_attr {
+            group: kvm_bindings::KVM_DEV_ARM_VGIC_GRP_NR_IRQS,
+            attr: 0,
+            addr: &nr_irqs as *const u32 as u64,
+            flags: 0,
+        };
+        assert!(vgic_fd.set_device_attr(&vgic_attr).is_ok());
+
+        // Finalize the GIC.
+        let vgic_attr = kvm_bindings::kvm_device_attr {
+            group: kvm_bindings::KVM_DEV_ARM_VGIC_GRP_CTRL,
+            attr: u64::from(kvm_bindings::KVM_DEV_ARM_VGIC_CTRL_INIT),
+            addr: 0,
+            flags: 0,
+        };
+        assert!(vgic_fd.set_device_attr(&vgic_attr).is_ok());
+
+        assert!(vm_fd.register_irqfd(&evtfd1, 4).is_ok());
+        assert!(vm_fd.register_irqfd(&evtfd2, 8).is_ok());
+        assert!(vm_fd.register_irqfd(&evtfd3, 4).is_ok());
+        assert!(vm_fd.unregister_irqfd(&evtfd2, 8).is_ok());
+        // KVM irqfd doesn't report failure on this case:(
+        assert!(vm_fd.unregister_irqfd(&evtfd2, 8).is_ok());
 
         // Duplicated eventfd registration.
         // On aarch64, this fails because setting up the interrupt controller is mandatory before
         // registering any IRQ.
-        // On x86_64 this fails as the event fd was already matched with a GSI.
         assert!(vm_fd.register_irqfd(&evtfd3, 4).is_err());
         assert!(vm_fd.register_irqfd(&evtfd3, 5).is_err());
-
         // KVM irqfd doesn't report failure on this case:(
         assert!(vm_fd.unregister_irqfd(&evtfd3, 5).is_ok());
     }
