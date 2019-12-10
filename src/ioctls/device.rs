@@ -59,41 +59,84 @@ impl FromRawFd for DeviceFd {
 mod tests {
     use super::*;
     use ioctls::system::Kvm;
+    #[cfg(target_arch = "aarch64")]
+    use kvm_bindings::kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V2;
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    use kvm_bindings::kvm_device_type_KVM_DEV_TYPE_VFIO;
     use kvm_bindings::{
-        kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V3, kvm_device_type_KVM_DEV_TYPE_VFIO,
-        KVM_CREATE_DEVICE_TEST, KVM_DEV_VFIO_GROUP, KVM_DEV_VFIO_GROUP_ADD,
+        kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V3, KVM_CREATE_DEVICE_TEST, KVM_DEV_VFIO_GROUP,
+        KVM_DEV_VFIO_GROUP_ADD,
     };
 
     #[test]
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     fn test_create_device() {
-        #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
+        let kvm = Kvm::new().unwrap();
+        let vm = kvm.create_vm().unwrap();
+
+        let mut gic_device = kvm_bindings::kvm_create_device {
+            type_: kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V3,
+            fd: 0,
+            flags: KVM_CREATE_DEVICE_TEST,
+        };
+        // This fails on x86_64 because there is no VGIC there.
+        assert!(vm.create_device(&mut gic_device).is_err());
+
+        gic_device.type_ = kvm_device_type_KVM_DEV_TYPE_VFIO;
+
+        let device_fd = vm
+            .create_device(&mut gic_device)
+            .expect("Cannot create KVM device");
+
+        // Following lines to re-construct device_fd are used to test
+        // DeviceFd::from_raw_fd() and DeviceFd::as_raw_fd().
+        let raw_fd = unsafe { libc::dup(device_fd.as_raw_fd()) };
+        assert!(raw_fd >= 0);
+        let device_fd = unsafe { DeviceFd::from_raw_fd(raw_fd) };
+
+        let dist_attr = kvm_bindings::kvm_device_attr {
+            group: KVM_DEV_VFIO_GROUP,
+            attr: u64::from(KVM_DEV_VFIO_GROUP_ADD),
+            addr: 0x0,
+            flags: 0,
+        };
+
+        // We are just creating a test device. Creating a real device would make the CI dependent
+        // on host configuration (like having /dev/vfio). We expect this to fail.
+        assert!(device_fd.set_device_attr(&dist_attr).is_err());
+        assert_eq!(errno::Error::last().errno(), 25);
+    }
+
+    #[test]
+    #[cfg(target_arch = "aarch64")]
+    fn test_create_device() {
         use kvm_bindings::kvm_device_type_KVM_DEV_TYPE_FSL_MPIC_20;
 
         let kvm = Kvm::new().unwrap();
         let vm = kvm.create_vm().unwrap();
 
         let mut gic_device = kvm_bindings::kvm_create_device {
-            #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-            type_: kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V3,
-            #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
             type_: kvm_device_type_KVM_DEV_TYPE_FSL_MPIC_20,
             fd: 0,
             flags: KVM_CREATE_DEVICE_TEST,
         };
-        // This fails on x86_64 because there is no VGIC there.
         // This fails on aarch64 as it does not use MPIC (MultiProcessor Interrupt Controller), it uses
         // the VGIC.
         assert!(vm.create_device(&mut gic_device).is_err());
 
-        if cfg!(any(target_arch = "x86", target_arch = "x86_64")) {
-            gic_device.type_ = kvm_device_type_KVM_DEV_TYPE_VFIO;
-        } else if cfg!(any(target_arch = "arm", target_arch = "aarch64")) {
-            gic_device.type_ = kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V3;
-        }
-        let device_fd = vm
-            .create_device(&mut gic_device)
-            .expect("Cannot create KVM device");
+        gic_device.type_ = kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V3;
 
+        let device_fd = match vm.create_device(&mut gic_device) {
+            Ok(fd) => fd,
+            Err(_) => {
+                gic_device.type_ = kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V2;
+                vm.create_device(&mut gic_device)
+                    .expect("Cannot create KVM device")
+            }
+        };
+
+        // Following lines to re-construct device_fd are used to test
+        // DeviceFd::from_raw_fd() and DeviceFd::as_raw_fd().
         let raw_fd = unsafe { libc::dup(device_fd.as_raw_fd()) };
         assert!(raw_fd >= 0);
         let device_fd = unsafe { DeviceFd::from_raw_fd(raw_fd) };
