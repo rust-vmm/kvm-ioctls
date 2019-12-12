@@ -878,6 +878,74 @@ impl VmFd {
         }
     }
 
+    /// Sets the level on the given irq to 1 if `active` is true, and 0 otherwise.
+    ///
+    /// # Arguments
+    ///
+    /// * `irq` - IRQ to be set.
+    /// * `active` - Level of the IRQ input.
+    ///
+    /// # Errors
+    ///
+    /// Returns an io::Error when the irq field is invalid
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # extern crate kvm_ioctls;
+    /// # extern crate libc;
+    /// # extern crate vmm_sys_util;
+    /// # use kvm_ioctls::{Kvm, VmFd};
+    /// # use libc::EFD_NONBLOCK;
+    /// # use vmm_sys_util::eventfd::EventFd;
+    /// fn arch_setup(vm_fd: &VmFd) {
+    ///     // Arch-specific setup:
+    ///     // For x86 architectures, it simply means calling vm.create_irq_chip().unwrap().
+    /// #   #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    /// #   vm_fd.create_irq_chip().unwrap();
+    ///     // For Arm architectures, the IRQ controllers need to be setup first.
+    ///     // Details please refer to the kernel documentation.
+    ///     // https://www.kernel.org/doc/Documentation/virtual/kvm/api.txt
+    /// #   #[cfg(any(target_arch = "arm", target_arch = "aarch64"))] {
+    /// #       vm_fd.create_vcpu(0).unwrap();
+    /// #       // ... rest of setup for Arm goes here
+    /// #   }
+    /// }
+    ///
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    /// arch_setup(&vm);
+    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))] {
+    ///     vm.set_irq_line(4, true);
+    ///     // ...
+    /// }
+    /// #[cfg(any(target_arch = "arm", target_arch = "aarch64"))] {
+    ///     vm.set_irq_line(0x01_00_0020, true);
+    ///     // ....
+    /// }
+    /// ```
+    ///
+    #[cfg(any(
+        target_arch = "x86",
+        target_arch = "x86_64",
+        target_arch = "arm",
+        target_arch = "aarch64"
+    ))]
+    pub fn set_irq_line(&self, irq: u32, active: bool) -> Result<()> {
+        let mut irq_level = kvm_irq_level::default();
+        irq_level.__bindgen_anon_1.irq = irq;
+        irq_level.level = if active { 1 } else { 0 };
+
+        // Safe because we know that our file is a VM fd, we know the kernel will only read the
+        // correct amount of memory from our pointer, and we verify the return result.
+        let ret = unsafe { ioctl_with_ref(self, KVM_IRQ_LINE(), &irq_level) };
+        if ret == 0 {
+            Ok(())
+        } else {
+            Err(errno::Error::last())
+        }
+    }
+
     /// Creates a new KVM vCPU file descriptor and maps the memory corresponding
     /// its `kvm_run` structure.
     ///
@@ -1106,7 +1174,7 @@ impl AsRawFd for VmFd {
     }
 }
 
-/// Creates a dummy GIC device.
+/// Create a dummy GIC device.
 ///
 /// # Arguments
 ///
@@ -1130,6 +1198,43 @@ pub(crate) fn create_gic_device(vm: &VmFd, flags: u32) -> DeviceFd {
         }
     };
     device_fd
+}
+
+/// Set supported number of IRQs for vGIC.
+///
+/// # Arguments
+///
+/// * `vgic` - The vGIC file descriptor.
+/// * `nr_irqs` - Number of IRQs.
+///
+#[cfg(test)]
+#[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
+pub(crate) fn set_supported_nr_irqs(vgic: &DeviceFd, nr_irqs: u32) {
+    let vgic_attr = kvm_bindings::kvm_device_attr {
+        group: kvm_bindings::KVM_DEV_ARM_VGIC_GRP_NR_IRQS,
+        attr: 0,
+        addr: &nr_irqs as *const u32 as u64,
+        flags: 0,
+    };
+    assert!(vgic.set_device_attr(&vgic_attr).is_ok());
+}
+
+/// Request the initialization of the vGIC.
+///
+/// # Arguments
+///
+/// * `vgic` - The vGIC file descriptor.
+///
+#[cfg(test)]
+#[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
+pub(crate) fn request_gic_init(vgic: &DeviceFd) {
+    let vgic_attr = kvm_bindings::kvm_device_attr {
+        group: kvm_bindings::KVM_DEV_ARM_VGIC_GRP_CTRL,
+        attr: u64::from(kvm_bindings::KVM_DEV_ARM_VGIC_CTRL_INIT),
+        addr: 0,
+        flags: 0,
+    };
+    assert!(vgic.set_device_attr(&vgic_attr).is_ok());
 }
 
 #[cfg(test)]
@@ -1321,26 +1426,10 @@ mod tests {
         // Create the vGIC device.
         let vgic_fd = create_gic_device(&vm_fd, 0);
 
-        // Dummy interrupt for testing on aarch64.
-        let nr_irqs: u32 = 128;
-
-        // We need to tell the kernel how many irqs to support with this vgic.
-        let vgic_attr = kvm_bindings::kvm_device_attr {
-            group: kvm_bindings::KVM_DEV_ARM_VGIC_GRP_NR_IRQS,
-            attr: 0,
-            addr: &nr_irqs as *const u32 as u64,
-            flags: 0,
-        };
-        assert!(vgic_fd.set_device_attr(&vgic_attr).is_ok());
-
-        // Finalize the GIC.
-        let vgic_attr = kvm_bindings::kvm_device_attr {
-            group: kvm_bindings::KVM_DEV_ARM_VGIC_GRP_CTRL,
-            attr: u64::from(kvm_bindings::KVM_DEV_ARM_VGIC_CTRL_INIT),
-            addr: 0,
-            flags: 0,
-        };
-        assert!(vgic_fd.set_device_attr(&vgic_attr).is_ok());
+        // Set supported number of IRQs.
+        set_supported_nr_irqs(&vgic_fd, 128);
+        // Request the initialization of the vGIC.
+        request_gic_init(&vgic_fd);
 
         assert!(vm_fd.register_irqfd(&evtfd1, 4).is_ok());
         assert!(vm_fd.register_irqfd(&evtfd2, 8).is_ok());
@@ -1356,6 +1445,52 @@ mod tests {
         assert!(vm_fd.register_irqfd(&evtfd3, 5).is_err());
         // KVM irqfd doesn't report failure on this case:(
         assert!(vm_fd.unregister_irqfd(&evtfd3, 5).is_ok());
+    }
+
+    #[test]
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    fn test_set_irq_line() {
+        let kvm = Kvm::new().unwrap();
+        let vm_fd = kvm.create_vm().unwrap();
+
+        assert!(vm_fd.create_irq_chip().is_ok());
+
+        assert!(vm_fd.set_irq_line(4, true).is_ok());
+        assert!(vm_fd.set_irq_line(4, false).is_ok());
+        assert!(vm_fd.set_irq_line(4, true).is_ok());
+    }
+
+    #[test]
+    #[cfg(target_arch = "aarch64")]
+    fn test_set_irq_line() {
+        let kvm = Kvm::new().unwrap();
+        let vm_fd = kvm.create_vm().unwrap();
+        // Create a vcpu for test case 2 of the KVM_IRQ_LINE API on aarch64.
+        vm_fd.create_vcpu(0).unwrap();
+
+        // Create the vGIC device.
+        let vgic_fd = create_gic_device(&vm_fd, 0);
+        // Set supported number of IRQs.
+        set_supported_nr_irqs(&vgic_fd, 128);
+        // Request the initialization of the vGIC.
+        request_gic_init(&vgic_fd);
+
+        // On arm/aarch64, irq field is interpreted like this:
+        // bits:  | 31 ... 24 | 23  ... 16 | 15    ...    0 |
+        // field: | irq_type  | vcpu_index |     irq_id     |
+        // The irq_type field has the following values:
+        // - irq_type[0]: out-of-kernel GIC: irq_id 0 is IRQ, irq_id 1 is FIQ
+        // - irq_type[1]: in-kernel GIC: SPI, irq_id between 32 and 1019 (incl.) (the vcpu_index field is ignored)
+        // - irq_type[2]: in-kernel GIC: PPI, irq_id between 16 and 31 (incl.)
+        // Hence, using irq_type = 1, irq_id = 32 (decimal), the irq field in hex is: 0x01_00_0020
+        assert!(vm_fd.set_irq_line(0x01_00_0020, true).is_ok());
+        assert!(vm_fd.set_irq_line(0x01_00_0020, false).is_ok());
+        assert!(vm_fd.set_irq_line(0x01_00_0020, true).is_ok());
+
+        // Case 2: using irq_type = 2, vcpu_index = 0, irq_id = 16 (decimal), the irq field in hex is: 0x02_00_0010
+        assert!(vm_fd.set_irq_line(0x02_00_0010, true).is_ok());
+        assert!(vm_fd.set_irq_line(0x02_00_0010, false).is_ok());
+        assert!(vm_fd.set_irq_line(0x02_00_0010, true).is_ok());
     }
 
     #[test]
