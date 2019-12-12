@@ -5,15 +5,17 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the THIRD-PARTY file.
 
-use kvm_bindings::*;
-use libc::EINVAL;
-use std::fs::File;
-use std::os::unix::io::{AsRawFd, RawFd};
-
 use ioctls::{KvmRunWrapper, Result};
+use kvm_bindings::*;
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 use kvm_bindings::{CpuId, Msrs};
 use kvm_ioctls::*;
+use libc::sigset_t;
+use libc::EINVAL;
+use std::fs::File;
+use std::mem::size_of;
+use std::os::unix::io::{AsRawFd, RawFd};
+use std::ptr::copy_nonoverlapping;
 use vmm_sys_util::errno;
 use vmm_sys_util::ioctl::{ioctl, ioctl_with_mut_ref, ioctl_with_ref};
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
@@ -227,6 +229,75 @@ impl VcpuFd {
         // Safe because we know that our file is a vCPU fd, we know the kernel will only read the
         // correct amount of memory from our pointer, and we verify the return result.
         let ret = unsafe { ioctl_with_ref(self, KVM_SET_SREGS(), sregs) };
+        if ret != 0 {
+            return Err(errno::Error::last());
+        }
+        Ok(())
+    }
+
+    /// Specifies set of signals that are blocked during execution of KVM_RUN.
+    /// Signals that are not blocked will cause KVM_RUN to return with -EINTR.
+    ///
+    /// # Arguments
+    ///
+    /// * `sigmask` - Signal mask. For details check the `kvm_signal_mask` structure in the
+    ///             [KVM API doc](https://www.kernel.org/doc/Documentation/virtual/kvm/api.txt).
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # extern crate kvm_ioctls;
+    /// # extern crate vmm_sys_util;
+    /// # extern crate libc;
+    /// # use kvm_ioctls::Kvm;
+    /// # use vmm_sys_util::signal;
+    /// # use libc::sigset_t;
+    /// # use libc::*;
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    /// let vcpu = vm.create_vcpu(0).unwrap();
+    /// let sigset = signal::create_sigset(&[SIGINT, SIGKILL, SIGTERM]).unwrap();
+    /// vcpu.set_signal_mask(&sigset);
+    /// ```
+    ///
+    pub fn set_signal_mask(&self, sigset: &sigset_t) -> Result<()> {
+        // C struct of 'kvm_signal_mask' is in form of:
+        //   struct kvm_signal_mask {
+        //       __u32 len;
+        //       __u8  sigset[0];
+        //   };
+        // The payload array 'sigset' doesn't take any space in the struct.
+        // In Rust we construct a vector of 'kvm_signal_mask' with continuous space,
+        // the head element holds 'len', the subsequent elements carry 'sigset' array.
+        let size_in_bytes = size_of::<kvm_signal_mask>() + size_of::<sigset_t>();
+        let num_signal_mask =
+            (size_in_bytes + size_of::<kvm_signal_mask>() - 1) / size_of::<kvm_signal_mask>();
+
+        let mut v = Vec::with_capacity(num_signal_mask);
+        for _ in 0..num_signal_mask {
+            v.push(kvm_signal_mask::default())
+        }
+
+        // A 'sigset_t' has a bit for each signal, and it supports up to 1024 signals,
+        // so it takes ( 1024 / 8 = ) 128 bytes.
+        // However we can't use the real size of 'sigset_t' for 'kvm_signal_mask',
+        // because the kernel expects this value to be 8 exactly.
+        // The number of signals defined in kernel is less than 64, so 8 bytes are enough.
+        v[0].len = 8;
+
+        // Safe as we allocated exactly the needed space
+        unsafe {
+            copy_nonoverlapping(
+                sigset as *const sigset_t as *const u8,
+                v[0].sigset.as_mut_ptr(),
+                8,
+            );
+        }
+
+        let ret = unsafe {
+            // Safe, as kernel will only read from the kvm_signal_mask structure.
+            ioctl_with_ref(self, KVM_SET_SIGNAL_MASK(), &v[0])
+        };
         if ret != 0 {
             return Err(errno::Error::last());
         }
@@ -1252,6 +1323,17 @@ mod tests {
                 assert_eq!(cpuid.as_slice()[..3], retrieved_cpuid.as_slice()[..3]);
             }
         }
+    }
+
+    #[test]
+    fn test_set_signal_mask() {
+        use libc::*;
+        use vmm_sys_util::signal;
+        let kvm = Kvm::new().unwrap();
+        let vm = kvm.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+        let sigset = signal::create_sigset(&[SIGINT, SIGKILL, SIGTERM]).unwrap();
+        assert!(vcpu.set_signal_mask(&sigset).is_ok());
     }
 
     #[cfg(target_arch = "x86_64")]
