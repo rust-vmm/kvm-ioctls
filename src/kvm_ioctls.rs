@@ -46,6 +46,14 @@ ioctl_io_nr!(KVM_SET_TSS_ADDR, KVMIO, 0x47);
     target_arch = "s390"
 ))]
 ioctl_io_nr!(KVM_CREATE_IRQCHIP, KVMIO, 0x60);
+/* Available with KVM_CAP_IRQCHIP */
+#[cfg(any(
+    target_arch = "x86",
+    target_arch = "x86_64",
+    target_arch = "arm",
+    target_arch = "aarch64"
+))]
+ioctl_iow_nr!(KVM_IRQ_LINE, KVMIO, 0x61, kvm_irq_level);
 /* Available with KVM_CAP_IRQ_ROUTING */
 #[cfg(any(
     target_arch = "x86",
