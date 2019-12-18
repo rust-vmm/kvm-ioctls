@@ -1109,7 +1109,7 @@ impl AsRawFd for VmFd {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use {Cap, Kvm};
+    use Kvm;
 
     use libc::EFD_NONBLOCK;
 
@@ -1136,34 +1136,31 @@ mod tests {
     }
 
     #[test]
-    #[cfg(any(
-        target_arch = "x86",
-        target_arch = "x86_64",
-        target_arch = "arm",
-        target_arch = "aarch64"
-    ))]
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     fn test_irq_chip() {
+        use Cap;
+
         let kvm = Kvm::new().unwrap();
         assert!(kvm.check_extension(Cap::Irqchip));
         let vm = kvm.create_vm().unwrap();
-        if cfg!(any(target_arch = "x86", target_arch = "x86_64")) {
-            assert!(vm.create_irq_chip().is_ok());
-        } else if cfg!(any(target_arch = "arm", target_arch = "aarch64")) {
-            // On arm, we expect this to fail as the irq chip needs to be created after the vcpus.
-            assert!(vm.create_irq_chip().is_err());
-        }
+        assert!(vm.create_irq_chip().is_ok());
 
-        #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-        {
-            let mut irqchip = kvm_irqchip::default();
-            irqchip.chip_id = KVM_IRQCHIP_PIC_MASTER;
-            vm.get_irqchip(&mut irqchip).unwrap();
-            vm.set_irqchip(&irqchip).unwrap();
-            let mut other_irqchip = kvm_irqchip::default();
-            other_irqchip.chip_id = KVM_IRQCHIP_PIC_MASTER;
-            vm.get_irqchip(&mut other_irqchip).unwrap();
-            unsafe { assert_eq!(irqchip.chip.dummy[..], other_irqchip.chip.dummy[..]) };
+        let mut irqchip = kvm_irqchip::default();
+        irqchip.chip_id = KVM_IRQCHIP_PIC_MASTER;
+        // Set the irq_base to a non-default value to check that set & get work.
+        unsafe {
+            irqchip.chip.pic.irq_base = 10;
         }
+        assert!(vm.set_irqchip(&irqchip).is_ok());
+
+        // We initialize a dummy irq chip (`other_irqchip`) in which the
+        // function `get_irqchip` returns its result.
+        let mut other_irqchip = kvm_irqchip::default();
+        other_irqchip.chip_id = KVM_IRQCHIP_PIC_MASTER;
+        assert!(vm.get_irqchip(&mut other_irqchip).is_ok());
+
+        // Safe because we know that the irqchip type is PIC.
+        unsafe { assert_eq!(irqchip.chip.pic, other_irqchip.chip.pic) };
     }
 
     #[test]
