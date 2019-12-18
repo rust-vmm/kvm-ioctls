@@ -852,14 +852,21 @@ impl VcpuFd {
     ///
     /// ```rust
     /// # extern crate kvm_ioctls;
-    /// # use kvm_ioctls::Kvm;
+    /// # use kvm_ioctls::{Kvm, Cap};
     /// let kvm = Kvm::new().unwrap();
-    /// let vm = kvm.create_vm().unwrap();
-    /// let vcpu = vm.create_vcpu(0).unwrap();
-    /// let vcpu_events = vcpu.get_vcpu_events().unwrap();
+    /// if kvm.check_extension(Cap::VcpuEvents) {
+    ///     let vm = kvm.create_vm().unwrap();
+    ///     let vcpu = vm.create_vcpu(0).unwrap();
+    ///     let vcpu_events = vcpu.get_vcpu_events().unwrap();
+    /// }
     /// ```
     ///
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(any(
+        target_arch = "x86",
+        target_arch = "x86_64",
+        target_arch = "arm",
+        target_arch = "aarch64"
+    ))]
     pub fn get_vcpu_events(&self) -> Result<kvm_vcpu_events> {
         let mut vcpu_events = Default::default();
         let ret = unsafe {
@@ -885,16 +892,24 @@ impl VcpuFd {
     ///
     /// ```rust
     /// # extern crate kvm_ioctls;
-    /// # use kvm_ioctls::Kvm;
+    /// # use kvm_ioctls::{Kvm, Cap};
     /// let kvm = Kvm::new().unwrap();
-    /// let vm = kvm.create_vm().unwrap();
-    /// let vcpu = vm.create_vcpu(0).unwrap();
-    /// let vcpu_events = Default::default();
-    /// // Your `vcpu_events` manipulation here.
-    /// vcpu.set_vcpu_events(&vcpu_events).unwrap();
+    /// if kvm.check_extension(Cap::VcpuEvents) {
+    ///     let vm = kvm.create_vm().unwrap();
+    ///     let vcpu = vm.create_vcpu(0).unwrap();
+    ///     let vcpu_events = Default::default();
+    ///     // Your `vcpu_events` manipulation here.
+    ///     vcpu.set_vcpu_events(&vcpu_events).unwrap();
+    /// }
     /// ```
     ///
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(any(
+        target_arch = "x86",
+        target_arch = "x86_64",
+        target_arch = "arm",
+        target_arch = "aarch64"
+    ))]
+
     pub fn set_vcpu_events(&self, vcpu_events: &kvm_vcpu_events) -> Result<()> {
         let ret = unsafe {
             // Here we trust the kernel not to read past the end of the kvm_vcpu_events struct.
@@ -1180,7 +1195,12 @@ mod tests {
     #[cfg(target_arch = "x86_64")]
     use super::*;
     use ioctls::system::Kvm;
-    #[cfg(target_arch = "x86_64")]
+    #[cfg(any(
+        target_arch = "x86",
+        target_arch = "x86_64",
+        target_arch = "arm",
+        target_arch = "aarch64"
+    ))]
     use Cap;
 
     // Helper function for memory mapping `size` bytes of anonymous memory.
@@ -1391,16 +1411,23 @@ mod tests {
         assert_eq!(debugregs, other_debugregs);
     }
 
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(any(
+        target_arch = "x86",
+        target_arch = "x86_64",
+        target_arch = "arm",
+        target_arch = "aarch64"
+    ))]
     #[test]
     fn vcpu_events_test() {
         let kvm = Kvm::new().unwrap();
-        let vm = kvm.create_vm().unwrap();
-        let vcpu = vm.create_vcpu(0).unwrap();
-        let vcpu_events = vcpu.get_vcpu_events().unwrap();
-        vcpu.set_vcpu_events(&vcpu_events).unwrap();
-        let other_vcpu_events = vcpu.get_vcpu_events().unwrap();
-        assert_eq!(vcpu_events, other_vcpu_events);
+        if kvm.check_extension(Cap::VcpuEvents) {
+            let vm = kvm.create_vm().unwrap();
+            let vcpu = vm.create_vcpu(0).unwrap();
+            let vcpu_events = vcpu.get_vcpu_events().unwrap();
+            vcpu.set_vcpu_events(&vcpu_events).unwrap();
+            let other_vcpu_events = vcpu.get_vcpu_events().unwrap();
+            assert_eq!(vcpu_events, other_vcpu_events);
+        }
     }
 
     #[cfg(target_arch = "x86_64")]

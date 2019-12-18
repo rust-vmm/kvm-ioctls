@@ -150,10 +150,20 @@ ioctl_ior_nr!(KVM_GET_MP_STATE, KVMIO, 0x98, kvm_mp_state);
 ))]
 ioctl_iow_nr!(KVM_SET_MP_STATE, KVMIO, 0x99, kvm_mp_state);
 /* Available with KVM_CAP_VCPU_EVENTS */
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[cfg(any(
+    target_arch = "x86",
+    target_arch = "x86_64",
+    target_arch = "arm",
+    target_arch = "aarch64"
+))]
 ioctl_ior_nr!(KVM_GET_VCPU_EVENTS, KVMIO, 0x9f, kvm_vcpu_events);
 /* Available with KVM_CAP_VCPU_EVENTS */
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[cfg(any(
+    target_arch = "x86",
+    target_arch = "x86_64",
+    target_arch = "arm",
+    target_arch = "aarch64"
+))]
 ioctl_iow_nr!(KVM_SET_VCPU_EVENTS, KVMIO, 0xa0, kvm_vcpu_events);
 /* Available with KVM_CAP_DEBUGREGS */
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
