@@ -66,6 +66,16 @@ cp arm/mod.rs arm64/
 
 Also, you will need to add the new architecture to `kvm-bindings/lib.rs`.
 
-# Future Improvements
+### Future Improvements
 All the above steps are scriptable, so in the next iteration I will add a
 script to generate the bindings.
+
+# Testing
+
+This crate is tested using
+[rust-vmm-ci](https://github.com/rust-vmm/rust-vmm-ci) and
+[Buildkite](https://buildkite.com/) pipelines. Each new feature added to this crate must be
+accompanied by Buildkite steps for testing the following:
+- Release builds (using musl/gnu) with the new feature on arm and x86
+- Coverage test as specified in the
+[rust-vmm-ci readme](https://github.com/rust-vmm/rust-vmm-ci#getting-started-with-rust-vmm-ci).
