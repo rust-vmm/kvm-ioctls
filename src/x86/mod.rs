@@ -4,25 +4,26 @@
 #[cfg(feature = "fam-wrappers")]
 mod fam_wrappers;
 
-#[cfg(feature = "kvm-v4_14_0")]
+// Export 4.14 bindings when the feature kvm-v4_20_0 is not specified.
+#[cfg(all(feature = "kvm-v4_14_0", not(feature = "kvm-v4_20_0")))]
 mod bindings_v4_14_0;
-#[cfg(feature = "kvm-v4_20_0")]
-mod bindings_v4_20_0;
 
-// Major hack to have a default version in case no feature is specified:
-// If no version is specified by using the features, just use the latest one
-// which currently is 4.20.
-#[cfg(all(not(feature = "kvm-v4_14_0"), not(feature = "kvm-v4_20_0")))]
+// Export 4.20 bindings when kvm-v4_20_0 is specified or no kernel version
+// related features are specified.
+#[cfg(any(
+    feature = "kvm-v4_20_0",
+    all(not(feature = "kvm-v4_14_0"), not(feature = "kvm-v4_20_0"))
+))]
 mod bindings_v4_20_0;
 
 pub mod bindings {
-    #[cfg(feature = "kvm-v4_14_0")]
+    #[cfg(all(feature = "kvm-v4_14_0", not(feature = "kvm-v4_20_0")))]
     pub use super::bindings_v4_14_0::*;
 
-    #[cfg(feature = "kvm-v4_20_0")]
-    pub use super::bindings_v4_20_0::*;
-
-    #[cfg(all(not(feature = "kvm-v4_14_0"), not(feature = "kvm-v4_20_0")))]
+    #[cfg(any(
+        feature = "kvm-v4_20_0",
+        all(not(feature = "kvm-v4_14_0"), not(feature = "kvm-v4_20_0"))
+    ))]
     pub use super::bindings_v4_20_0::*;
 
     #[cfg(feature = "fam-wrappers")]
