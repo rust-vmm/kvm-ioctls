@@ -6,6 +6,7 @@ mod fam_wrappers;
 
 // Export 4.14 bindings when the feature kvm-v4_20_0 is not specified.
 #[cfg(all(feature = "kvm-v4_14_0", not(feature = "kvm-v4_20_0")))]
+#[allow(clippy::all)]
 mod bindings_v4_14_0;
 
 // Export 4.20 bindings when kvm-v4_20_0 is specified or no kernel version
@@ -14,6 +15,7 @@ mod bindings_v4_14_0;
     feature = "kvm-v4_20_0",
     all(not(feature = "kvm-v4_14_0"), not(feature = "kvm-v4_20_0"))
 ))]
+#[allow(clippy::all)]
 mod bindings_v4_20_0;
 
 pub mod bindings {
