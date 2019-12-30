@@ -3,14 +3,7 @@
 
 use vmm_sys_util::fam::{FamStruct, FamStructWrapper};
 
-#[cfg(feature = "kvm-v4_14_0")]
-use super::bindings_v4_14_0::*;
-
-#[cfg(feature = "kvm-v4_20_0")]
-use super::bindings_v4_20_0::*;
-
-#[cfg(all(not(feature = "kvm-v4_14_0"), not(feature = "kvm-v4_20_0")))]
-use super::bindings_v4_20_0::*;
+use x86::bindings::*;
 
 /// Maximum number of CPUID entries that can be returned by a call to KVM ioctls.
 ///
