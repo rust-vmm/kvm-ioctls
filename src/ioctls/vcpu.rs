@@ -19,6 +19,29 @@ use vmm_sys_util::ioctl::{ioctl, ioctl_with_mut_ref, ioctl_with_ref};
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 use vmm_sys_util::ioctl::{ioctl_with_mut_ptr, ioctl_with_ptr};
 
+/// The system-level event type.
+/// If exit_reason is KVM_EXIT_SYSTEM_EVENT then the vcpu has triggered
+/// a system-level event using some architecture specific mechanism.
+///
+/// The types of system event are mapped to the `KVM_SYSTEM_EVENT_*` defines in the
+/// [Linux KVM header](https://elixir.bootlin.com/linux/latest/source/include/uapi/linux/kvm.h).
+///
+#[derive(Debug)]
+pub enum SystemEventType {
+    /// The guest has requested a shutdown of the VM.
+    GuestShutdown,
+    /// The guest has requested a reset of the VM.
+    ///
+    /// As with SHUTDOWN, userspace can choose to ignore the request, or
+    /// to schedule the reset to occur in the future and may call KVM_RUN again.
+    GuestReset,
+    /// The guest crash occurred and the guest
+    /// has requested a crash condition maintenance.
+    GuestCrash,
+    /// Unknown System Event Type
+    UnknownType(u32),
+}
+
 /// Reasons for vCPU exits.
 ///
 /// The exit reasons are mapped to the `KVM_EXIT_*` defines in the
@@ -85,7 +108,7 @@ pub enum VcpuExit<'a> {
     /// Corresponds to KVM_EXIT_EPR.
     Epr,
     /// Corresponds to KVM_EXIT_SYSTEM_EVENT.
-    SystemEvent,
+    SystemEvent(SystemEventType),
     /// Corresponds to KVM_EXIT_S390_STSI.
     S390Stsi,
     /// Corresponds to KVM_EXIT_IOAPIC_EOI.
@@ -1150,7 +1173,22 @@ impl VcpuFd {
                 KVM_EXIT_WATCHDOG => Ok(VcpuExit::Watchdog),
                 KVM_EXIT_S390_TSCH => Ok(VcpuExit::S390Tsch),
                 KVM_EXIT_EPR => Ok(VcpuExit::Epr),
-                KVM_EXIT_SYSTEM_EVENT => Ok(VcpuExit::SystemEvent),
+                KVM_EXIT_SYSTEM_EVENT => unsafe {
+                    match run.__bindgen_anon_1.system_event.type_ {
+                        KVM_SYSTEM_EVENT_SHUTDOWN => {
+                            Ok(VcpuExit::SystemEvent(SystemEventType::GuestShutdown))
+                        }
+                        KVM_SYSTEM_EVENT_RESET => {
+                            Ok(VcpuExit::SystemEvent(SystemEventType::GuestReset))
+                        }
+                        KVM_SYSTEM_EVENT_CRASH => {
+                            Ok(VcpuExit::SystemEvent(SystemEventType::GuestCrash))
+                        }
+                        _ => Ok(VcpuExit::SystemEvent(SystemEventType::UnknownType(
+                            run.__bindgen_anon_1.system_event.type_,
+                        ))),
+                    }
+                },
                 KVM_EXIT_S390_STSI => Ok(VcpuExit::S390Stsi),
                 KVM_EXIT_IOAPIC_EOI => {
                     // Safe because the exit_reason (which comes from the kernel) told us which
