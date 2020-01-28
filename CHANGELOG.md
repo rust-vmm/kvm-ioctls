@@ -1,3 +1,10 @@
+# v0.5.0
+
+## Added
+- Support for the vcpu ioctls `KVM_GET/SET_VCPU_EVENTS` and `KVM_GET_DIRTY_LOG`
+  on `aarch64`.
+- Support for the vcpu ioctl `KVM_IRQ_LINE`.
+
 # v0.4.0
 
 ## Added
