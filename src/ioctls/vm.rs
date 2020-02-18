@@ -791,22 +791,24 @@ impl VmFd {
     ///
     pub fn get_dirty_log(&self, slot: u32, memory_size: usize) -> Result<Vec<u64>> {
         // Compute the length of the bitmap needed for all dirty pages in one memory slot.
-        // One memory page is 4KiB (4096 bits) and `KVM_GET_DIRTY_LOG` returns one dirty bit for
+        // One memory page is `page_size` bytes and `KVM_GET_DIRTY_LOG` returns one dirty bit for
         // each page.
-        let page_size = 4 << 10;
+        let page_size = match unsafe { libc::sysconf(libc::_SC_PAGESIZE) } {
+            -1 => return Err(errno::Error::last()),
+            ps => ps as usize,
+        };
 
-        let div_round_up = |dividend, divisor| (dividend + divisor - 1) / divisor;
         // For ease of access we are saving the bitmap in a u64 vector. We are using ceil to
-        // make sure we count all dirty pages even when `mem_size` is not a multiple of
-        // page_size * 64.
-        let bitmap_size = div_round_up(memory_size, page_size * 64);
-        let mut bitmap = vec![0; bitmap_size];
-        let b_data = bitmap.as_mut_ptr() as *mut c_void;
+        // make sure we count all dirty pages even when `memory_size` is not a multiple of
+        // `page_size * 64`.
+        let div_ceil = |dividend, divisor| (dividend + divisor - 1) / divisor;
+        let bitmap_size = div_ceil(memory_size, page_size * 64);
+        let mut bitmap = vec![0u64; bitmap_size];
         let dirtylog = kvm_dirty_log {
             slot,
             padding1: 0,
             __bindgen_anon_1: kvm_dirty_log__bindgen_ty_1 {
-                dirty_bitmap: b_data,
+                dirty_bitmap: bitmap.as_mut_ptr() as *mut c_void,
             },
         };
         // Safe because we know that our file is a VM fd, and we know that the amount of memory
