@@ -1326,9 +1326,7 @@ mod tests {
         let mut irqchip = kvm_irqchip::default();
         irqchip.chip_id = KVM_IRQCHIP_PIC_MASTER;
         // Set the irq_base to a non-default value to check that set & get work.
-        unsafe {
-            irqchip.chip.pic.irq_base = 10;
-        }
+        irqchip.chip.pic.irq_base = 10;
         assert!(vm.set_irqchip(&irqchip).is_ok());
 
         // We initialize a dummy irq chip (`other_irqchip`) in which the
