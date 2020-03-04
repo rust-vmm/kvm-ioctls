@@ -6,7 +6,7 @@ use std::os::unix::io::{AsRawFd, FromRawFd, RawFd};
 
 use ioctls::Result;
 use kvm_bindings::kvm_device_attr;
-use kvm_ioctls::KVM_SET_DEVICE_ATTR;
+use kvm_ioctls::{KVM_HAS_DEVICE_ATTR, KVM_SET_DEVICE_ATTR};
 use vmm_sys_util::errno;
 use vmm_sys_util::ioctl::ioctl_with_ref;
 
@@ -16,12 +16,62 @@ pub struct DeviceFd {
 }
 
 impl DeviceFd {
+    /// Tests whether a device supports a particular attribute.
+    ///
+    /// See the documentation for `KVM_HAS_DEVICE_ATTR`.
+    /// # Arguments
+    ///
+    /// * `device_attr` - The device attribute to be tested. `addr` field is ignored.
+    ///
+    pub fn has_device_attr(&self, device_attr: &kvm_device_attr) -> Result<()> {
+        let ret = unsafe { ioctl_with_ref(self, KVM_HAS_DEVICE_ATTR(), device_attr) };
+        if ret != 0 {
+            return Err(errno::Error::last());
+        }
+        Ok(())
+    }
+
     /// Sets a specified piece of device configuration and/or state.
     ///
     /// See the documentation for `KVM_SET_DEVICE_ATTR`.
     /// # Arguments
     ///
     /// * `device_attr` - The device attribute to be set.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # extern crate kvm_ioctls;
+    /// # extern crate kvm_bindings;
+    /// # use kvm_ioctls::Kvm;
+    /// # use kvm_bindings::{
+    ///    kvm_device_type_KVM_DEV_TYPE_VFIO,
+    ///    KVM_DEV_VFIO_GROUP, KVM_DEV_VFIO_GROUP_ADD, KVM_CREATE_DEVICE_TEST
+    /// };
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    ///
+    /// let mut device = kvm_bindings::kvm_create_device {
+    ///     type_: kvm_device_type_KVM_DEV_TYPE_VFIO,
+    ///     fd: 0,
+    ///     flags: KVM_CREATE_DEVICE_TEST,
+    /// };
+    ///
+    /// let device_fd = vm
+    ///     .create_device(&mut device)
+    ///     .expect("Cannot create KVM device");
+    ///
+    /// let dist_attr = kvm_bindings::kvm_device_attr {
+    ///     group: KVM_DEV_VFIO_GROUP,
+    ///     attr: u64::from(KVM_DEV_VFIO_GROUP_ADD),
+    ///     addr: 0x0,
+    ///     flags: 0,
+    /// };
+    ///
+    /// if (device_fd.has_device_attr(&dist_attr).is_ok()) {
+    ///     device_fd.set_device_attr(&dist_attr).unwrap();
+    /// }
+    /// ```
     ///
     pub fn set_device_attr(&self, device_attr: &kvm_device_attr) -> Result<()> {
         let ret = unsafe { ioctl_with_ref(self, KVM_SET_DEVICE_ATTR(), device_attr) };
@@ -62,8 +112,15 @@ mod tests {
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     use kvm_bindings::{
         kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V3, kvm_device_type_KVM_DEV_TYPE_VFIO,
+        KVM_DEV_VFIO_GROUP, KVM_DEV_VFIO_GROUP_ADD,
     };
-    use kvm_bindings::{KVM_CREATE_DEVICE_TEST, KVM_DEV_VFIO_GROUP, KVM_DEV_VFIO_GROUP_ADD};
+    #[cfg(target_arch = "aarch64")]
+    use kvm_bindings::{
+        KVM_DEV_ARM_VGIC_CTRL_INIT, KVM_DEV_ARM_VGIC_GRP_CTRL, KVM_DEV_VFIO_GROUP,
+        KVM_DEV_VFIO_GROUP_ADD,
+    };
+
+    use kvm_bindings::KVM_CREATE_DEVICE_TEST;
 
     #[test]
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
@@ -100,6 +157,7 @@ mod tests {
 
         // We are just creating a test device. Creating a real device would make the CI dependent
         // on host configuration (like having /dev/vfio). We expect this to fail.
+        assert!(device_fd.has_device_attr(&dist_attr).is_err());
         assert!(device_fd.set_device_attr(&dist_attr).is_err());
         assert_eq!(errno::Error::last().errno(), 25);
     }
@@ -118,11 +176,11 @@ mod tests {
             fd: 0,
             flags: KVM_CREATE_DEVICE_TEST,
         };
-        // This fails on aarch64 as it does not use MPIC (MultiProcessor Interrupt Controller), it uses
-        // the VGIC.
+        // This fails on aarch64 as it does not use MPIC (MultiProcessor Interrupt Controller),
+        // it uses the VGIC.
         assert!(vm.create_device(&mut gic_device).is_err());
 
-        let device_fd = create_gic_device(&vm, KVM_CREATE_DEVICE_TEST);
+        let device_fd = create_gic_device(&vm, 0);
 
         // Following lines to re-construct device_fd are used to test
         // DeviceFd::from_raw_fd() and DeviceFd::as_raw_fd().
@@ -130,19 +188,24 @@ mod tests {
         assert!(raw_fd >= 0);
         let device_fd = unsafe { DeviceFd::from_raw_fd(raw_fd) };
 
+        // Set some attribute that does not apply to VGIC, expect the test to fail.
         let dist_attr = kvm_bindings::kvm_device_attr {
             group: KVM_DEV_VFIO_GROUP,
             attr: u64::from(KVM_DEV_VFIO_GROUP_ADD),
             addr: 0x0,
             flags: 0,
         };
+        assert!(device_fd.has_device_attr(&dist_attr).is_err());
 
-        // We are just creating a test device. Creating a real device would make the CI dependent
-        // on host configuration (like having /dev/vfio). We expect this to fail.
-        assert!(device_fd.set_device_attr(&dist_attr).is_err());
-        // Comment this assertion as a workaround for arm coverage test CI, as it is testing the error
-        // case that cannot be reproduced in a real case scenario. This assertion will lead to failure
-        // caused by ioctl returning `EINVAL` instead of `ENOTTY` when using gnu toolchain.
-        //assert_eq!(errno::Error::last().errno(), 25);
+        // Following attribute works with VGIC, they should be accepted.
+        let dist_attr = kvm_bindings::kvm_device_attr {
+            group: KVM_DEV_ARM_VGIC_GRP_CTRL,
+            attr: u64::from(KVM_DEV_ARM_VGIC_CTRL_INIT),
+            addr: 0x0,
+            flags: 0,
+        };
+
+        assert!(device_fd.has_device_attr(&dist_attr).is_ok());
+        assert!(device_fd.set_device_attr(&dist_attr).is_ok());
     }
 }
