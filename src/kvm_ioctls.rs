@@ -216,8 +216,10 @@ ioctl_ior_nr!(KVM_ARM_PREFERRED_TARGET, KVMIO, 0xaf, kvm_vcpu_init);
 
 /* Available with KVM_CAP_DEVICE_CTRL */
 ioctl_iowr_nr!(KVM_CREATE_DEVICE, KVMIO, 0xe0, kvm_create_device);
-/* Available with KVM_CAP_VM_ATTRIBUTES */
+/* Available with KVM_CAP_DEVICE_CTRL */
 ioctl_iow_nr!(KVM_SET_DEVICE_ATTR, KVMIO, 0xe1, kvm_device_attr);
+/* Available with KVM_CAP_DEVICE_CTRL */
+ioctl_iow_nr!(KVM_HAS_DEVICE_ATTR, KVMIO, 0xe3, kvm_device_attr);
 
 #[cfg(test)]
 mod tests {
