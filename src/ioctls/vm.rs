@@ -636,23 +636,33 @@ impl VmFd {
     ///    .register_ioevent(&evtfd, &pio_addr, NoDatamatch)
     ///    .unwrap();
     /// vm_fd
-    ///    .register_ioevent(&evtfd, &mmio_addr, NoDatamatch)
+    ///    .register_ioevent(&evtfd, &mmio_addr, 0x1234u32)
     ///    .unwrap();
     /// vm_fd
-    ///    .unregister_ioevent(&evtfd, &pio_addr)
+    ///    .unregister_ioevent(&evtfd, &pio_addr, NoDatamatch)
     ///    .unwrap();
     /// vm_fd
-    ///    .unregister_ioevent(&evtfd, &mmio_addr)
+    ///    .unregister_ioevent(&evtfd, &mmio_addr, 0x1234u32)
     ///    .unwrap();
     /// ```
     ///
-    pub fn unregister_ioevent(&self, fd: &EventFd, addr: &IoEventAddress) -> Result<()> {
+    pub fn unregister_ioevent<T: Into<u64>>(
+        &self,
+        fd: &EventFd,
+        addr: &IoEventAddress,
+        datamatch: T,
+    ) -> Result<()> {
         let mut flags = 1 << kvm_ioeventfd_flag_nr_deassign;
+        if std::mem::size_of::<T>() > 0 {
+            flags |= 1 << kvm_ioeventfd_flag_nr_datamatch
+        }
         if let IoEventAddress::Pio(_) = *addr {
             flags |= 1 << kvm_ioeventfd_flag_nr_pio
         }
 
         let ioeventfd = kvm_ioeventfd {
+            datamatch: datamatch.into(),
+            len: std::mem::size_of::<T>() as u32,
             addr: match addr {
                 IoEventAddress::Pio(ref p) => *p as u64,
                 IoEventAddress::Mmio(ref m) => *m,
@@ -1440,21 +1450,29 @@ mod tests {
         let mmio_addr = IoEventAddress::Mmio(0x1000);
 
         // First try to unregister addresses which have not been registered.
-        assert!(vm_fd.unregister_ioevent(&evtfd, &pio_addr).is_err());
-        assert!(vm_fd.unregister_ioevent(&evtfd, &mmio_addr).is_err());
+        assert!(vm_fd
+            .unregister_ioevent(&evtfd, &pio_addr, NoDatamatch)
+            .is_err());
+        assert!(vm_fd
+            .unregister_ioevent(&evtfd, &mmio_addr, NoDatamatch)
+            .is_err());
 
         // Now register the addresses
         assert!(vm_fd
             .register_ioevent(&evtfd, &pio_addr, NoDatamatch)
             .is_ok());
         assert!(vm_fd
-            .register_ioevent(&evtfd, &mmio_addr, NoDatamatch)
+            .register_ioevent(&evtfd, &mmio_addr, 0x1337u16)
             .is_ok());
 
         // Try again unregistering the addresses. This time it should work
         // since they have been previously registered.
-        assert!(vm_fd.unregister_ioevent(&evtfd, &pio_addr).is_ok());
-        assert!(vm_fd.unregister_ioevent(&evtfd, &mmio_addr).is_ok());
+        assert!(vm_fd
+            .unregister_ioevent(&evtfd, &pio_addr, NoDatamatch)
+            .is_ok());
+        assert!(vm_fd
+            .unregister_ioevent(&evtfd, &mmio_addr, 0x1337u16)
+            .is_ok());
     }
 
     #[test]
