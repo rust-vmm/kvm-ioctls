@@ -85,7 +85,7 @@ pub enum VcpuExit<'a> {
     /// Corresponds to KVM_EXIT_EPR.
     Epr,
     /// Corresponds to KVM_EXIT_SYSTEM_EVENT.
-    SystemEvent,
+    SystemEvent(u32 /* type */, u64 /* flags */),
     /// Corresponds to KVM_EXIT_S390_STSI.
     S390Stsi,
     /// Corresponds to KVM_EXIT_IOAPIC_EOI.
@@ -1150,7 +1150,15 @@ impl VcpuFd {
                 KVM_EXIT_WATCHDOG => Ok(VcpuExit::Watchdog),
                 KVM_EXIT_S390_TSCH => Ok(VcpuExit::S390Tsch),
                 KVM_EXIT_EPR => Ok(VcpuExit::Epr),
-                KVM_EXIT_SYSTEM_EVENT => Ok(VcpuExit::SystemEvent),
+                KVM_EXIT_SYSTEM_EVENT => {
+                    // Safe because the exit_reason (which comes from the kernel) told us which
+                    // union field to use.
+                    let system_event = unsafe { &mut run.__bindgen_anon_1.system_event };
+                    Ok(VcpuExit::SystemEvent(
+                        system_event.type_,
+                        system_event.flags,
+                    ))
+                }
                 KVM_EXIT_S390_STSI => Ok(VcpuExit::S390Stsi),
                 KVM_EXIT_IOAPIC_EOI => {
                     // Safe because the exit_reason (which comes from the kernel) told us which
@@ -1445,6 +1453,9 @@ mod tests {
             0x1f, 0x18, 0x14, 0x71, /* cmp w0, #0x506 */
             0x20, 0x00, 0x82, 0x1a, /* csel w0, w1, w2, eq */
             0x20, 0x01, 0x00, 0xb9, /* str w0, [x9]; test MMIO write */
+            0x00, 0x80, 0xb0, 0x52, /* mov w0, #0x84000000 */
+            0x00, 0x00, 0x1d, 0x32, /* orr w0, w0, #0x08 */
+            0x02, 0x00, 0x00, 0xd4, /* hvc #0x0 */
             0x00, 0x00, 0x00, 0x14, /* b <this address>; shouldn't get here, but if so loop forever */
         ];
 
@@ -1473,6 +1484,7 @@ mod tests {
         let vcpu_fd = vm.create_vcpu(0).unwrap();
         let mut kvi = kvm_bindings::kvm_vcpu_init::default();
         vm.get_preferred_target(&mut kvi).unwrap();
+        kvi.features[0] |= 1 << KVM_ARM_VCPU_PSCI_0_2;
         vcpu_fd.vcpu_init(&kvi).unwrap();
 
         let core_reg_base: u64 = 0x6030_0000_0010_0000;
@@ -1516,6 +1528,10 @@ mod tests {
                         .map(|page| page.count_ones())
                         .fold(0, |dirty_page_count, i| dirty_page_count + i);
                     assert_eq!(dirty_pages, 1);
+                }
+                VcpuExit::SystemEvent(type_, flags) => {
+                    assert_eq!(type_, KVM_SYSTEM_EVENT_SHUTDOWN);
+                    assert_eq!(flags, 0);
                     break;
                 }
                 r => panic!("unexpected exit reason: {:?}", r),
