@@ -190,6 +190,9 @@ ioctl_ior_nr!(KVM_GET_XCRS, KVMIO, 0xa6, kvm_xcrs);
 /* Available with KVM_CAP_XCRS */
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 ioctl_iow_nr!(KVM_SET_XCRS, KVMIO, 0xa7, kvm_xcrs);
+/* Available with KVM_CAP_KVMCLOCK_CTRL */
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+ioctl_io_nr!(KVM_KVMCLOCK_CTRL, KVMIO, 0xad);
 
 /* Available with KVM_CAP_ENABLE_CAP */
 #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]

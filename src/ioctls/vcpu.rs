@@ -1009,6 +1009,18 @@ impl VcpuFd {
         Ok(reg_value)
     }
 
+    /// Signals to the host that the running VCPU is being paused by userspace.
+    ///
+    /// Supported on architectures that implement a paravirt clock (currently x86 only)
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    pub fn kvmclock_ctl(&self) -> Result<()> {
+        let ret = unsafe { ioctl(self, KVM_KVMCLOCK_CTRL()) };
+        if ret != 0 {
+            return Err(errno::Error::last());
+        }
+        Ok(())
+    }
+
     /// Triggers the running of the current virtual CPU returning an exit reason.
     ///
     /// See documentation for `KVM_RUN`.
