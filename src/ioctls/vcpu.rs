@@ -1222,6 +1222,18 @@ mod tests {
     ))]
     use Cap;
 
+    #[repr(C)]
+    struct pvclock_vcpu_time_info {
+        version: u32,
+        pad0: u32,
+        tsc_timestamp: u64,
+        system_time: u64,
+        tsc_to_system_mul: u32,
+        tsc_shift: i8,
+        flags: u8,
+        pad: [u8; 2],
+    }
+
     // Helper function for memory mapping `size` bytes of anonymous memory.
     // Panics if the mmap fails.
     fn mmap_anonymous(size: usize) -> *mut u8 {
@@ -1587,11 +1599,26 @@ mod tests {
             vm.set_user_memory_region(mem_region).unwrap();
         }
 
+        let pvclock = pvclock_vcpu_time_info {
+            version: 1,
+            pad0: 0,
+            tsc_timestamp: 0,
+            system_time: 0,
+            tsc_to_system_mul: 0,
+            tsc_shift: 0,
+            flags: 0,
+            pad: [0, 0],
+        };
+
+        let pv_ptr = (&pvclock as *const pvclock_vcpu_time_info) as *mut u8;
+
         unsafe {
             // Get a mutable slice of `mem_size` from `load_addr`.
             // This is safe because we mapped it before.
             let mut slice = std::slice::from_raw_parts_mut(load_addr, mem_size);
+            let mut pv_slice = std::slice::from_raw_parts_mut(pv_ptr, std::mem::size_of::<pvclock_vcpu_time_info>());
             slice.write_all(&code).unwrap();
+            slice.write_all(&pv_slice).unwrap();
         }
 
         let vcpu_fd = vm.create_vcpu(0).unwrap();
@@ -1611,6 +1638,18 @@ mod tests {
         vcpu_regs.rflags = 2;
         vcpu_fd.set_regs(&vcpu_regs).unwrap();
 
+        // Set the MSR_KVM_SYSTEM_TIME_NEW
+        // 0x4b564d01
+        let msrs = Msrs::from_entries(&[
+              kvm_msr_entry {
+                index: 0x4b564d01,
+                data: 0x1024,
+                ..Default::default()
+              },
+        ]);
+        let written = vcpu_fd.set_msrs(&msrs).unwrap();
+        assert_eq!(written, 1);
+
         loop {
             match vcpu_fd.run().expect("run failed") {
                 VcpuExit::IoIn(addr, data) => {
@@ -1623,6 +1662,7 @@ mod tests {
                     assert_eq!(data[0], b'5');
                 }
                 VcpuExit::MmioRead(addr, data) => {
+                    vcpu_fd.kvmclock_ctl().unwrap();
                     assert_eq!(addr, 0x8000);
                     assert_eq!(data.len(), 1);
                 }
