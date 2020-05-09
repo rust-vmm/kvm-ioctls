@@ -108,6 +108,14 @@ impl Kvm {
         unsafe { ioctl(self, KVM_GET_API_VERSION()) }
     }
 
+    /// AArch64 specific call to get the host Intermediate Physical Address space limit.
+    ///
+    /// Returns 0 if the capability is not available and an integer larger than 32 otherwise.
+    #[cfg(any(target_arch = "aarch64"))]
+    pub fn get_host_ipa_limit(&self) -> i32 {
+        self.check_extension_int(Cap::ArmVmIPASize)
+    }
+
     /// Wrapper over `KVM_CHECK_EXTENSION`.
     ///
     /// Returns 0 if the capability is not available and a positive integer otherwise.
@@ -410,6 +418,20 @@ mod tests {
         let kvm = Kvm::new().unwrap();
         assert_eq!(kvm.get_api_version(), 12);
         assert!(kvm.check_extension(Cap::UserMemory));
+    }
+
+    #[test]
+    #[cfg(any(target_arch = "aarch64"))]
+    fn test_get_host_ipa_limit() {
+        let kvm = Kvm::new().unwrap();
+        let host_ipa_limit = kvm.get_host_ipa_limit();
+
+        if host_ipa_limit > 0 {
+            assert!(host_ipa_limit >= 32);
+        } else {
+            // if unsupported, the return value should be 0.
+            assert_eq!(host_ipa_limit, 0);
+        }
     }
 
     #[test]
