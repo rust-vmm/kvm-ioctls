@@ -12,6 +12,8 @@ use std::os::unix::io::{AsRawFd, FromRawFd, RawFd};
 use cap::Cap;
 use ioctls::vm::{new_vmfd, VmFd};
 use ioctls::Result;
+#[cfg(any(target_arch = "aarch64"))]
+use kvm_bindings::KVM_VM_TYPE_ARM_IPA_SIZE_MASK;
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 use kvm_bindings::{CpuId, MsrList, KVM_MAX_MSR_ENTRIES};
 use kvm_ioctls::*;
@@ -374,6 +376,58 @@ impl Kvm {
         }
     }
 
+    /// AArch64 specific function to create a VM fd using the KVM fd with flexible IPA size.
+    ///
+    /// See the arm64 section of KVM documentation for `KVM_CREATE_VM`.
+    /// A call to this function will also initialize the size of the vcpu mmap area using the
+    /// `KVM_GET_VCPU_MMAP_SIZE` ioctl.
+    ///
+    /// Note: `Cap::ArmVmIPASize` should be checked using `check_extension` before calling
+    /// this function to determine if the host machine supports the IPA size capability.
+    ///
+    /// # Arguments
+    ///
+    /// * `ipa_size` - Guest VM IPA size, 32 <= ipa_size <= Host_IPA_Limit.
+    ///                The value of `Host_IPA_Limit` may be different between hardware
+    ///                implementations and can be extracted by calling `get_host_ipa_limit`.
+    ///                Possible values can be found in documentation of registers `TCR_EL2`
+    ///                and `VTCR_EL2`.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use kvm_ioctls::{Kvm, Cap};
+    /// let kvm = Kvm::new().unwrap();
+    /// // Check if the ArmVmIPASize cap is supported.
+    /// if kvm.check_extension(Cap::ArmVmIPASize) {
+    ///     let host_ipa_limit = kvm.get_host_ipa_limit();
+    ///     let vm = kvm.create_vm_with_ipa_size(host_ipa_limit as u32).unwrap();
+    ///     // Check that the VM mmap size is the same reported by `KVM_GET_VCPU_MMAP_SIZE`.
+    ///     assert!(vm.run_size() == kvm.get_vcpu_mmap_size().unwrap());
+    /// }
+    /// ```
+    ///
+    #[cfg(any(target_arch = "aarch64"))]
+    pub fn create_vm_with_ipa_size(&self, ipa_size: u32) -> Result<VmFd> {
+        // Safe because we know `self.kvm` is a real KVM fd as this module is the only one that
+        // create Kvm objects.
+        let ret = unsafe {
+            ioctl_with_val(
+                &self.kvm,
+                KVM_CREATE_VM(),
+                (ipa_size & KVM_VM_TYPE_ARM_IPA_SIZE_MASK).into(),
+            )
+        };
+        if ret >= 0 {
+            // Safe because we verify the value of ret and we are the owners of the fd.
+            let vm_file = unsafe { File::from_raw_fd(ret) };
+            let run_mmap_size = self.get_vcpu_mmap_size()?;
+            Ok(new_vmfd(vm_file, run_mmap_size))
+        } else {
+            Err(errno::Error::last())
+        }
+    }
+
     /// Creates a VmFd object from a VM RawFd.
     ///
     /// This function is unsafe as the primitives currently returned have the contract that
@@ -460,6 +514,28 @@ mod tests {
         let vm = unsafe { kvm.create_vmfd_from_rawfd(rawfd).unwrap() };
 
         assert_eq!(vm.run_size(), kvm.get_vcpu_mmap_size().unwrap());
+    }
+
+    #[test]
+    #[cfg(any(target_arch = "aarch64"))]
+    fn test_create_vm_with_ipa_size() {
+        let kvm = Kvm::new().unwrap();
+        if kvm.check_extension(Cap::ArmVmIPASize) {
+            let host_ipa_limit = kvm.get_host_ipa_limit();
+            // Here we test with the maximum value that the host supports to both test the
+            // discoverability of supported IPA sizes and likely some other values than 40.
+            kvm.create_vm_with_ipa_size(host_ipa_limit as u32).unwrap();
+            // Test invalid input values
+            // Case 1: IPA size is smaller than 32.
+            assert!(kvm.create_vm_with_ipa_size(31).is_err());
+            // Case 2: IPA size is bigger than Host_IPA_Limit.
+            assert!(kvm
+                .create_vm_with_ipa_size((host_ipa_limit + 1) as u32)
+                .is_err());
+        } else {
+            // Unsupported, here we can test with the default value 40.
+            assert!(kvm.create_vm_with_ipa_size(40).is_err());
+        }
     }
 
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
