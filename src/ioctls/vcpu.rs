@@ -1049,6 +1049,22 @@ impl VcpuFd {
         Ok(reg_value)
     }
 
+    /// Notify the guest about the vCPU being paused.
+    ///
+    /// See the documentation for `KVM_KVMCLOCK_CTRL` in the
+    /// [KVM API documentation](https://www.kernel.org/doc/Documentation/virtual/kvm/api.txt).
+    ///
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    pub fn kvmclock_ctrl(&self) -> Result<()> {
+        // Safe because we know that our file is a KVM fd and that the request
+        // is one of the ones defined by kernel.
+        let ret = unsafe { ioctl(self, KVM_KVMCLOCK_CTRL()) };
+        if ret != 0 {
+            return Err(errno::Error::last());
+        }
+        Ok(())
+    }
+
     /// Triggers the running of the current virtual CPU returning an exit reason.
     ///
     /// See documentation for `KVM_RUN`.
@@ -1877,6 +1893,10 @@ mod tests {
             badf_errno
         );
         assert_eq!(faulty_vcpu_fd.run().unwrap_err().errno(), badf_errno);
+        assert_eq!(
+            faulty_vcpu_fd.kvmclock_ctrl().unwrap_err().errno(),
+            badf_errno
+        );
     }
 
     #[test]
