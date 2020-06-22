@@ -219,6 +219,8 @@ ioctl_iowr_nr!(KVM_CREATE_DEVICE, KVMIO, 0xe0, kvm_create_device);
 /* Available with KVM_CAP_DEVICE_CTRL */
 ioctl_iow_nr!(KVM_SET_DEVICE_ATTR, KVMIO, 0xe1, kvm_device_attr);
 /* Available with KVM_CAP_DEVICE_CTRL */
+ioctl_iow_nr!(KVM_GET_DEVICE_ATTR, KVMIO, 0xe2, kvm_device_attr);
+/* Available with KVM_CAP_DEVICE_CTRL */
 ioctl_iow_nr!(KVM_HAS_DEVICE_ATTR, KVMIO, 0xe3, kvm_device_attr);
 
 #[cfg(test)]
