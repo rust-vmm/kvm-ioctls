@@ -11,6 +11,7 @@ use std::os::raw::c_void;
 use std::os::raw::{c_int, c_ulong};
 use std::os::unix::io::{AsRawFd, FromRawFd, RawFd};
 
+use cap::Cap;
 use ioctls::device::new_device;
 use ioctls::device::DeviceFd;
 use ioctls::vcpu::new_vcpu;
@@ -1216,6 +1217,40 @@ impl VmFd {
     pub fn run_size(&self) -> usize {
         self.run_size
     }
+
+    /// Wrapper over `KVM_CHECK_EXTENSION`.
+    ///
+    /// Returns 0 if the capability is not available and a positive integer otherwise.
+    fn check_extension_int(&self, c: Cap) -> i32 {
+        // Safe because we know that our file is a VM fd and that the extension is one of the ones
+        // defined by kernel.
+        unsafe { ioctl_with_val(self, KVM_CHECK_EXTENSION(), c as c_ulong) }
+    }
+
+    /// Checks if a particular `Cap` is available.
+    ///
+    /// Returns true if the capability is supported and false otherwise.
+    /// See the documentation for `KVM_CHECK_EXTENSION`.
+    ///
+    /// # Arguments
+    ///
+    /// * `c` - VM capability to check.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use kvm_ioctls::Kvm;
+    /// use kvm_ioctls::Cap;
+    ///
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    /// // Check if `KVM_CAP_MP_STATE` is supported.
+    /// assert!(vm.check_extension(Cap::MpState));
+    /// ```
+    ///
+    pub fn check_extension(&self, c: Cap) -> bool {
+        self.check_extension_int(c) > 0
+    }
 }
 
 /// Helper function to create a new `VmFd`.
@@ -1750,5 +1785,12 @@ mod tests {
         }
         let irq_routing = kvm_irq_routing::default();
         assert!(vm.set_gsi_routing(&irq_routing).is_ok());
+    }
+
+    #[test]
+    fn test_check_extension() {
+        let kvm = Kvm::new().unwrap();
+        let vm = kvm.create_vm().unwrap();
+        assert!(vm.check_extension(Cap::MpState));
     }
 }
