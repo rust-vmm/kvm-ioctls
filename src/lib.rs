@@ -6,10 +6,7 @@
 #![allow(non_snake_case)]
 
 #[macro_use]
-#[cfg(all(
-    feature = "fam-wrappers",
-    any(target_arch = "x86", target_arch = "x86_64")
-))]
+#[cfg(feature = "fam-wrappers")]
 extern crate vmm_sys_util;
 
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
