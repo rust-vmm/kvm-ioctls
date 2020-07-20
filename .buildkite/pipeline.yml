@@ -35,6 +35,8 @@ steps:
 
   - label: "build-v4.14-arm"
     commands:
+      - cargo build --release --features=fam-wrappers,kvm-v4_14_0
+      - cargo build --release --features=fam-wrappers,kvm-v4_14_0 --target aarch64-unknown-linux-musl
       - cargo build --release --features=kvm-v4_14_0
       - cargo build --release --features=kvm-v4_14_0 --target aarch64-unknown-linux-musl
     retry:
