@@ -211,6 +211,8 @@ ioctl_iow_nr!(KVM_SET_ONE_REG, KVMIO, 0xac, kvm_one_reg);
 ioctl_iow_nr!(KVM_ARM_VCPU_INIT, KVMIO, 0xae, kvm_vcpu_init);
 #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
 ioctl_ior_nr!(KVM_ARM_PREFERRED_TARGET, KVMIO, 0xaf, kvm_vcpu_init);
+#[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
+ioctl_iowr_nr!(KVM_GET_REG_LIST, KVMIO, 0xb0, kvm_reg_list);
 
 // Device ioctls.
 

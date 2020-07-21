@@ -959,6 +959,46 @@ impl VcpuFd {
         Ok(())
     }
 
+    /// Returns the guest registers that are supported for the
+    /// KVM_GET_ONE_REG/KVM_SET_ONE_REG calls.
+    ///
+    /// # Arguments
+    ///
+    /// * `reg_list`  - list of registers (input/output). For details check the `kvm_reg_list`
+    ///                 structure in the
+    ///                 [KVM API doc](https://www.kernel.org/doc/Documentation/virtual/kvm/api.txt).
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # extern crate kvm_ioctls;
+    /// # extern crate kvm_bindings;
+    /// # use kvm_ioctls::Kvm;
+    /// # use kvm_bindings::RegList;
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    /// let vcpu = vm.create_vcpu(0).unwrap();
+    ///
+    /// // KVM_GET_REG_LIST demands that the vcpus be initalized.
+    /// let mut kvi: kvm_bindings::kvm_vcpu_init = kvm_bindings::kvm_vcpu_init::default();
+    /// vm.get_preferred_target(&mut kvi).unwrap();
+    /// vcpu.vcpu_init(&kvi).expect("Cannot initialize vcpu");
+    ///
+    /// let mut reg_list = RegList::new(500);
+    /// vcpu.get_reg_list(&mut reg_list).unwrap();
+    /// assert!(reg_list.as_fam_struct_ref().n > 0);
+    /// ```
+    ///
+    #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
+    pub fn get_reg_list(&self, reg_list: &mut RegList) -> Result<()> {
+        let ret =
+            unsafe { ioctl_with_mut_ref(self, KVM_GET_REG_LIST(), reg_list.as_mut_fam_struct()) };
+        if ret < 0 {
+            return Err(errno::Error::last());
+        }
+        Ok(())
+    }
+
     /// Sets the value of one register for this vCPU.
     ///
     /// The id of the register is encoded as specified in the kernel documentation
@@ -1836,6 +1876,35 @@ mod tests {
                 .expect("Failed to get pstate register"),
             PSTATE_FAULT_BITS_64
         );
+    }
+
+    #[test]
+    #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
+    fn test_get_reg_list() {
+        let kvm = Kvm::new().unwrap();
+        let vm = kvm.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+
+        let mut reg_list = RegList::new(1);
+        // KVM_GET_REG_LIST demands that the vcpus be initalized, so we expect this to fail.
+        let err = vcpu.get_reg_list(&mut reg_list).unwrap_err();
+        assert!(err.errno() == libc::ENOEXEC);
+
+        let mut kvi: kvm_bindings::kvm_vcpu_init = kvm_bindings::kvm_vcpu_init::default();
+        vm.get_preferred_target(&mut kvi)
+            .expect("Cannot get preferred target");
+        vcpu.vcpu_init(&kvi).expect("Cannot initialize vcpu");
+
+        // KVM_GET_REG_LIST offers us a number of registers for which we have
+        // not allocated memory, so the first time it fails.
+        let err = vcpu.get_reg_list(&mut reg_list).unwrap_err();
+        assert!(err.errno() == libc::E2BIG);
+        assert!(reg_list.as_mut_fam_struct().n > 0);
+
+        // We make use of the number of registers returned to allocate memory and
+        // try one more time.
+        let mut reg_list = RegList::new(reg_list.as_mut_fam_struct().n as usize);
+        assert!(vcpu.get_reg_list(&mut reg_list).is_ok());
     }
 
     #[test]
