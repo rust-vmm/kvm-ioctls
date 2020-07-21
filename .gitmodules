@@ -1,3 +1,4 @@
 [submodule "rust-vmm-ci"]
 	path = rust-vmm-ci
-	url = https://github.com/rust-vmm/rust-vmm-ci.git
+	url = https://github.com/lauralt/rust-vmm-ci.git
+	branch = format_commit
