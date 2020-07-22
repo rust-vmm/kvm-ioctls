@@ -41,7 +41,7 @@ impl Kvm {
     pub fn new() -> Result<Self> {
         // Open `/dev/kvm` using `O_CLOEXEC` flag.
         let fd = Self::open_with_cloexec(true)?;
-        // Safe because we verify that ret is valid and we own the fd.
+        // Safe because we verify that the fd is valid in `open_with_cloexec` and we own the fd.
         Ok(unsafe { Self::new_with_fd_number(fd) })
     }
 
@@ -53,6 +53,24 @@ impl Kvm {
     /// # Arguments
     ///
     /// * `fd` - File descriptor for `/dev/kvm`.
+    ///
+    /// # Safety
+    ///
+    /// This function is unsafe as the primitives currently returned have the contract that
+    /// they are the sole owner of the file descriptor they are wrapping. Usage of this function
+    /// could accidentally allow violating this contract which can cause memory unsafety in code
+    /// that relies on it being true.
+    ///
+    /// The caller of this method must make sure the fd is valid and nothing else uses it.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use kvm_ioctls::Kvm;
+    /// let kvm_fd = Kvm::open_with_cloexec(true).unwrap();
+    /// // Safe because we verify that the fd is valid in `open_with_cloexec` and we own the fd.
+    /// let kvm = unsafe { Kvm::new_with_fd_number(kvm_fd) };
+    /// ```
     ///
     pub unsafe fn new_with_fd_number(fd: RawFd) -> Self {
         Kvm {
@@ -430,10 +448,32 @@ impl Kvm {
 
     /// Creates a VmFd object from a VM RawFd.
     ///
+    /// # Arguments
+    ///
+    /// * `fd` - the RawFd used for creating the VmFd object.
+    ///
+    /// # Safety
+    ///
     /// This function is unsafe as the primitives currently returned have the contract that
     /// they are the sole owner of the file descriptor they are wrapping. Usage of this function
     /// could accidentally allow violating this contract which can cause memory unsafety in code
     /// that relies on it being true.
+    ///
+    /// The caller of this method must make sure the fd is valid and nothing else uses it.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # extern crate kvm_ioctls;
+    /// # use std::os::unix::io::AsRawFd;
+    /// # use kvm_ioctls::Kvm;
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    /// let rawfd = unsafe { libc::dup(vm.as_raw_fd()) };
+    /// assert!(rawfd >= 0);
+    /// let vm = unsafe { kvm.create_vmfd_from_rawfd(rawfd).unwrap() };
+    /// ```
+    ///
     pub unsafe fn create_vmfd_from_rawfd(&self, fd: RawFd) -> Result<VmFd> {
         let run_mmap_size = self.get_vcpu_mmap_size()?;
         Ok(new_vmfd(File::from_raw_fd(fd), run_mmap_size))
