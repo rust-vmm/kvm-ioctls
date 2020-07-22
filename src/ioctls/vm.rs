@@ -1040,17 +1040,25 @@ impl VmFd {
 
     /// Creates a VcpuFd object from a vcpu RawFd.
     ///
+    /// # Arguments
+    ///
+    /// * `fd` - the RawFd used for creating the VcpuFd object.
+    ///
+    /// # Safety
+    ///
     /// This function is unsafe as the primitives currently returned have the contract that
     /// they are the sole owner of the file descriptor they are wrapping. Usage of this function
     /// could accidentally allow violating this contract which can cause memory unsafety in code
     /// that relies on it being true.
+    ///
+    /// The caller of this method must make sure the fd is valid and nothing else uses it.
     ///
     /// # Example
     ///
     /// ```rust
     /// # extern crate kvm_ioctls;
     /// # use std::os::unix::io::AsRawFd;
-    /// # use kvm_ioctls::{Kvm, VmFd, VcpuFd};
+    /// # use kvm_ioctls::Kvm;
     /// let kvm = Kvm::new().unwrap();
     /// let vm = kvm.create_vm().unwrap();
     /// // Create one vCPU with the ID=0.
