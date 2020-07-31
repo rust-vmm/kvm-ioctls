@@ -1282,7 +1282,7 @@ mod tests {
 
     #[cfg(target_arch = "x86_64")]
     #[test]
-    fn cpuid2_test() {
+    fn test_get_cpuid() {
         let kvm = Kvm::new().unwrap();
         if kvm.check_extension(Cap::ExtCpuid) {
             let vm = kvm.create_vm().unwrap();
@@ -1296,6 +1296,77 @@ mod tests {
                 let retrieved_cpuid = vcpu.get_cpuid2(ncpuids).unwrap();
                 // Only check the first few leafs as some (e.g. 13) are reserved.
                 assert_eq!(cpuid.as_slice()[..3], retrieved_cpuid.as_slice()[..3]);
+            }
+        }
+    }
+
+    #[cfg(target_arch = "x86_64")]
+    #[test]
+    fn test_set_cpuid() {
+        let kvm = Kvm::new().unwrap();
+        if kvm.check_extension(Cap::ExtCpuid) {
+            let vm = kvm.create_vm().unwrap();
+            let mut cpuid = kvm.get_supported_cpuid(KVM_MAX_CPUID_ENTRIES).unwrap();
+            let ncpuids = cpuid.as_slice().len();
+            assert!(ncpuids <= KVM_MAX_CPUID_ENTRIES);
+            let vcpu = vm.create_vcpu(0).unwrap();
+
+            // Setting Manufacturer ID
+            {
+                let entries = cpuid.as_mut_slice();
+                for entry in entries.iter_mut() {
+                    match entry.function {
+                        0 => {
+                            // " KVMKVMKVM "
+                            entry.ebx = 0x4b4d564b;
+                            entry.ecx = 0x564b4d56;
+                            entry.edx = 0x4d;
+                        }
+                        _ => (),
+                    }
+                }
+            }
+            vcpu.set_cpuid2(&cpuid).unwrap();
+            let cpuid_0 = vcpu.get_cpuid2(ncpuids).unwrap();
+            for entry in cpuid_0.as_slice() {
+                match entry.function {
+                    0 => {
+                        assert_eq!(entry.ebx, 0x4b4d564b);
+                        assert_eq!(entry.ecx, 0x564b4d56);
+                        assert_eq!(entry.edx, 0x4d);
+                    }
+                    _ => (),
+                }
+            }
+
+            // Disabling Intel SHA extensions.
+            const EBX_SHA_SHIFT: u32 = 29;
+            let mut ebx_sha_off = 0u32;
+            {
+                let entries = cpuid.as_mut_slice();
+                for entry in entries.iter_mut() {
+                    match entry.function {
+                        7 => {
+                            if entry.ecx == 0 {
+                                entry.ebx &= !(1 << EBX_SHA_SHIFT);
+                                ebx_sha_off = entry.ebx;
+                            }
+                        }
+                        _ => (),
+                    }
+                }
+            }
+            vcpu.set_cpuid2(&cpuid).unwrap();
+            let cpuid_1 = vcpu.get_cpuid2(ncpuids).unwrap();
+            for entry in cpuid_1.as_slice() {
+                match entry.function {
+                    7 => {
+                        if entry.ecx == 0 {
+                            assert_eq!(entry.ebx, ebx_sha_off);
+                        }
+                    }
+                    _ => (),
+                }
             }
         }
     }
