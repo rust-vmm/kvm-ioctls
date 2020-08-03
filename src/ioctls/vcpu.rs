@@ -387,6 +387,52 @@ impl VcpuFd {
         Ok(cpuid)
     }
 
+    ///
+    /// See the documentation for `KVM_ENABLE_CAP`.
+    ///
+    /// # Arguments
+    ///
+    /// * kvm_enable_cap - KVM capability structure. For details check the `kvm_enable_cap`
+    ///                    structure in the
+    ///                    [KVM API doc](https://www.kernel.org/doc/Documentation/virtual/kvm/api.txt).
+    ///
+    /// # Example
+    ///
+    ///  ```rust
+    /// # extern crate kvm_ioctls;
+    /// # extern crate kvm_bindings;
+    /// # use kvm_bindings::{kvm_enable_cap, KVM_MAX_CPUID_ENTRIES, KVM_CAP_HYPERV_SYNIC, KVM_CAP_SPLIT_IRQCHIP};
+    /// # use kvm_ioctls::{Kvm, Cap};
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    /// let mut cap: kvm_enable_cap = Default::default();
+    /// if cfg!(target_arch = "x86") || cfg!(target_arch = "x86_64") {
+    ///     // KVM_CAP_HYPERV_SYNIC needs KVM_CAP_SPLIT_IRQCHIP enabled
+    ///     cap.cap = KVM_CAP_SPLIT_IRQCHIP;
+    ///     cap.args[0] = 24;
+    ///     vm.enable_cap(&cap).unwrap();
+    ///
+    ///     let vcpu = vm.create_vcpu(0).unwrap();
+    ///     if kvm.check_extension(Cap::HypervSynic) {
+    ///         let mut cap: kvm_enable_cap = Default::default();
+    ///         cap.cap = KVM_CAP_HYPERV_SYNIC;
+    ///         vcpu.enable_cap(&cap).unwrap();
+    ///     }
+    /// }
+    /// ```
+    ///
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    pub fn enable_cap(&self, cap: &kvm_enable_cap) -> Result<()> {
+        // The ioctl is safe because we allocated the struct and we know the
+        // kernel will write exactly the size of the struct.
+        let ret = unsafe { ioctl_with_ref(self, KVM_ENABLE_CAP(), cap) };
+        if ret == 0 {
+            Ok(())
+        } else {
+            Err(errno::Error::last())
+        }
+    }
+
     /// Returns the state of the LAPIC (Local Advanced Programmable Interrupt Controller).
     ///
     /// The state is returned in a `kvm_lapic_state` structure as defined in the
@@ -2006,5 +2052,24 @@ mod tests {
         assert_eq!(vcpu.kvm_run_ptr.as_mut_ref().immediate_exit, 0);
         vcpu.set_kvm_immediate_exit(1);
         assert_eq!(vcpu.kvm_run_ptr.as_mut_ref().immediate_exit, 1);
+    }
+
+    #[test]
+    #[cfg(target_arch = "x86_64")]
+    fn test_enable_cap() {
+        let kvm = Kvm::new().unwrap();
+        let vm = kvm.create_vm().unwrap();
+        let mut cap: kvm_enable_cap = Default::default();
+        // KVM_CAP_HYPERV_SYNIC needs KVM_CAP_SPLIT_IRQCHIP enabled
+        cap.cap = KVM_CAP_SPLIT_IRQCHIP;
+        cap.args[0] = 24;
+        vm.enable_cap(&cap).unwrap();
+
+        let vcpu = vm.create_vcpu(0).unwrap();
+        if kvm.check_extension(Cap::HypervSynic) {
+            let mut cap: kvm_enable_cap = Default::default();
+            cap.cap = KVM_CAP_HYPERV_SYNIC;
+            vcpu.enable_cap(&cap).unwrap();
+        }
     }
 }
