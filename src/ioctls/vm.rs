@@ -14,6 +14,8 @@ use std::os::unix::io::{AsRawFd, FromRawFd, RawFd};
 use cap::Cap;
 use ioctls::device::new_device;
 use ioctls::device::DeviceFd;
+#[cfg(feature = "amd-sev")]
+use ioctls::sev::{Init, SevLaunch};
 use ioctls::vcpu::new_vcpu;
 use ioctls::vcpu::VcpuFd;
 use ioctls::{KvmRunWrapper, Result};
@@ -1259,6 +1261,35 @@ impl VmFd {
     pub fn check_extension(&self, c: Cap) -> bool {
         self.check_extension_int(c) > 0
     }
+
+    /// Creates a new and initialized KVM SEV launch context
+    ///
+    /// See the documentation for `KVM_MEM_ENCRYPT_OP`.
+    ///
+    /// # Errors
+    ///
+    /// Returns an io::Error when the SEV launch context cannot be newed
+    /// or initialized correctly.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # extern crate kvm_ioctls;
+    /// # use kvm_ioctls::Kvm;
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    /// // Create SEV context.
+    /// let launch = vm.create_sev_launch();
+    /// assert!(launch.is_ok());
+    /// ```
+    ///
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(feature = "amd-sev")]
+    pub fn create_sev_launch(self) -> Result<SevLaunch<Init>> {
+        let launch = SevLaunch::new_with_vm(self)?;
+
+        Ok(launch.init()?)
+    }
 }
 
 /// Helper function to create a new `VmFd`.
@@ -1800,5 +1831,20 @@ mod tests {
         let kvm = Kvm::new().unwrap();
         let vm = kvm.create_vm().unwrap();
         assert!(vm.check_extension(Cap::MpState));
+    }
+
+    #[test]
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(feature = "amd-sev")]
+    fn test_create_sev_launch() {
+        let kvm = Kvm::new().unwrap();
+        let vm = kvm.create_vm().unwrap();
+
+        let launch = vm.create_sev_launch();
+        assert!(launch.is_ok());
+
+        let launch = launch.unwrap();
+        assert!(launch.sev.as_raw_fd() >= 0);
+        assert_eq!(launch.state, Init);
     }
 }

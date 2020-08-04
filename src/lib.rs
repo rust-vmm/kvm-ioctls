@@ -212,6 +212,10 @@ extern crate kvm_bindings;
 extern crate libc;
 #[macro_use]
 extern crate vmm_sys_util;
+#[cfg(feature = "amd-sev")]
+extern crate bitflags;
+#[cfg(feature = "amd-sev")]
+extern crate sev;
 
 #[macro_use]
 mod kvm_ioctls;

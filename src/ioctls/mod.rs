@@ -13,6 +13,8 @@ use vmm_sys_util::errno;
 
 /// Wrappers over KVM device ioctls.
 pub mod device;
+/// Wrappers over KVM SEV ioctls.
+pub mod sev;
 /// Wrappers over KVM system ioctls.
 pub mod system;
 /// Wrappers over KVM VCPU ioctls.

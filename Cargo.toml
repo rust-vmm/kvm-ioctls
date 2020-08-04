@@ -12,6 +12,19 @@ license = "Apache-2.0 OR MIT"
 libc = ">=0.2.39"
 kvm-bindings = { version = ">=0.2.0", features = ["fam-wrappers"] }
 vmm-sys-util = ">=0.2.1"
+bitflags = { version = ">=1.2.1", optional = true }
+sev = { path = "./sev", features = ["openssl"], optional = true }
 
 [dev-dependencies]
 byteorder = ">=1.2.1"
+codicon = "2.1.0"
+reqwest = "0.9.24"
+raw-cpuid = "8.1.1"
+regex = "1.3.9"
+lazy_static = "1.4.0"
+
+[features]
+default = ["amd-sev"]
+
+# We may use `target_feature` attribute when supported
+amd-sev = ["bitflags", "sev"]
