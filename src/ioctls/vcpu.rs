@@ -1936,7 +1936,7 @@ mod tests {
         const PSR_A_BIT: u64 = 0x0000_0100;
         const PSR_D_BIT: u64 = 0x0000_0200;
         const PSTATE_FAULT_BITS_64: u64 =
-            (PSR_MODE_EL1H | PSR_A_BIT | PSR_F_BIT | PSR_I_BIT | PSR_D_BIT);
+            PSR_MODE_EL1H | PSR_A_BIT | PSR_F_BIT | PSR_I_BIT | PSR_D_BIT;
         let data: u64 = PSTATE_FAULT_BITS_64;
         const PSTATE_REG_ID: u64 = 0x6030_0000_0010_0042;
         vcpu.set_one_reg(PSTATE_REG_ID, data)
