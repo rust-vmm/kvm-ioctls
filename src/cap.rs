@@ -142,4 +142,6 @@ pub enum Cap {
     ImmediateExit = KVM_CAP_IMMEDIATE_EXIT,
     ArmVmIPASize = KVM_CAP_ARM_VM_IPA_SIZE,
     MsiDevid = KVM_CAP_MSI_DEVID,
+    HypervSynic = KVM_CAP_HYPERV_SYNIC,
+    HypervSynic2 = KVM_CAP_HYPERV_SYNIC2,
 }
