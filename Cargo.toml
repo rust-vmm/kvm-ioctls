@@ -12,6 +12,7 @@ license = "Apache-2.0 OR MIT"
 libc = ">=0.2.39"
 kvm-bindings = { version = ">=0.2.0", features = ["fam-wrappers"] }
 vmm-sys-util = ">=0.2.1"
+hyper = "=0.12.0"
 
 [dev-dependencies]
 byteorder = ">=1.2.1"
