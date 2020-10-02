@@ -42,40 +42,7 @@ impl Kvm {
         // Open `/dev/kvm` using `O_CLOEXEC` flag.
         let fd = Self::open_with_cloexec(true)?;
         // Safe because we verify that the fd is valid in `open_with_cloexec` and we own the fd.
-        Ok(unsafe { Self::new_with_fd_number(fd) })
-    }
-
-    /// Creates a new Kvm object assuming `fd` represents an existing open file descriptor
-    /// associated with `/dev/kvm`.
-    ///
-    /// For usage examples check [open_with_cloexec()](struct.Kvm.html#method.open_with_cloexec).
-    ///
-    /// # Arguments
-    ///
-    /// * `fd` - File descriptor for `/dev/kvm`.
-    ///
-    /// # Safety
-    ///
-    /// This function is unsafe as the primitives currently returned have the contract that
-    /// they are the sole owner of the file descriptor they are wrapping. Usage of this function
-    /// could accidentally allow violating this contract which can cause memory unsafety in code
-    /// that relies on it being true.
-    ///
-    /// The caller of this method must make sure the fd is valid and nothing else uses it.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// # use kvm_ioctls::Kvm;
-    /// let kvm_fd = Kvm::open_with_cloexec(true).unwrap();
-    /// // Safe because we verify that the fd is valid in `open_with_cloexec` and we own the fd.
-    /// let kvm = unsafe { Kvm::new_with_fd_number(kvm_fd) };
-    /// ```
-    ///
-    pub unsafe fn new_with_fd_number(fd: RawFd) -> Self {
-        Kvm {
-            kvm: File::from_raw_fd(fd),
-        }
+        Ok(unsafe { Self::from_raw_fd(fd) })
     }
 
     /// Opens `/dev/kvm` and returns the fd number on success.
@@ -93,10 +60,11 @@ impl Kvm {
     ///
     /// ```
     /// # use kvm_ioctls::Kvm;
+    /// # use std::os::unix::io::FromRawFd;
     /// let kvm_fd = Kvm::open_with_cloexec(false).unwrap();
     /// // The `kvm_fd` can now be passed to another process where we can use
-    /// // `new_with_fd_number` for creating a `Kvm` object:
-    /// let kvm = unsafe { Kvm::new_with_fd_number(kvm_fd) };
+    /// // `from_raw_fd` for creating a `Kvm` object:
+    /// let kvm = unsafe { Kvm::from_raw_fd(kvm_fd) };
     /// ```
     ///
     pub fn open_with_cloexec(close_on_exec: bool) -> Result<RawFd> {
@@ -487,6 +455,34 @@ impl AsRawFd for Kvm {
 }
 
 impl FromRawFd for Kvm {
+    /// Creates a new Kvm object assuming `fd` represents an existing open file descriptor
+    /// associated with `/dev/kvm`.
+    ///
+    /// For usage examples check [open_with_cloexec()](struct.Kvm.html#method.open_with_cloexec).
+    ///
+    /// # Arguments
+    ///
+    /// * `fd` - File descriptor for `/dev/kvm`.
+    ///
+    /// # Safety
+    ///
+    /// This function is unsafe as the primitives currently returned have the contract that
+    /// they are the sole owner of the file descriptor they are wrapping. Usage of this function
+    /// could accidentally allow violating this contract which can cause memory unsafety in code
+    /// that relies on it being true.
+    ///
+    /// The caller of this method must make sure the fd is valid and nothing else uses it.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use kvm_ioctls::Kvm;
+    /// # use std::os::unix::io::FromRawFd;
+    /// let kvm_fd = Kvm::open_with_cloexec(true).unwrap();
+    /// // Safe because we verify that the fd is valid in `open_with_cloexec` and we own the fd.
+    /// let kvm = unsafe { Kvm::from_raw_fd(kvm_fd) };
+    /// ```
+    ///
     unsafe fn from_raw_fd(fd: RawFd) -> Self {
         Kvm {
             kvm: File::from_raw_fd(fd),
