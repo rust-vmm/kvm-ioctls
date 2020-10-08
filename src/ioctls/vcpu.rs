@@ -19,6 +19,8 @@ use vmm_sys_util::ioctl::{ioctl, ioctl_with_mut_ref, ioctl_with_ref};
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 use vmm_sys_util::ioctl::{ioctl_with_mut_ptr, ioctl_with_ptr};
 
+const KVM_MAX_CPUID_ENTRIES: usize = 80;
+
 /// Reasons for vCPU exits.
 ///
 /// The exit reasons are mapped to the `KVM_EXIT_*` defines in the
@@ -375,8 +377,8 @@ impl VcpuFd {
     /// ```
     ///
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-    pub fn get_cpuid2(&self, num_entries: usize) -> Result<CpuId> {
-        let mut cpuid = CpuId::new(num_entries);
+    pub fn get_cpuid2(&self) -> Result<CpuId> {
+        let mut cpuid = CpuId::new(KVM_MAX_CPUID_ENTRIES);
         let ret = unsafe {
             // Here we trust the kernel not to read past the end of the kvm_cpuid2 struct.
             ioctl_with_mut_ptr(self, KVM_GET_CPUID2(), cpuid.as_mut_fam_struct_ptr())
@@ -1348,14 +1350,14 @@ mod tests {
         let kvm = Kvm::new().unwrap();
         if kvm.check_extension(Cap::ExtCpuid) {
             let vm = kvm.create_vm().unwrap();
-            let cpuid = kvm.get_supported_cpuid(KVM_MAX_CPUID_ENTRIES).unwrap();
+            let cpuid = kvm.get_supported_cpuid().unwrap();
             let ncpuids = cpuid.as_slice().len();
             assert!(ncpuids <= KVM_MAX_CPUID_ENTRIES);
             let nr_vcpus = kvm.get_nr_vcpus();
             for cpu_idx in 0..nr_vcpus {
                 let vcpu = vm.create_vcpu(cpu_idx as u8).unwrap();
                 vcpu.set_cpuid2(&cpuid).unwrap();
-                let retrieved_cpuid = vcpu.get_cpuid2(ncpuids).unwrap();
+                let retrieved_cpuid = vcpu.get_cpuid2().unwrap();
                 // Only check the first few leafs as some (e.g. 13) are reserved.
                 assert_eq!(cpuid.as_slice()[..3], retrieved_cpuid.as_slice()[..3]);
             }
@@ -1368,7 +1370,7 @@ mod tests {
         let kvm = Kvm::new().unwrap();
         if kvm.check_extension(Cap::ExtCpuid) {
             let vm = kvm.create_vm().unwrap();
-            let mut cpuid = kvm.get_supported_cpuid(KVM_MAX_CPUID_ENTRIES).unwrap();
+            let mut cpuid = kvm.get_supported_cpuid().unwrap();
             let ncpuids = cpuid.as_slice().len();
             assert!(ncpuids <= KVM_MAX_CPUID_ENTRIES);
             let vcpu = vm.create_vcpu(0).unwrap();
@@ -1389,7 +1391,7 @@ mod tests {
                 }
             }
             vcpu.set_cpuid2(&cpuid).unwrap();
-            let cpuid_0 = vcpu.get_cpuid2(ncpuids).unwrap();
+            let cpuid_0 = vcpu.get_cpuid2().unwrap();
             for entry in cpuid_0.as_slice() {
                 match entry.function {
                     0 => {
@@ -1419,7 +1421,7 @@ mod tests {
                 }
             }
             vcpu.set_cpuid2(&cpuid).unwrap();
-            let cpuid_1 = vcpu.get_cpuid2(ncpuids).unwrap();
+            let cpuid_1 = vcpu.get_cpuid2().unwrap();
             for entry in cpuid_1.as_slice() {
                 match entry.function {
                     7 => {
@@ -1850,18 +1852,13 @@ mod tests {
         );
         assert_eq!(
             faulty_vcpu_fd
-                .set_cpuid2(
-                    &Kvm::new()
-                        .unwrap()
-                        .get_supported_cpuid(KVM_MAX_CPUID_ENTRIES)
-                        .unwrap()
-                )
+                .set_cpuid2(&Kvm::new().unwrap().get_supported_cpuid().unwrap())
                 .unwrap_err()
                 .errno(),
             badf_errno
         );
         assert_eq!(
-            faulty_vcpu_fd.get_cpuid2(1).err().unwrap().errno(),
+            faulty_vcpu_fd.get_cpuid2().err().unwrap().errno(),
             badf_errno
         );
         // `kvm_lapic_state` does not implement debug by default so we cannot

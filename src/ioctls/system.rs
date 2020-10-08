@@ -22,6 +22,8 @@ use vmm_sys_util::errno;
 use vmm_sys_util::ioctl::ioctl_with_mut_ptr;
 use vmm_sys_util::ioctl::{ioctl, ioctl_with_val};
 
+const KVM_MAX_CPUID_ENTRIES: usize = 80;
+
 /// Wrapper over KVM system ioctls.
 pub struct Kvm {
     kvm: File,
@@ -267,8 +269,8 @@ impl Kvm {
     /// ```
     ///
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-    pub fn get_emulated_cpuid(&self, max_entries_count: usize) -> Result<CpuId> {
-        self.get_cpuid(KVM_GET_EMULATED_CPUID(), max_entries_count)
+    pub fn get_emulated_cpuid(&self) -> Result<CpuId> {
+        self.get_cpuid(KVM_GET_EMULATED_CPUID(), KVM_MAX_CPUID_ENTRIES)
     }
 
     /// X86 specific call to get the system supported CPUID values.
@@ -294,8 +296,8 @@ impl Kvm {
     /// ```
     ///
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-    pub fn get_supported_cpuid(&self, max_entries_count: usize) -> Result<CpuId> {
-        self.get_cpuid(KVM_GET_SUPPORTED_CPUID(), max_entries_count)
+    pub fn get_supported_cpuid(&self) -> Result<CpuId> {
+        self.get_cpuid(KVM_GET_SUPPORTED_CPUID(), KVM_MAX_CPUID_ENTRIES)
     }
 
     /// X86 specific call to get list of supported MSRS
@@ -578,7 +580,7 @@ mod tests {
     #[test]
     fn test_get_supported_cpuid() {
         let kvm = Kvm::new().unwrap();
-        let mut cpuid = kvm.get_supported_cpuid(KVM_MAX_CPUID_ENTRIES).unwrap();
+        let mut cpuid = kvm.get_supported_cpuid().unwrap();
         let cpuid_entries = cpuid.as_mut_slice();
         assert!(!cpuid_entries.is_empty());
         assert!(cpuid_entries.len() <= KVM_MAX_CPUID_ENTRIES);
@@ -588,7 +590,7 @@ mod tests {
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     fn test_get_emulated_cpuid() {
         let kvm = Kvm::new().unwrap();
-        let mut cpuid = kvm.get_emulated_cpuid(KVM_MAX_CPUID_ENTRIES).unwrap();
+        let mut cpuid = kvm.get_emulated_cpuid().unwrap();
         let cpuid_entries = cpuid.as_mut_slice();
         assert!(!cpuid_entries.is_empty());
         assert!(cpuid_entries.len() <= KVM_MAX_CPUID_ENTRIES);
@@ -604,7 +606,7 @@ mod tests {
         assert!(rawfd >= 0);
         let kvm = unsafe { Kvm::from_raw_fd(rawfd) };
 
-        let cpuid_1 = kvm.get_supported_cpuid(KVM_MAX_CPUID_ENTRIES).unwrap();
+        let cpuid_1 = kvm.get_supported_cpuid().unwrap();
         let cpuid_2 = CpuId::new(cpuid_1.as_fam_struct_ref().len());
         assert!(cpuid_1 != cpuid_2);
     }
@@ -634,11 +636,11 @@ mod tests {
         #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
         {
             assert_eq!(
-                faulty_kvm.get_emulated_cpuid(4).err().unwrap().errno(),
+                faulty_kvm.get_emulated_cpuid().err().unwrap().errno(),
                 badf_errno
             );
             assert_eq!(
-                faulty_kvm.get_supported_cpuid(4).err().unwrap().errno(),
+                faulty_kvm.get_supported_cpuid().err().unwrap().errno(),
                 badf_errno
             );
 
