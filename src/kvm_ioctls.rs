@@ -217,6 +217,9 @@ ioctl_ior_nr!(KVM_ARM_PREFERRED_TARGET, KVMIO, 0xaf, kvm_vcpu_init);
 #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
 ioctl_iowr_nr!(KVM_GET_REG_LIST, KVMIO, 0xb0, kvm_reg_list);
 
+/* Available with KVM_CAP_SET_GUEST_DEBUG */
+ioctl_iow_nr!(KVM_SET_GUEST_DEBUG, KVMIO, 0x9b, kvm_guest_debug);
+
 // Device ioctls.
 
 /* Available with KVM_CAP_DEVICE_CTRL */

@@ -1045,6 +1045,59 @@ impl VcpuFd {
         Ok(())
     }
 
+    /// Sets processor-specific debug registers and configures the vcpu for handling
+    /// certain guest debug events using the `KVM_SET_GUEST_DEBUG` ioctl.
+    ///
+    /// # Arguments
+    ///
+    /// * `debug_struct` - control bitfields and debug registers, depending on the specific architecture.
+    ///             For details check the `kvm_guest_debug` structure in the
+    ///             [KVM API doc](https://www.kernel.org/doc/Documentation/virtual/kvm/api.txt).
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # extern crate kvm_ioctls;
+    /// # extern crate kvm_bindings;
+    /// # use kvm_ioctls::Kvm;
+    /// # use kvm_bindings::{
+    /// #     KVM_GUESTDBG_ENABLE, KVM_GUESTDBG_USE_SW_BP, kvm_guest_debug_arch, kvm_guest_debug
+    /// # };
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    /// let vcpu = vm.create_vcpu(0).unwrap();
+    ///
+    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))] {
+    ///     let debug_struct = kvm_guest_debug {
+    ///         // Configure the vcpu so that a KVM_DEBUG_EXIT would be generated
+    ///         // when encountering a software breakpoint during execution
+    ///         control: KVM_GUESTDBG_ENABLE | KVM_GUESTDBG_USE_SW_BP,
+    ///         pad: 0,
+    ///         // Reset all x86-specific debug registers
+    ///         arch: kvm_guest_debug_arch {
+    ///             debugreg: [0, 0, 0, 0, 0, 0, 0, 0],
+    ///         },
+    ///     };
+    ///
+    ///     vcpu.set_guest_debug(&debug_struct).unwrap();
+    /// }
+    /// ```
+    ///
+    #[cfg(any(
+        target_arch = "x86",
+        target_arch = "x86_64",
+        target_arch = "arm64",
+        target_arch = "s390",
+        target_arch = "ppc"
+    ))]
+    pub fn set_guest_debug(&self, debug_struct: &kvm_guest_debug) -> Result<()> {
+        let ret = unsafe { ioctl_with_ref(self, KVM_SET_GUEST_DEBUG(), debug_struct) };
+        if ret < 0 {
+            return Err(errno::Error::last());
+        }
+        Ok(())
+    }
+
     /// Sets the value of one register for this vCPU.
     ///
     /// The id of the register is encoded as specified in the kernel documentation
@@ -1732,6 +1785,7 @@ mod tests {
             0xc6, 0x06, 0x00, 0x20, 0x00, /* movl $0, (0x2000); Dirty one page in guest mem. */
             0xf4, /* hlt */
         ];
+        let expected_rips: [u64; 3] = [0x1003, 0x1005, 0x1007];
 
         let mem_size = 0x4000;
         let load_addr = mmap_anonymous(mem_size);
@@ -1772,6 +1826,16 @@ mod tests {
         vcpu_regs.rflags = 2;
         vcpu_fd.set_regs(&vcpu_regs).unwrap();
 
+        let mut debug_struct = kvm_guest_debug {
+            control: KVM_GUESTDBG_ENABLE | KVM_GUESTDBG_SINGLESTEP,
+            pad: 0,
+            arch: kvm_guest_debug_arch {
+                debugreg: [0, 0, 0, 0, 0, 0, 0, 0],
+            },
+        };
+        vcpu_fd.set_guest_debug(&debug_struct).unwrap();
+
+        let mut instr_idx = 0;
         loop {
             match vcpu_fd.run().expect("run failed") {
                 VcpuExit::IoIn(addr, data) => {
@@ -1791,6 +1855,20 @@ mod tests {
                     assert_eq!(addr, 0x8000);
                     assert_eq!(data.len(), 1);
                     assert_eq!(data[0], 0);
+                }
+                VcpuExit::Debug => {
+                    if instr_idx == expected_rips.len() - 1 {
+                        // Disabling debugging/single-stepping
+                        debug_struct.control = 0;
+                        vcpu_fd.set_guest_debug(&debug_struct).unwrap();
+                    } else {
+                        if instr_idx >= expected_rips.len() {
+                            assert!(false);
+                        }
+                    }
+                    let vcpu_regs = vcpu_fd.get_regs().unwrap();
+                    assert_eq!(vcpu_regs.rip, expected_rips[instr_idx]);
+                    instr_idx += 1;
                 }
                 VcpuExit::Hlt => {
                     // The code snippet dirties 2 pages:
