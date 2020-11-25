@@ -26,7 +26,7 @@
 //! In this example we are creating a Virtual Machine (VM) with one vCPU.
 //! On the vCPU we are running machine specific code. This example is based on
 //! the [LWN article](https://lwn.net/Articles/658511/) on using the KVM API.
-//! The aarch64 example was modfied accordingly.
+//! The aarch64 example was modified accordingly.
 //!
 //! To get code running on the vCPU we are going through the following steps:
 //!
