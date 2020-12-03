@@ -1,3 +1,30 @@
+# v0.6.0
+
+## Added
+- Support for the vcpu ioctls: `KVM_SET_GUEST_DEBUG`, `KVM_KVMCLOCK_CTRL`, and
+  `KVM_GET_REG_LIST`.
+- Support for the vm ioctl `KVM_GET_DEVICE_ATTR`.
+- Support for the device ioctl `KVM_HAS_DEVICE_ATTR`.
+- Support for `VcpuExit::Debug`.
+- Support for enabling vcpu capabilities using `Vcpu::enable_cap`.
+- Support for checking Hyper-V (`HypervSynic` and `HypervSynic2`), MSI
+  (`MsiDevid`), and IPA Size (`ArmVmIPASize`) capabilities.
+  using `kvm.check_extension`.
+- Support for checking the VM capabilities via `Vm::check_extension`.
+- Create a VM with flexible IPA size using `Kvm::create_vm_with_ipa_size`.
+
+## Removed
+- Removed `Kvm::new_with_fd_number`. The same functionality is offered by the
+  `Kvm` [FromRawFd](https://doc.rust-lang.org/std/os/unix/io/trait.FromRawFd.html)
+  trait implementation.
+
+## Changed
+- The VM ioctl `unregister_ioevent` now correctly unregisters the events that
+  correspond to the data match passed as a parameter.
+- The `SystemEvent` Vcpu Exit now also contains the relevant type and flags.
+- Updated `get_dirty_log` such that it does not assume the page size is 4K,
+  but instead reads it using `libc::sysconf`.
+
 # v0.5.0
 
 ## Added
