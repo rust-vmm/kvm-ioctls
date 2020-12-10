@@ -260,6 +260,10 @@ mod tests {
 
         let device_fd = create_gic_device(&vm, 0);
 
+        // GICv3 on arm/aarch64 requires an online vCPU prior to setting device attributes,
+        // see: https://www.kernel.org/doc/html/latest/virt/kvm/devices/arm-vgic-v3.html
+        vm.create_vcpu(0).unwrap();
+
         // Following lines to re-construct device_fd are used to test
         // DeviceFd::from_raw_fd() and DeviceFd::as_raw_fd().
         let raw_fd = unsafe { libc::dup(device_fd.as_raw_fd()) };
