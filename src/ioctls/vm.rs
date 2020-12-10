@@ -1556,6 +1556,10 @@ mod tests {
         // Create the vGIC device.
         let vgic_fd = create_gic_device(&vm_fd, 0);
 
+        // GICv3 on arm/aarch64 requires an online vCPU prior to setting device attributes,
+        // see: https://www.kernel.org/doc/html/latest/virt/kvm/devices/arm-vgic-v3.html
+        vm_fd.create_vcpu(0).unwrap();
+
         // Set supported number of IRQs.
         set_supported_nr_irqs(&vgic_fd, 128);
         // Request the initialization of the vGIC.
