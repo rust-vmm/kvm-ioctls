@@ -495,12 +495,23 @@ mod tests {
     use super::*;
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     use kvm_bindings::KVM_MAX_CPUID_ENTRIES;
+    use libc::{fcntl, FD_CLOEXEC, F_GETFD};
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     use vmm_sys_util::fam::FamStruct;
 
     #[test]
     fn test_kvm_new() {
         Kvm::new().unwrap();
+    }
+
+    #[test]
+    fn test_open_with_cloexec() {
+        let fd = Kvm::open_with_cloexec(false).unwrap();
+        let flags = unsafe { fcntl(fd, F_GETFD, 0) };
+        assert_eq!(flags & FD_CLOEXEC, 0);
+        let fd = Kvm::open_with_cloexec(true).unwrap();
+        let flags = unsafe { fcntl(fd, F_GETFD, 0) };
+        assert_eq!(flags & FD_CLOEXEC, FD_CLOEXEC);
     }
 
     #[test]
