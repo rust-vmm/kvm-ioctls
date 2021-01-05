@@ -15,7 +15,7 @@ use ioctls::Result;
 #[cfg(any(target_arch = "aarch64"))]
 use kvm_bindings::KVM_VM_TYPE_ARM_IPA_SIZE_MASK;
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-use kvm_bindings::{CpuId, MsrList, KVM_MAX_MSR_ENTRIES};
+use kvm_bindings::{CpuId, MsrList, KVM_MAX_CPUID_ENTRIES, KVM_MAX_MSR_ENTRIES};
 use kvm_ioctls::*;
 use vmm_sys_util::errno;
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
@@ -228,13 +228,18 @@ impl Kvm {
     }
 
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-    fn get_cpuid(&self, kind: u64, max_entries_count: usize) -> Result<CpuId> {
-        let mut cpuid = CpuId::new(max_entries_count);
+    fn get_cpuid(&self, kind: u64, num_entries: usize) -> Result<CpuId> {
+        if num_entries > KVM_MAX_CPUID_ENTRIES {
+            // Returns the same error the underlying `ioctl` would have sent.
+            return Err(errno::Error::new(libc::ENOMEM));
+        }
+
+        let mut cpuid = CpuId::new(num_entries);
 
         let ret = unsafe {
             // ioctl is unsafe. The kernel is trusted not to write beyond the bounds of the memory
             // allocated for the struct. The limit is read from nent, which is set to the allocated
-            // size(max_entries_count) above.
+            // size(num_entries) above.
             ioctl_with_mut_ptr(self, kind, cpuid.as_mut_fam_struct_ptr())
         };
         if ret < 0 {
@@ -250,7 +255,7 @@ impl Kvm {
     ///
     /// # Arguments
     ///
-    /// * `max_entries_count` - Maximum number of CPUID entries. This function can return less than
+    /// * `num_entries` - Maximum number of CPUID entries. This function can return less than
     ///                         this when the hardware does not support so many CPUID entries.
     ///
     /// # Example
@@ -267,8 +272,8 @@ impl Kvm {
     /// ```
     ///
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-    pub fn get_emulated_cpuid(&self, max_entries_count: usize) -> Result<CpuId> {
-        self.get_cpuid(KVM_GET_EMULATED_CPUID(), max_entries_count)
+    pub fn get_emulated_cpuid(&self, num_entries: usize) -> Result<CpuId> {
+        self.get_cpuid(KVM_GET_EMULATED_CPUID(), num_entries)
     }
 
     /// X86 specific call to get the system supported CPUID values.
@@ -277,7 +282,7 @@ impl Kvm {
     ///
     /// # Arguments
     ///
-    /// * `max_entries_count` - Maximum number of CPUID entries. This function can return less than
+    /// * `num_entries` - Maximum number of CPUID entries. This function can return less than
     ///                         this when the hardware does not support so many CPUID entries.
     ///
     /// # Example
@@ -294,8 +299,8 @@ impl Kvm {
     /// ```
     ///
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-    pub fn get_supported_cpuid(&self, max_entries_count: usize) -> Result<CpuId> {
-        self.get_cpuid(KVM_GET_SUPPORTED_CPUID(), max_entries_count)
+    pub fn get_supported_cpuid(&self, num_entries: usize) -> Result<CpuId> {
+        self.get_cpuid(KVM_GET_SUPPORTED_CPUID(), num_entries)
     }
 
     /// X86 specific call to get list of supported MSRS
@@ -593,6 +598,10 @@ mod tests {
         let cpuid_entries = cpuid.as_mut_slice();
         assert!(!cpuid_entries.is_empty());
         assert!(cpuid_entries.len() <= KVM_MAX_CPUID_ENTRIES);
+
+        // Test case for more than MAX entries
+        let cpuid_err = kvm.get_emulated_cpuid(KVM_MAX_CPUID_ENTRIES + 1 as usize);
+        assert!(cpuid_err.is_err());
     }
 
     #[test]
@@ -603,6 +612,10 @@ mod tests {
         let cpuid_entries = cpuid.as_mut_slice();
         assert!(!cpuid_entries.is_empty());
         assert!(cpuid_entries.len() <= KVM_MAX_CPUID_ENTRIES);
+
+        // Test case for more than MAX entries
+        let cpuid_err = kvm.get_emulated_cpuid(KVM_MAX_CPUID_ENTRIES + 1 as usize);
+        assert!(cpuid_err.is_err());
     }
 
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
