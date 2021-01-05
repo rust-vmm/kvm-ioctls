@@ -1427,8 +1427,27 @@ mod tests {
         if kvm.check_extension(Cap::ExtCpuid) {
             let vm = kvm.create_vm().unwrap();
             let vcpu = vm.create_vcpu(0).unwrap();
-            let err_cpuid = vcpu.get_cpuid2(KVM_MAX_CPUID_ENTRIES + 1 as usize);
-            assert!(err_cpuid.is_err());
+            let err_cpuid = vcpu.get_cpuid2(KVM_MAX_CPUID_ENTRIES + 1 as usize).err();
+            assert_eq!(err_cpuid.unwrap().errno(), libc::ENOMEM);
+        }
+    }
+
+    #[cfg(target_arch = "x86_64")]
+    #[test]
+    fn test_get_cpuid_fail_num_entries_too_small() {
+        let kvm = Kvm::new().unwrap();
+        if kvm.check_extension(Cap::ExtCpuid) {
+            let vm = kvm.create_vm().unwrap();
+            let cpuid = kvm.get_supported_cpuid(KVM_MAX_CPUID_ENTRIES).unwrap();
+            let ncpuids = cpuid.as_slice().len();
+            assert!(ncpuids <= KVM_MAX_CPUID_ENTRIES);
+            let nr_vcpus = kvm.get_nr_vcpus();
+            for cpu_idx in 0..nr_vcpus {
+                let vcpu = vm.create_vcpu(cpu_idx as u8).unwrap();
+                vcpu.set_cpuid2(&cpuid).unwrap();
+                let err = vcpu.get_cpuid2(ncpuids - 1 as usize).err();
+                assert_eq!(err.unwrap().errno(), libc::E2BIG);
+            }
         }
     }
 
