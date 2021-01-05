@@ -12,7 +12,7 @@ use std::os::unix::io::{AsRawFd, RawFd};
 
 use ioctls::{KvmRunWrapper, Result};
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-use kvm_bindings::{CpuId, Msrs};
+use kvm_bindings::{CpuId, Msrs, KVM_MAX_CPUID_ENTRIES};
 use kvm_ioctls::*;
 use vmm_sys_util::errno;
 use vmm_sys_util::ioctl::{ioctl, ioctl_with_mut_ref, ioctl_with_ref};
@@ -376,6 +376,11 @@ impl VcpuFd {
     ///
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn get_cpuid2(&self, num_entries: usize) -> Result<CpuId> {
+        if num_entries > KVM_MAX_CPUID_ENTRIES {
+            // Returns the same error the underlying `ioctl` would have sent.
+            return Err(errno::Error::new(libc::ENOMEM));
+        }
+
         let mut cpuid = CpuId::new(num_entries);
         let ret = unsafe {
             // Here we trust the kernel not to read past the end of the kvm_cpuid2 struct.
@@ -1412,6 +1417,18 @@ mod tests {
                 // Only check the first few leafs as some (e.g. 13) are reserved.
                 assert_eq!(cpuid.as_slice()[..3], retrieved_cpuid.as_slice()[..3]);
             }
+        }
+    }
+
+    #[cfg(target_arch = "x86_64")]
+    #[test]
+    fn test_get_cpuid_fail_num_entries_too_high() {
+        let kvm = Kvm::new().unwrap();
+        if kvm.check_extension(Cap::ExtCpuid) {
+            let vm = kvm.create_vm().unwrap();
+            let vcpu = vm.create_vcpu(0).unwrap();
+            let err_cpuid = vcpu.get_cpuid2(KVM_MAX_CPUID_ENTRIES + 1 as usize);
+            assert!(err_cpuid.is_err());
         }
     }
 
