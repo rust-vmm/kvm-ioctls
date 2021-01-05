@@ -258,6 +258,9 @@ impl Kvm {
     /// * `num_entries` - Maximum number of CPUID entries. This function can return less than
     ///                         this when the hardware does not support so many CPUID entries.
     ///
+    /// Returns Error `errno::Error(libc::ENOMEM)` when the input `num_entries` is greater than
+    /// `KVM_MAX_CPUID_ENTRIES`.
+    ///
     /// # Example
     ///
     /// ```
@@ -285,6 +288,9 @@ impl Kvm {
     /// * `num_entries` - Maximum number of CPUID entries. This function can return less than
     ///                         this when the hardware does not support so many CPUID entries.
     ///
+    /// Returns Error `errno::Error(libc::ENOMEM)` when the input `num_entries` is greater than
+    /// `KVM_MAX_CPUID_ENTRIES`.
+    ///
     /// # Example
     ///
     /// ```
@@ -293,7 +299,7 @@ impl Kvm {
     /// use kvm_ioctls::Kvm;
     ///
     /// let kvm = Kvm::new().unwrap();
-    /// let mut cpuid = kvm.get_emulated_cpuid(KVM_MAX_CPUID_ENTRIES).unwrap();
+    /// let mut cpuid = kvm.get_supported_cpuid(KVM_MAX_CPUID_ENTRIES).unwrap();
     /// let cpuid_entries = cpuid.as_mut_slice();
     /// assert!(cpuid_entries.len() <= KVM_MAX_CPUID_ENTRIES);
     /// ```
