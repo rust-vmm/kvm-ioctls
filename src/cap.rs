@@ -97,6 +97,7 @@ pub enum Cap {
     PpcSmt = KVM_CAP_PPC_SMT,
     PpcRma = KVM_CAP_PPC_RMA,
     MaxVcpus = KVM_CAP_MAX_VCPUS,
+    MaxVcpuId = KVM_CAP_MAX_VCPU_ID,
     PpcHior = KVM_CAP_PPC_HIOR,
     PpcPapr = KVM_CAP_PPC_PAPR,
     SwTlb = KVM_CAP_SW_TLB,
