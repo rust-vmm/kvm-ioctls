@@ -1021,7 +1021,7 @@ impl VmFd {
     /// let vcpu = vm.create_vcpu(0);
     /// ```
     ///
-    pub fn create_vcpu(&self, id: u8) -> Result<VcpuFd> {
+    pub fn create_vcpu(&self, id: u64) -> Result<VcpuFd> {
         // Safe because we know that vm is a VM fd and we verify the return result.
         #[allow(clippy::cast_lossless)]
         let vcpu_fd = unsafe { ioctl_with_val(&self.vm, KVM_CREATE_VCPU(), id as c_ulong) };
@@ -1797,6 +1797,38 @@ mod tests {
         }
         let irq_routing = kvm_irq_routing::default();
         assert!(vm.set_gsi_routing(&irq_routing).is_ok());
+    }
+
+    #[test]
+    fn create_vcpu_different_cpuids() {
+        let kvm = Kvm::new().unwrap();
+        let vm = kvm.create_vm().unwrap();
+
+        // Fails when an arbitrarily large value
+        let err = vm.create_vcpu(65537 as u64).err();
+        assert_eq!(err.unwrap().errno(), libc::EINVAL);
+
+        // Note: We can request up to KVM_MAX_VCPU_ID if it exists or up to KVM_MAX_VCPUS or
+        // NR_CPUS or 4. This is determined by the appropriate capability being present.
+        // We check near boundry conditions `max_vcpus - 1` should succeed but `max_vcpus` as
+        // determined by the appropriate capability should fail.
+        //
+        // Ref: https://www.kernel.org/doc/html/latest/virt/kvm/api.html#kvm-create-vcpu
+        //
+        let mut max_vcpus = vm.check_extension_int(Cap::MaxVcpuId);
+        if max_vcpus == 0 {
+            max_vcpus = vm.check_extension_int(Cap::MaxVcpus);
+        }
+        if max_vcpus == 0 {
+            max_vcpus = vm.check_extension_int(Cap::NrVcpus);
+        }
+        if max_vcpus == 0 {
+            max_vcpus = 4
+        }
+        let vcpu = vm.create_vcpu((max_vcpus - 1) as u64);
+        assert!(vcpu.is_ok());
+        let vcpu_err = vm.create_vcpu(max_vcpus as u64).err();
+        assert_eq!(vcpu_err.unwrap().errno(), libc::EINVAL);
     }
 
     #[test]

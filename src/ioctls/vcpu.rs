@@ -1411,7 +1411,7 @@ mod tests {
             assert!(ncpuids <= KVM_MAX_CPUID_ENTRIES);
             let nr_vcpus = kvm.get_nr_vcpus();
             for cpu_idx in 0..nr_vcpus {
-                let vcpu = vm.create_vcpu(cpu_idx as u8).unwrap();
+                let vcpu = vm.create_vcpu(cpu_idx as u64).unwrap();
                 vcpu.set_cpuid2(&cpuid).unwrap();
                 let retrieved_cpuid = vcpu.get_cpuid2(ncpuids).unwrap();
                 // Only check the first few leafs as some (e.g. 13) are reserved.
@@ -1443,7 +1443,7 @@ mod tests {
             assert!(ncpuids <= KVM_MAX_CPUID_ENTRIES);
             let nr_vcpus = kvm.get_nr_vcpus();
             for cpu_idx in 0..nr_vcpus {
-                let vcpu = vm.create_vcpu(cpu_idx as u8).unwrap();
+                let vcpu = vm.create_vcpu(cpu_idx as u64).unwrap();
                 vcpu.set_cpuid2(&cpuid).unwrap();
                 let err = vcpu.get_cpuid2(ncpuids - 1 as usize).err();
                 assert_eq!(err.unwrap().errno(), libc::E2BIG);
