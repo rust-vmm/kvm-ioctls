@@ -1800,7 +1800,7 @@ mod tests {
     }
 
     #[test]
-    fn create_vcpu_different_cpuids() {
+    fn test_create_vcpu_different_ids() {
         let kvm = Kvm::new().unwrap();
         let vm = kvm.create_vm().unwrap();
 
@@ -1808,26 +1808,11 @@ mod tests {
         let err = vm.create_vcpu(65537 as u64).err();
         assert_eq!(err.unwrap().errno(), libc::EINVAL);
 
-        // Note: We can request up to KVM_MAX_VCPU_ID if it exists or up to KVM_MAX_VCPUS or
-        // NR_CPUS or 4. This is determined by the appropriate capability being present.
-        // We check near boundry conditions `max_vcpus - 1` should succeed but `max_vcpus` as
-        // determined by the appropriate capability should fail.
-        //
-        // Ref: https://www.kernel.org/doc/html/latest/virt/kvm/api.html#kvm-create-vcpu
-        //
-        let mut max_vcpus = vm.check_extension_int(Cap::MaxVcpuId);
-        if max_vcpus == 0 {
-            max_vcpus = vm.check_extension_int(Cap::MaxVcpus);
-        }
-        if max_vcpus == 0 {
-            max_vcpus = vm.check_extension_int(Cap::NrVcpus);
-        }
-        if max_vcpus == 0 {
-            max_vcpus = 4
-        }
-        let vcpu = vm.create_vcpu((max_vcpus - 1) as u64);
+        // Fails when input `id` = `max_vcpu_id`
+        let max_vcpu_id = kvm.get_max_vcpu_id();
+        let vcpu = vm.create_vcpu((max_vcpu_id - 1) as u64);
         assert!(vcpu.is_ok());
-        let vcpu_err = vm.create_vcpu(max_vcpus as u64).err();
+        let vcpu_err = vm.create_vcpu(max_vcpu_id as u64).err();
         assert_eq!(vcpu_err.unwrap().errno(), libc::EINVAL);
     }
 
