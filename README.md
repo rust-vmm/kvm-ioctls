@@ -2,13 +2,22 @@
 [![Crates.io](https://img.shields.io/crates/v/kvm-bindings.svg)](https://crates.io/crates/kvm-bindings)
 ![](https://img.shields.io/crates/l/kvm-bindings.svg)
 # kvm-bindings
-Rust FFI bindings to KVM generated using
+Rust FFI bindings to KVM, generated using
 [bindgen](https://crates.io/crates/bindgen). It currently has support for the
 following target architectures:
 - x86
 - x86_64
 - arm
 - arm64
+
+The bindings exported by this crate are statically generated using header files
+associated with a specific kernel version, and are not automatically synced with
+the kernel version running on a particular host. The user must ensure that
+specific structures, members, or constants are supported and valid for the
+kernel version they are using. For example, the `immediate_exit` field from the
+`kvm_run` structure is only meaningful if the `KVM_CAP_IMMEDIATE_EXIT`
+capability is available. Using invalid fields or features may lead to undefined
+behaviour.
 
 # Usage
 First, add the following to your `Cargo.toml`:
