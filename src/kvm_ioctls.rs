@@ -9,6 +9,8 @@
 
 use kvm_bindings::*;
 
+use std::os::raw::c_ulong;
+
 // Ioctls for /dev/kvm.
 
 ioctl_io_nr!(KVM_GET_API_VERSION, KVMIO, 0x00);
@@ -93,6 +95,10 @@ ioctl_ior_nr!(KVM_GET_PIT2, KVMIO, 0x9f, kvm_pit_state2);
 /* Available with KVM_CAP_PIT_STATE2 */
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 ioctl_iow_nr!(KVM_SET_PIT2, KVMIO, 0xa0, kvm_pit_state2);
+/* Memory Encryption Commands */
+/* KVM_MEMORY_ENCRYPT_OP */
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+ioctl_iowr_nr!(KVM_MEMORY_ENCRYPT_OP, KVMIO, 0xba, c_ulong);
 
 // Ioctls for VCPU fds.
 
