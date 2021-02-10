@@ -22,7 +22,7 @@ behaviour.
 # Usage
 First, add the following to your `Cargo.toml`:
 ```toml
-kvm-bindings = "0.1"
+kvm-bindings = "0.3"
 ```
 Next, add this to your crate root:
 ```rust
@@ -32,7 +32,7 @@ By default `kvm-bindings` will export a wrapper over the latest available kernel
 version (4.20), but you can select a different version by specifying it in your
 toml:
 ```toml
-kvm-bindings = { version = "0.1", features = ["kvm_v4_20_0"]}
+kvm-bindings = { version = "0.3", features = ["kvm_v4_20_0"]}
 ```
 Bindings are generated for each specific Linux kernel version based on the enabled
 crate features as follows:
@@ -44,7 +44,7 @@ a Flexible Array Member in their definition.
 These safe wrappers can be used if the `fam-wrappers` feature is enabled for
 this crate. Example:
 ```toml
-kvm-bindings = { version = "0.1", features = ["kvm_v4_20_0", "fam-wrappers"]}
+kvm-bindings = { version = "0.3", features = ["kvm_v4_20_0", "fam-wrappers"]}
 ```
 
 # Dependencies
