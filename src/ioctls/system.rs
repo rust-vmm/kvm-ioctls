@@ -382,17 +382,7 @@ impl Kvm {
     /// ```
     ///
     pub fn create_vm(&self) -> Result<VmFd> {
-        // Safe because we know `self.kvm` is a real KVM fd as this module is the only one that
-        // create Kvm objects.
-        let ret = unsafe { ioctl(&self.kvm, KVM_CREATE_VM()) };
-        if ret >= 0 {
-            // Safe because we verify the value of ret and we are the owners of the fd.
-            let vm_file = unsafe { File::from_raw_fd(ret) };
-            let run_mmap_size = self.get_vcpu_mmap_size()?;
-            Ok(new_vmfd(vm_file, run_mmap_size))
-        } else {
-            Err(errno::Error::last())
-        }
+        self.create_vm_with_type(0) // Create using default VM type
     }
 
     /// AArch64 specific function to create a VM fd using the KVM fd with flexible IPA size.
@@ -428,15 +418,31 @@ impl Kvm {
     ///
     #[cfg(any(target_arch = "aarch64"))]
     pub fn create_vm_with_ipa_size(&self, ipa_size: u32) -> Result<VmFd> {
+        self.create_vm_with_type((ipa_size & KVM_VM_TYPE_ARM_IPA_SIZE_MASK).into())
+    }
+
+    /// Creates a VM fd using the KVM fd of a specific type.
+    ///
+    /// See the documentation for `KVM_CREATE_VM`.
+    /// A call to this function will also initialize the size of the vcpu mmap area using the
+    /// `KVM_GET_VCPU_MMAP_SIZE` ioctl.
+    ///
+    /// * `vm_type` - Platform and architecture specific platform VM type. A value of 0 is the equivalent
+    ///               to using the default VM type.
+    /// # Example
+    ///
+    /// ```
+    /// # use kvm_ioctls::Kvm;
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm_with_type(0).unwrap();
+    /// // Check that the VM mmap size is the same reported by `KVM_GET_VCPU_MMAP_SIZE`.
+    /// assert!(vm.run_size() == kvm.get_vcpu_mmap_size().unwrap());
+    /// ```
+    ///
+    pub fn create_vm_with_type(&self, vm_type: u64) -> Result<VmFd> {
         // Safe because we know `self.kvm` is a real KVM fd as this module is the only one that
         // create Kvm objects.
-        let ret = unsafe {
-            ioctl_with_val(
-                &self.kvm,
-                KVM_CREATE_VM(),
-                (ipa_size & KVM_VM_TYPE_ARM_IPA_SIZE_MASK).into(),
-            )
-        };
+        let ret = unsafe { ioctl_with_val(&self.kvm, KVM_CREATE_VM(), vm_type) };
         if ret >= 0 {
             // Safe because we verify the value of ret and we are the owners of the fd.
             let vm_file = unsafe { File::from_raw_fd(ret) };
@@ -587,6 +593,19 @@ mod tests {
     fn test_create_vm() {
         let kvm = Kvm::new().unwrap();
         let vm = kvm.create_vm().unwrap();
+
+        // Test create_vmfd_from_rawfd()
+        let rawfd = unsafe { libc::dup(vm.as_raw_fd()) };
+        assert!(rawfd >= 0);
+        let vm = unsafe { kvm.create_vmfd_from_rawfd(rawfd).unwrap() };
+
+        assert_eq!(vm.run_size(), kvm.get_vcpu_mmap_size().unwrap());
+    }
+
+    #[test]
+    fn test_create_vm_with_type() {
+        let kvm = Kvm::new().unwrap();
+        let vm = kvm.create_vm_with_type(0).unwrap();
 
         // Test create_vmfd_from_rawfd()
         let rawfd = unsafe { libc::dup(vm.as_raw_fd()) };
