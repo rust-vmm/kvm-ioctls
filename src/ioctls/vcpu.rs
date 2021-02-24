@@ -381,7 +381,7 @@ impl VcpuFd {
             return Err(errno::Error::new(libc::ENOMEM));
         }
 
-        let mut cpuid = CpuId::new(num_entries);
+        let mut cpuid = CpuId::new(num_entries).map_err(|_| errno::Error::new(libc::ENOMEM))?;
         let ret = unsafe {
             // Here we trust the kernel not to read past the end of the kvm_cpuid2 struct.
             ioctl_with_mut_ptr(self, KVM_GET_CPUID2(), cpuid.as_mut_fam_struct_ptr())
@@ -548,7 +548,7 @@ impl VcpuFd {
     ///         index: 0x0000_0175,
     ///         ..Default::default()
     ///     },
-    /// ]);
+    /// ]).unwrap();
     /// let read = vcpu.get_msrs(&mut msrs).unwrap();
     /// assert_eq!(read, 2);
     /// ```
@@ -591,7 +591,7 @@ impl VcpuFd {
     ///         index: 0x0000_0174,
     ///         ..Default::default()
     ///     },
-    /// ]);
+    /// ]).unwrap();
     /// let written = vcpu.set_msrs(&msrs).unwrap();
     /// assert_eq!(written, 1);
     /// ```
@@ -1035,7 +1035,7 @@ impl VcpuFd {
     /// vm.get_preferred_target(&mut kvi).unwrap();
     /// vcpu.vcpu_init(&kvi).expect("Cannot initialize vcpu");
     ///
-    /// let mut reg_list = RegList::new(500);
+    /// let mut reg_list = RegList::new(500).unwrap();
     /// vcpu.get_reg_list(&mut reg_list).unwrap();
     /// assert!(reg_list.as_fam_struct_ref().n > 0);
     /// ```
@@ -1597,7 +1597,7 @@ mod tests {
                 ..Default::default()
             },
         ];
-        let msrs_wrapper = Msrs::from_entries(&msrs_to_set);
+        let msrs_wrapper = Msrs::from_entries(&msrs_to_set).unwrap();
         vcpu.set_msrs(&msrs_wrapper).unwrap();
 
         // Now test that GET_MSRS returns the same.
@@ -1611,7 +1611,8 @@ mod tests {
                 index: 0x0000_0175,
                 ..Default::default()
             },
-        ]);
+        ])
+        .unwrap();
         let nmsrs = vcpu.get_msrs(&mut returned_kvm_msrs).unwrap();
 
         // Verify the lengths match.
@@ -1990,13 +1991,16 @@ mod tests {
         );
         assert_eq!(
             faulty_vcpu_fd
-                .get_msrs(&mut Msrs::new(1))
+                .get_msrs(&mut Msrs::new(1).unwrap())
                 .unwrap_err()
                 .errno(),
             badf_errno
         );
         assert_eq!(
-            faulty_vcpu_fd.set_msrs(&Msrs::new(1)).unwrap_err().errno(),
+            faulty_vcpu_fd
+                .set_msrs(&Msrs::new(1).unwrap())
+                .unwrap_err()
+                .errno(),
             badf_errno
         );
         assert_eq!(
@@ -2136,7 +2140,7 @@ mod tests {
         let vm = kvm.create_vm().unwrap();
         let vcpu = vm.create_vcpu(0).unwrap();
 
-        let mut reg_list = RegList::new(1);
+        let mut reg_list = RegList::new(1).unwrap();
         // KVM_GET_REG_LIST demands that the vcpus be initalized, so we expect this to fail.
         let err = vcpu.get_reg_list(&mut reg_list).unwrap_err();
         assert!(err.errno() == libc::ENOEXEC);
@@ -2154,7 +2158,7 @@ mod tests {
 
         // We make use of the number of registers returned to allocate memory and
         // try one more time.
-        let mut reg_list = RegList::new(reg_list.as_mut_fam_struct().n as usize);
+        let mut reg_list = RegList::new(reg_list.as_mut_fam_struct().n as usize).unwrap();
         assert!(vcpu.get_reg_list(&mut reg_list).is_ok());
     }
 

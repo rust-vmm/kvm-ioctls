@@ -255,7 +255,7 @@ impl Kvm {
             return Err(errno::Error::new(libc::ENOMEM));
         }
 
-        let mut cpuid = CpuId::new(num_entries);
+        let mut cpuid = CpuId::new(num_entries).map_err(|_| errno::Error::new(libc::ENOMEM))?;
 
         let ret = unsafe {
             // ioctl is unsafe. The kernel is trusted not to write beyond the bounds of the memory
@@ -344,7 +344,8 @@ impl Kvm {
     /// ```
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn get_msr_index_list(&self) -> Result<MsrList> {
-        let mut msr_list = MsrList::new(KVM_MAX_MSR_ENTRIES);
+        let mut msr_list =
+            MsrList::new(KVM_MAX_MSR_ENTRIES).map_err(|_| errno::Error::new(libc::ENOMEM))?;
 
         let ret = unsafe {
             // ioctl is unsafe. The kernel is trusted not to write beyond the bounds of the memory
@@ -656,8 +657,7 @@ mod tests {
         let kvm = unsafe { Kvm::from_raw_fd(rawfd) };
 
         let cpuid_1 = kvm.get_supported_cpuid(KVM_MAX_CPUID_ENTRIES).unwrap();
-        let cpuid_2 = CpuId::new(cpuid_1.as_fam_struct_ref().len());
-        assert!(cpuid_1 != cpuid_2);
+        let _ = CpuId::new(cpuid_1.as_fam_struct_ref().len()).unwrap();
     }
 
     #[test]
