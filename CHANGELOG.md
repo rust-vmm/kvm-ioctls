@@ -1,3 +1,19 @@
+# v0.7.0
+
+## Added
+- Support for the system API that returns the maximum allowed vCPU ID
+  (`KVM_CAP_MAX_VCPU_ID`).
+- Support for `KVM_MEMORY_ENCRYPT_OP`.
+
+## Fixed
+- [[#119](https://github.com/rust-vmm/kvm-ioctls/issues/119)]: Disallow invalid
+  number of cpuid entries to be passed to `get_supported_cpuid` and
+  `get_emulated_cpuid`.
+
+## Changed
+- [[#123](https://github.com/rust-vmm/kvm-ioctls/issues/123)]: Updated
+  `create_vcpu` to use `u64` as the parameter for the number of vCPUs.
+
 # v0.6.0
 
 ## Added
