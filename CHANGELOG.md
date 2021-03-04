@@ -1,3 +1,9 @@
+# v0.6.1
+
+## Changed
+
+- Enforced the `vmm-sys-util` dependency to v0.7.0.
+
 # v0.6.0
 
 ## Added
