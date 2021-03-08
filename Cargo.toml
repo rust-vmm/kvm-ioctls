@@ -1,6 +1,6 @@
 [package]
 name = "kvm-bindings"
-version = "0.3.0"
+version = "0.4.0"
 authors = ["Amazon firecracker team <firecracker-devel@amazon.com>"]
 description = "Rust FFI bindings to KVM generated using bindgen."
 repository = "https://github.com/rust-vmm/kvm-bindings"
@@ -14,4 +14,4 @@ kvm-v4_20_0 = []
 fam-wrappers = ["vmm-sys-util"]
 
 [dependencies]
-vmm-sys-util = { version = ">=0.2.0", optional = true }
+vmm-sys-util = { version = ">=0.8.0", optional = true }

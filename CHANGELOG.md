@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.4.0]
+
+- vmm-sys-utils dependency bumped to match kvm-ioctls
+
 ## [0.3.0]
 
 ### Added
