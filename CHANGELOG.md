@@ -1,3 +1,14 @@
+# v0.8.0
+
+## Added
+- Support for specifying VM type (an opaque platform and architecture specific
+  constant) when creating a VM (`KVM_CREATE_VM` ioctl) via the
+`Kvm::create_vm_with_type` function.
+
+## Changed
+- Now depends on kvm-bindings >=0.4.0 to support use of a newer vmm-sys-utils
+  dependency.
+
 # v0.7.0
 
 ## Added
