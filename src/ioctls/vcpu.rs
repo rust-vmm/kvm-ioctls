@@ -132,6 +132,86 @@ impl VcpuFd {
         Ok(regs)
     }
 
+    /// Sets a specified piece of cpu configuration and/or state.
+    ///
+    /// See the documentation for `KVM_SET_DEVICE_ATTR` in
+    /// [KVM API doc](https://www.kernel.org/doc/Documentation/virtual/kvm/api.txt)
+    /// # Arguments
+    ///
+    /// * `device_attr` - The cpu attribute to be set.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # extern crate kvm_ioctls;
+    /// # extern crate kvm_bindings;
+    /// # use kvm_ioctls::Kvm;
+    /// # use kvm_bindings::{
+    ///    KVM_ARM_VCPU_PMU_V3_CTRL, KVM_ARM_VCPU_PMU_V3_INIT
+    /// };
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    /// let vcpu = vm.create_vcpu(0).unwrap();
+    ///
+    /// let dist_attr = kvm_bindings::kvm_device_attr {
+    ///     group: KVM_ARM_VCPU_PMU_V3_CTRL,
+    ///     attr: u64::from(KVM_ARM_VCPU_PMU_V3_INIT),
+    ///     addr: 0x0,
+    ///     flags: 0,
+    /// };
+    ///
+    /// if (vcpu.has_device_attr(&dist_attr).is_ok()) {
+    ///     vcpu.set_device_attr(&dist_attr).unwrap();
+    /// }
+    /// ```
+    #[cfg(target_arch = "aarch64")]
+    pub fn set_device_attr(&self, device_attr: &kvm_device_attr) -> Result<()> {
+        let ret = unsafe { ioctl_with_ref(self, KVM_SET_DEVICE_ATTR(), device_attr) };
+        if ret != 0 {
+            return Err(errno::Error::last());
+        }
+        Ok(())
+    }
+
+    /// Tests whether a cpu supports a particular attribute.
+    ///
+    /// See the documentation for `KVM_HAS_DEVICE_ATTR` in
+    /// [KVM API doc](https://www.kernel.org/doc/Documentation/virtual/kvm/api.txt)
+    /// # Arguments
+    ///
+    /// * `device_attr` - The cpu attribute to be tested. `addr` field is ignored.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # extern crate kvm_ioctls;
+    /// # extern crate kvm_bindings;
+    /// # use kvm_ioctls::Kvm;
+    /// # use kvm_bindings::{
+    ///    KVM_ARM_VCPU_PMU_V3_CTRL, KVM_ARM_VCPU_PMU_V3_INIT
+    /// };
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    /// let vcpu = vm.create_vcpu(0).unwrap();
+    ///
+    /// let dist_attr = kvm_bindings::kvm_device_attr {
+    ///     group: KVM_ARM_VCPU_PMU_V3_CTRL,
+    ///     attr: u64::from(KVM_ARM_VCPU_PMU_V3_INIT),
+    ///     addr: 0x0,
+    ///     flags: 0,
+    /// };
+    ///
+    /// vcpu.has_device_attr(&dist_attr);
+    /// ```
+    #[cfg(target_arch = "aarch64")]
+    pub fn has_device_attr(&self, device_attr: &kvm_device_attr) -> Result<()> {
+        let ret = unsafe { ioctl_with_ref(self, KVM_HAS_DEVICE_ATTR(), device_attr) };
+        if ret != 0 {
+            return Err(errno::Error::last());
+        }
+        Ok(())
+    }
+
     /// Sets the vCPU general purpose registers using the `KVM_SET_REGS` ioctl.
     ///
     /// # Arguments
@@ -2255,5 +2335,30 @@ mod tests {
             assert!(vcpu.set_tsc_khz(freq + 500000).is_ok());
             assert_eq!(vcpu.get_tsc_khz().unwrap(), freq + 500000);
         }
+    }
+
+    #[test]
+    #[cfg(target_arch = "aarch64")]
+    fn test_vcpu_attr() {
+        let kvm = Kvm::new().unwrap();
+        let vm = kvm.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+
+        let dist_attr = kvm_bindings::kvm_device_attr {
+            group: KVM_ARM_VCPU_PMU_V3_CTRL,
+            attr: u64::from(KVM_ARM_VCPU_PMU_V3_INIT),
+            addr: 0x0,
+            flags: 0,
+        };
+
+        assert!(vcpu.has_device_attr(&dist_attr).is_err());
+        assert!(vcpu.set_device_attr(&dist_attr).is_err());
+        let mut kvi: kvm_bindings::kvm_vcpu_init = kvm_bindings::kvm_vcpu_init::default();
+        vm.get_preferred_target(&mut kvi)
+            .expect("Cannot get preferred target");
+        kvi.features[0] |= 1 << kvm_bindings::KVM_ARM_VCPU_PSCI_0_2 | 1 << KVM_ARM_VCPU_PMU_V3;
+        assert!(vcpu.vcpu_init(&kvi).is_ok());
+        assert!(vcpu.has_device_attr(&dist_attr).is_ok());
+        assert!(vcpu.set_device_attr(&dist_attr).is_ok());
     }
 }
