@@ -98,7 +98,7 @@ impl Kvm {
 
     /// AArch64 specific call to get the host Intermediate Physical Address space limit.
     ///
-    /// Returns 0 if the capability is not available and an integer larger than 32 otherwise.
+    /// Returns 0 if the capability is not available and an integer >= 32 otherwise.
     #[cfg(any(target_arch = "aarch64"))]
     pub fn get_host_ipa_limit(&self) -> i32 {
         self.check_extension_int(Cap::ArmVmIPASize)
@@ -632,8 +632,8 @@ mod tests {
                 .create_vm_with_ipa_size((host_ipa_limit + 1) as u32)
                 .is_err());
         } else {
-            // Unsupported, here we can test with the default value 40.
-            assert!(kvm.create_vm_with_ipa_size(40).is_err());
+            // Unsupported, we can't provide an IPA size. Only KVM type=0 works.
+            assert!(kvm.create_vm_with_type(0).is_err());
         }
     }
 
