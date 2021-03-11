@@ -381,8 +381,34 @@ impl Kvm {
     /// assert!(vm.run_size() == kvm.get_vcpu_mmap_size().unwrap());
     /// ```
     ///
+    #[cfg(not(any(target_arch = "aarch64")))]
     pub fn create_vm(&self) -> Result<VmFd> {
         self.create_vm_with_type(0) // Create using default VM type
+    }
+
+    /// AArch64 specific create_vm to create a VM fd using the KVM fd using the host's maximum IPA size.
+    ///
+    /// See the arm64 section of KVM documentation for `KVM_CREATE_VM`.
+    /// A call to this function will also initialize the size of the vcpu mmap area using the
+    /// `KVM_GET_VCPU_MMAP_SIZE` ioctl.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use kvm_ioctls::Kvm;
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    /// // Check that the VM mmap size is the same reported by `KVM_GET_VCPU_MMAP_SIZE`.
+    /// assert!(vm.run_size() == kvm.get_vcpu_mmap_size().unwrap());
+    /// ```
+    ///
+    #[cfg(any(target_arch = "aarch64"))]
+    pub fn create_vm(&self) -> Result<VmFd> {
+        let mut ipa_size = 0; // Create using default VM type
+        if self.check_extension(Cap::ArmVmIPASize) {
+            ipa_size = self.get_host_ipa_limit();
+        }
+        self.create_vm_with_type(ipa_size as u64)
     }
 
     /// AArch64 specific function to create a VM fd using the KVM fd with flexible IPA size.
