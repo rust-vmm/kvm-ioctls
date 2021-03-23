@@ -1466,27 +1466,21 @@ mod tests {
             {
                 let entries = cpuid.as_mut_slice();
                 for entry in entries.iter_mut() {
-                    match entry.function {
-                        0 => {
-                            // " KVMKVMKVM "
-                            entry.ebx = 0x4b4d564b;
-                            entry.ecx = 0x564b4d56;
-                            entry.edx = 0x4d;
-                        }
-                        _ => (),
+                    if entry.function == 0 {
+                        // " KVMKVMKVM "
+                        entry.ebx = 0x4b4d564b;
+                        entry.ecx = 0x564b4d56;
+                        entry.edx = 0x4d;
                     }
                 }
             }
             vcpu.set_cpuid2(&cpuid).unwrap();
             let cpuid_0 = vcpu.get_cpuid2(ncpuids).unwrap();
             for entry in cpuid_0.as_slice() {
-                match entry.function {
-                    0 => {
-                        assert_eq!(entry.ebx, 0x4b4d564b);
-                        assert_eq!(entry.ecx, 0x564b4d56);
-                        assert_eq!(entry.edx, 0x4d);
-                    }
-                    _ => (),
+                if entry.function == 0 {
+                    assert_eq!(entry.ebx, 0x4b4d564b);
+                    assert_eq!(entry.ecx, 0x564b4d56);
+                    assert_eq!(entry.edx, 0x4d);
                 }
             }
 
@@ -1496,27 +1490,17 @@ mod tests {
             {
                 let entries = cpuid.as_mut_slice();
                 for entry in entries.iter_mut() {
-                    match entry.function {
-                        7 => {
-                            if entry.ecx == 0 {
-                                entry.ebx &= !(1 << EBX_SHA_SHIFT);
-                                ebx_sha_off = entry.ebx;
-                            }
-                        }
-                        _ => (),
+                    if entry.function == 7 && entry.ecx == 0 {
+                        entry.ebx &= !(1 << EBX_SHA_SHIFT);
+                        ebx_sha_off = entry.ebx;
                     }
                 }
             }
             vcpu.set_cpuid2(&cpuid).unwrap();
             let cpuid_1 = vcpu.get_cpuid2(ncpuids).unwrap();
             for entry in cpuid_1.as_slice() {
-                match entry.function {
-                    7 => {
-                        if entry.ecx == 0 {
-                            assert_eq!(entry.ebx, ebx_sha_off);
-                        }
-                    }
-                    _ => (),
+                if entry.function == 7 && entry.ecx == 0 {
+                    assert_eq!(entry.ebx, ebx_sha_off);
                 }
             }
         }
@@ -1898,10 +1882,8 @@ mod tests {
                         // Disabling debugging/single-stepping
                         debug_struct.control = 0;
                         vcpu_fd.set_guest_debug(&debug_struct).unwrap();
-                    } else {
-                        if instr_idx >= expected_rips.len() {
-                            assert!(false);
-                        }
+                    } else if instr_idx >= expected_rips.len() {
+                        unreachable!();
                     }
                     let vcpu_regs = vcpu_fd.get_regs().unwrap();
                     assert_eq!(vcpu_regs.rip, expected_rips[instr_idx]);
