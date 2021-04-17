@@ -27,7 +27,7 @@ For this example we assume that you have both linux and kvm-bindings
 repositories in your root.
 
 ```bash
-# Step 1: Crate a new module using the name of the architecture in src/
+# Step 1: Create a new module using the name of the architecture in src/
 cd kvm-bindings
 mkdir src/arm64
 cd ~
@@ -35,7 +35,7 @@ cd ~
 # linux is the repository that you cloned at the previous step.
 cd linux
 # Step 2: Checkout the version you want to generate the bindings for.
-git checkout v4.14
+git checkout v4.20
 
 # Step 3: Generate the bindings.
 # This will generate the headers for the targeted architecture and place them
