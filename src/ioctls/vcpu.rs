@@ -17,7 +17,7 @@ use kvm_ioctls::*;
 use vmm_sys_util::errno;
 use vmm_sys_util::ioctl::{ioctl, ioctl_with_mut_ref, ioctl_with_ref};
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-use vmm_sys_util::ioctl::{ioctl_with_mut_ptr, ioctl_with_ptr};
+use vmm_sys_util::ioctl::{ioctl_with_mut_ptr, ioctl_with_ptr, ioctl_with_val};
 
 /// Reasons for vCPU exits.
 ///
@@ -1339,6 +1339,61 @@ impl VcpuFd {
         let kvm_run = self.kvm_run_ptr.as_mut_ref();
         kvm_run.immediate_exit = val;
     }
+
+    /// Returns the vCPU TSC frequency in KHz or an error if the host has unstable TSC.
+    ///
+    /// # Example
+    ///
+    ///  ```rust
+    /// # extern crate kvm_ioctls;
+    /// # use kvm_ioctls::Kvm;
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    /// let vcpu = vm.create_vcpu(0).unwrap();
+    /// let tsc_khz = vcpu.get_tsc_khz().unwrap();
+    /// ```
+    ///
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    pub fn get_tsc_khz(&self) -> Result<u32> {
+        // Safe because we know that our file is a KVM fd and that the request is one of the ones
+        // defined by kernel.
+        let ret = unsafe { ioctl(self, KVM_GET_TSC_KHZ()) };
+        if ret >= 0 {
+            Ok(ret as u32)
+        } else {
+            Err(errno::Error::new(ret))
+        }
+    }
+
+    /// Sets the specified vCPU TSC frequency.
+    ///
+    /// # Arguments
+    ///
+    /// * `freq` - The frequency unit is KHz as per the the KVM API documentation
+    /// for `KVM_SET_TSC_KHZ`.
+    ///
+    /// # Example
+    ///
+    ///  ```rust
+    /// # extern crate kvm_ioctls;
+    /// # use kvm_ioctls::Kvm;
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    /// let vcpu = vm.create_vcpu(0).unwrap();
+    /// vcpu.set_tsc_khz(1000).unwrap();
+    /// ```
+    ///
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    pub fn set_tsc_khz(&self, freq: u32) -> Result<()> {
+        // Safe because we know that our file is a KVM fd and that the request is one of the ones
+        // defined by kernel.
+        let ret = unsafe { ioctl_with_val(self, KVM_SET_TSC_KHZ(), freq as u64) };
+        if ret < 0 {
+            Err(errno::Error::last())
+        } else {
+            Ok(())
+        }
+    }
 }
 
 /// Helper function to create a new `VcpuFd`.
@@ -2043,6 +2098,8 @@ mod tests {
             faulty_vcpu_fd.kvmclock_ctrl().unwrap_err().errno(),
             badf_errno
         );
+        assert!(faulty_vcpu_fd.get_tsc_khz().is_err());
+        assert!(faulty_vcpu_fd.set_tsc_khz(1000000).is_err());
     }
 
     #[test]
@@ -2170,6 +2227,37 @@ mod tests {
             let mut cap: kvm_enable_cap = Default::default();
             cap.cap = KVM_CAP_HYPERV_SYNIC;
             vcpu.enable_cap(&cap).unwrap();
+        }
+    }
+    #[cfg(target_arch = "x86_64")]
+    #[test]
+    fn test_get_tsc_khz() {
+        let kvm = Kvm::new().unwrap();
+        let vm = kvm.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+
+        if !kvm.check_extension(Cap::GetTscKhz) {
+            assert!(vcpu.get_tsc_khz().is_err())
+        } else {
+            assert!(vcpu.get_tsc_khz().unwrap() > 0);
+        }
+    }
+
+    #[cfg(target_arch = "x86_64")]
+    #[test]
+    fn test_set_tsc_khz() {
+        let kvm = Kvm::new().unwrap();
+        let vm = kvm.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+        let freq = vcpu.get_tsc_khz().unwrap();
+
+        if !(kvm.check_extension(Cap::GetTscKhz) && kvm.check_extension(Cap::TscControl)) {
+            assert!(vcpu.set_tsc_khz(0).is_err());
+        } else {
+            assert!(vcpu.set_tsc_khz(freq - 500000).is_ok());
+            assert_eq!(vcpu.get_tsc_khz().unwrap(), freq - 500000);
+            assert!(vcpu.set_tsc_khz(freq + 500000).is_ok());
+            assert_eq!(vcpu.get_tsc_khz().unwrap(), freq + 500000);
         }
     }
 }
