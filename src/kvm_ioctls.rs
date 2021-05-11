@@ -197,6 +197,13 @@ ioctl_iow_nr!(KVM_SET_XCRS, KVMIO, 0xa7, kvm_xcrs);
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 ioctl_io_nr!(KVM_KVMCLOCK_CTRL, KVMIO, 0xad);
 
+/* Available with KVM_CAP_TSC_CONTROL */
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+ioctl_io_nr!(KVM_SET_TSC_KHZ, KVMIO, 0xa2);
+/* Available with KVM_CAP_GET_TSC_KHZ */
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+ioctl_io_nr!(KVM_GET_TSC_KHZ, KVMIO, 0xa3);
+
 /* Available with KVM_CAP_ENABLE_CAP */
 #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
 ioctl_iow_nr!(KVM_ENABLE_CAP, KVMIO, 0xa3, kvm_enable_cap);
