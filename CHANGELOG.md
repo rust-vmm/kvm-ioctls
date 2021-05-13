@@ -1,3 +1,13 @@
+# v0.9.0
+
+## Added
+- Support for accessing and controlling the Time Stamp Counter on x86 platforms
+  through the `get_tsc_khz` and `set_tsc_khz` functions.
+
+## Changed
+- Updated `create_vm` on `aarch64` to create a VM fd from the KVM fd using the
+  host's maximum IPA size.
+
 # v0.8.0
 
 ## Added
