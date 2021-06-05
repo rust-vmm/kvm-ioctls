@@ -213,9 +213,12 @@ impl Kvm {
     /// assert!(kvm.get_max_vcpus() > 0);
     /// ```
     pub fn get_max_vcpus(&self) -> usize {
-        match self.check_extension_int(Cap::MaxVcpus) {
-            0 => self.get_nr_vcpus(),
-            x => x as usize,
+        let v = self.check_extension_int(Cap::MaxVcpus);
+
+        if v <= 0 {
+            self.get_nr_vcpus()
+        } else {
+            v as usize
         }
     }
 
@@ -233,9 +236,12 @@ impl Kvm {
     /// assert!(kvm.get_max_vcpu_id() > 0);
     /// ```
     pub fn get_max_vcpu_id(&self) -> usize {
-        match self.check_extension_int(Cap::MaxVcpuId) {
-            0 => self.get_max_vcpus(),
-            x => x as usize,
+        let v = self.check_extension_int(Cap::MaxVcpuId);
+
+        if v <= 0 {
+            self.get_max_vcpus()
+        } else {
+            v as usize
         }
     }
 
