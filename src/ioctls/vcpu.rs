@@ -1461,16 +1461,18 @@ mod tests {
         let kvm = Kvm::new().unwrap();
         if kvm.check_extension(Cap::ExtCpuid) {
             let vm = kvm.create_vm().unwrap();
-            let cpuid = kvm.get_supported_cpuid(KVM_MAX_CPUID_ENTRIES).unwrap();
+            let mut cpuid = kvm.get_supported_cpuid(KVM_MAX_CPUID_ENTRIES).unwrap();
+            cpuid.as_mut_slice().sort();
             let ncpuids = cpuid.as_slice().len();
             assert!(ncpuids <= KVM_MAX_CPUID_ENTRIES);
             let nr_vcpus = kvm.get_nr_vcpus();
             for cpu_idx in 0..nr_vcpus {
                 let vcpu = vm.create_vcpu(cpu_idx as u64).unwrap();
                 vcpu.set_cpuid2(&cpuid).unwrap();
-                let retrieved_cpuid = vcpu.get_cpuid2(ncpuids).unwrap();
+                let mut retrieved_cpuid = vcpu.get_cpuid2(ncpuids).unwrap();
+                retrieved_cpuid.as_mut_slice().sort();
                 // Only check the first few leafs as some (e.g. 13) are reserved.
-                assert_eq!(cpuid.as_slice()[..3], retrieved_cpuid.as_slice()[..3]);
+                assert_eq!(cpuid.as_slice()[..13], retrieved_cpuid.as_slice()[0..13]);
             }
         }
     }

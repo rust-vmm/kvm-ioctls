@@ -15,3 +15,6 @@ vmm-sys-util = ">=0.8.0"
 
 [dev-dependencies]
 byteorder = ">=1.2.1"
+
+[patch.crates-io]
+kvm-bindings = { git = " https://github.com/andreeaflorescu/kvm-bindings/", branch="add_ord_to_cpuid" }
