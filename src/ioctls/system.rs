@@ -718,7 +718,7 @@ mod tests {
         let badf_errno = libc::EBADF;
 
         let faulty_kvm = Kvm {
-            kvm: unsafe { File::from_raw_fd(-1) },
+            kvm: unsafe { File::from_raw_fd(-2) },
         };
 
         assert_eq!(

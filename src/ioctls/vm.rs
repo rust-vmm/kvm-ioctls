@@ -1633,7 +1633,7 @@ mod tests {
         let badf_errno = libc::EBADF;
 
         let faulty_vm_fd = VmFd {
-            vm: unsafe { File::from_raw_fd(-1) },
+            vm: unsafe { File::from_raw_fd(-2) },
             run_size: 0,
         };
 

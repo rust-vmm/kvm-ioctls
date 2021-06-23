@@ -1969,7 +1969,7 @@ mod tests {
         let badf_errno = libc::EBADF;
 
         let faulty_vcpu_fd = VcpuFd {
-            vcpu: unsafe { File::from_raw_fd(-1) },
+            vcpu: unsafe { File::from_raw_fd(-2) },
             kvm_run_ptr: KvmRunWrapper {
                 kvm_run_ptr: mmap_anonymous(10),
                 mmap_size: 10,
