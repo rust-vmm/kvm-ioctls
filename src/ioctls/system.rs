@@ -673,7 +673,7 @@ mod tests {
         assert!(cpuid_entries.len() <= KVM_MAX_CPUID_ENTRIES);
 
         // Test case for more than MAX entries
-        let cpuid_err = kvm.get_emulated_cpuid(KVM_MAX_CPUID_ENTRIES + 1 as usize);
+        let cpuid_err = kvm.get_emulated_cpuid(KVM_MAX_CPUID_ENTRIES + 1_usize);
         assert!(cpuid_err.is_err());
     }
 
@@ -687,7 +687,7 @@ mod tests {
         assert!(cpuid_entries.len() <= KVM_MAX_CPUID_ENTRIES);
 
         // Test case for more than MAX entries
-        let cpuid_err = kvm.get_emulated_cpuid(KVM_MAX_CPUID_ENTRIES + 1 as usize);
+        let cpuid_err = kvm.get_emulated_cpuid(KVM_MAX_CPUID_ENTRIES + 1_usize);
         assert!(cpuid_err.is_err());
     }
 

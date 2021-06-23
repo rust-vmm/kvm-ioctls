@@ -1482,7 +1482,7 @@ mod tests {
         if kvm.check_extension(Cap::ExtCpuid) {
             let vm = kvm.create_vm().unwrap();
             let vcpu = vm.create_vcpu(0).unwrap();
-            let err_cpuid = vcpu.get_cpuid2(KVM_MAX_CPUID_ENTRIES + 1 as usize).err();
+            let err_cpuid = vcpu.get_cpuid2(KVM_MAX_CPUID_ENTRIES + 1_usize).err();
             assert_eq!(err_cpuid.unwrap().errno(), libc::ENOMEM);
         }
     }
@@ -1500,7 +1500,7 @@ mod tests {
             for cpu_idx in 0..nr_vcpus {
                 let vcpu = vm.create_vcpu(cpu_idx as u64).unwrap();
                 vcpu.set_cpuid2(&cpuid).unwrap();
-                let err = vcpu.get_cpuid2(ncpuids - 1 as usize).err();
+                let err = vcpu.get_cpuid2(ncpuids - 1_usize).err();
                 assert_eq!(err.unwrap().errno(), libc::E2BIG);
             }
         }
@@ -1602,7 +1602,7 @@ mod tests {
         let mut klapic: kvm_lapic_state = vcpu.get_lapic().unwrap();
 
         let reg_offset = 0x300;
-        let value = 2 as u32;
+        let value = 2_u32;
         //try to write and read the APIC_ICR	0x300
         let write_slice =
             unsafe { &mut *(&mut klapic.regs[reg_offset..] as *mut [i8] as *mut [u8]) };
@@ -2216,16 +2216,20 @@ mod tests {
     fn test_enable_cap() {
         let kvm = Kvm::new().unwrap();
         let vm = kvm.create_vm().unwrap();
-        let mut cap: kvm_enable_cap = Default::default();
-        // KVM_CAP_HYPERV_SYNIC needs KVM_CAP_SPLIT_IRQCHIP enabled
-        cap.cap = KVM_CAP_SPLIT_IRQCHIP;
+        let mut cap = kvm_enable_cap {
+            // KVM_CAP_HYPERV_SYNIC needs KVM_CAP_SPLIT_IRQCHIP enabled
+            cap: KVM_CAP_SPLIT_IRQCHIP,
+            ..Default::default()
+        };
         cap.args[0] = 24;
         vm.enable_cap(&cap).unwrap();
 
         let vcpu = vm.create_vcpu(0).unwrap();
         if kvm.check_extension(Cap::HypervSynic) {
-            let mut cap: kvm_enable_cap = Default::default();
-            cap.cap = KVM_CAP_HYPERV_SYNIC;
+            let cap = kvm_enable_cap {
+                cap: KVM_CAP_HYPERV_SYNIC,
+                ..Default::default()
+            };
             vcpu.enable_cap(&cap).unwrap();
         }
     }
