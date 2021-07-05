@@ -1780,7 +1780,7 @@ mod tests {
             // Get a mutable slice of `mem_size` from `load_addr`.
             // This is safe because we mapped it before.
             let mut slice = std::slice::from_raw_parts_mut(load_addr, mem_size);
-            slice.write(&code).unwrap();
+            slice.write_all(&code).unwrap();
         }
 
         let vcpu_fd = vm.create_vcpu(0).unwrap();
@@ -1825,10 +1825,10 @@ mod tests {
                     // The code snippet dirties one page at guest_addr + 0x10000.
                     // The code page should not be dirty, as it's not written by the guest.
                     let dirty_pages_bitmap = vm.get_dirty_log(slot, mem_size).unwrap();
-                    let dirty_pages = dirty_pages_bitmap
+                    let dirty_pages: u32 = dirty_pages_bitmap
                         .into_iter()
                         .map(|page| page.count_ones())
-                        .fold(0, |dirty_page_count, i| dirty_page_count + i);
+                        .sum();
                     assert_eq!(dirty_pages, 1);
                 }
                 VcpuExit::SystemEvent(type_, flags) => {

@@ -1291,15 +1291,14 @@ pub(crate) fn create_gic_device(vm: &VmFd, flags: u32) -> DeviceFd {
         fd: 0,
         flags,
     };
-    let device_fd = match vm.create_device(&mut gic_device) {
+    match vm.create_device(&mut gic_device) {
         Ok(fd) => fd,
         Err(_) => {
             gic_device.type_ = kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V2;
             vm.create_device(&mut gic_device)
                 .expect("Cannot create KVM vGIC device")
         }
-    };
-    device_fd
+    }
 }
 
 /// Set supported number of IRQs for vGIC.
