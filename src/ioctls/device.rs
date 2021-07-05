@@ -297,9 +297,11 @@ mod tests {
         // This value should be saved in the address provided to the ioctl.
         let mut data: u32 = 0;
 
-        let mut gic_attr = kvm_bindings::kvm_device_attr::default();
-        gic_attr.group = KVM_DEV_ARM_VGIC_GRP_NR_IRQS;
-        gic_attr.addr = data as u64;
+        let mut gic_attr = kvm_bindings::kvm_device_attr {
+            group: KVM_DEV_ARM_VGIC_GRP_NR_IRQS,
+            addr: data as u64,
+            ..Default::default()
+        };
 
         // Without properly providing the address to where the
         // value will be stored, the ioctl fails with EFAULT.
