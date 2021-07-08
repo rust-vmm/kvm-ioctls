@@ -13,5 +13,8 @@ libc = ">=0.2.39"
 kvm-bindings = { version = ">=0.4.0", features = ["fam-wrappers"] }
 vmm-sys-util = ">=0.8.0"
 
+[patch.crates-io]
+kvm-bindings = { git = "https://github.com/sboeuf/kvm-bindings", branch = "update_bindings", features = ["fam-wrappers"] }
+
 [dev-dependencies]
 byteorder = ">=1.2.1"
