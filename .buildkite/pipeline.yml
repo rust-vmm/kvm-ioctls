@@ -13,7 +13,7 @@ steps:
       os: linux
     plugins:
       - docker#v3.0.1:
-          image: "rustvmm/dev:v4"
+          image: "rustvmm/dev:v12"
           always-pull: true
 
   - label: "build-arm"
@@ -27,7 +27,7 @@ steps:
       os: linux
     plugins:
       - docker#v3.0.1:
-          image: "rustvmm/dev:v4"
+          image: "rustvmm/dev:v12"
           always-pull: true
 
   - label: "check-warnings-x86"
@@ -41,7 +41,7 @@ steps:
     plugins:
       - docker#v3.0.1:
           privileged: true
-          image: "rustvmm/dev:v4"
+          image: "rustvmm/dev:v12"
           always-pull: true
 
   - label: "check-warnings-arm"
@@ -55,5 +55,5 @@ steps:
     plugins:
       - docker#v3.0.1:
           privileged: true
-          image: "rustvmm/dev:v4"
+          image: "rustvmm/dev:v12"
           always-pull: true
