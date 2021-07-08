@@ -21,7 +21,7 @@ git clone https://github.com/torvalds/linux.git
 When adding a new architecture, the bindings must be generated for all existing
 versions for consistency reasons.
 
-### Example for arm64 and version 4.14 and 4.20
+### Example for arm64 and version 4.20
 
 For this example we assume that you have both linux and kvm-bindings
 repositories in your root.

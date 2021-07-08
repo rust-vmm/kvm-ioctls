@@ -9,8 +9,6 @@ keywords = ["kvm"]
 license = "Apache-2.0"
 
 [features]
-kvm-v4_14_0 = []
-kvm-v4_20_0 = []
 fam-wrappers = ["vmm-sys-util"]
 
 [dependencies]

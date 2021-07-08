@@ -28,23 +28,13 @@ Next, add this to your crate root:
 ```rust
 extern crate kvm_bindings;
 ```
-By default `kvm-bindings` will export a wrapper over the latest available kernel
-version (4.20), but you can select a different version by specifying it in your
-toml:
-```toml
-kvm-bindings = { version = "0.3", features = ["kvm_v4_20_0"]}
-```
-Bindings are generated for each specific Linux kernel version based on the enabled
-crate features as follows:
-- `kvm_v4_14_0` contains the bindings for the Linux kernel version 4.14
-- `kvm_v4_20_0` contains the bindings for the Linux kernel version 4.20
 
 This crate also offers safe wrappers over FAM structs - FFI structs that have
 a Flexible Array Member in their definition.
 These safe wrappers can be used if the `fam-wrappers` feature is enabled for
 this crate. Example:
 ```toml
-kvm-bindings = { version = "0.3", features = ["kvm_v4_20_0", "fam-wrappers"]}
+kvm-bindings = { version = "0.3", features = ["fam-wrappers"]}
 ```
 
 # Dependencies

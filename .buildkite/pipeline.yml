@@ -1,11 +1,11 @@
 steps:
-  # Test release build with kernel bindings 4.14.
-  - label: "build-v4.14-x86"
+  # Test release build.
+  - label: "build-x86"
     commands:
-     - cargo build --release --features=fam-wrappers,kvm-v4_14_0
-     - cargo build --release --features=fam-wrappers,kvm-v4_14_0 --target x86_64-unknown-linux-musl
-     - cargo build --release --features=kvm-v4_14_0
-     - cargo build --release --features=kvm-v4_14_0 --target x86_64-unknown-linux-musl
+     - cargo build --release --features=fam-wrappers
+     - cargo build --release --features=fam-wrappers --target x86_64-unknown-linux-musl
+     - cargo build --release
+     - cargo build --release --target x86_64-unknown-linux-musl
     retry:
       automatic: false
     agents:
@@ -16,58 +16,10 @@ steps:
           image: "rustvmm/dev:v4"
           always-pull: true
 
-  # Test release build with kernel bindings 4.20 and fam-wrappers feature.
-  - label: "build-v4.20-x86"
+  - label: "build-arm"
     commands:
-     - cargo build --release --features=fam-wrappers,kvm-v4_20_0
-     - cargo build --release --features=fam-wrappers,kvm-v4_20_0 --target x86_64-unknown-linux-musl
-      # No need to test the kvm-v4_20_0 because that one is tested by default when no kernel bindings
-      # feature is specified.
-    retry:
-      automatic: false
-    agents:
-      platform: x86_64.metal
-      os: linux
-    plugins:
-      - docker#v3.0.1:
-          image: "rustvmm/dev:v4"
-          always-pull: true
-
-  - label: "build-v4.14-arm"
-    commands:
-      - cargo build --release --features=fam-wrappers,kvm-v4_14_0
-      - cargo build --release --features=fam-wrappers,kvm-v4_14_0 --target aarch64-unknown-linux-musl
-      - cargo build --release --features=kvm-v4_14_0
-      - cargo build --release --features=kvm-v4_14_0 --target aarch64-unknown-linux-musl
-    retry:
-      automatic: false
-    agents:
-      platform: arm.metal
-      os: linux
-    plugins:
-      - docker#v3.0.1:
-          image: "rustvmm/dev:v4"
-          always-pull: true
-
-  # Run unit tests for 4.14 bindings. These are the only ones that are not run by the rust-vmm-ci.
-  - label: "unittests-v4.14-x86"
-    command:
-      - cargo test --features=kvm-v4_14_0
-      - cargo test --features=kvm-v4_14_0 --target x86_64-unknown-linux-musl
-    retry:
-      automatic: false
-    agents:
-      platform: x86_64.metal
-      os: linux
-    plugins:
-      - docker#v3.0.1:
-          image: "rustvmm/dev:v4"
-          always-pull: true
-
-  - label: "unittests-v4.14-arm"
-    command:
-      - cargo test --features=kvm-v4_14_0
-      - cargo test --features=kvm-v4_14_0 --target aarch64-unknown-linux-musl
+      - cargo build --release --features=fam-wrappers
+      - cargo build --release --features=fam-wrappers --target aarch64-unknown-linux-musl
     retry:
       automatic: false
     agents:
@@ -80,9 +32,7 @@ steps:
 
   - label: "check-warnings-x86"
     commands:
-      - RUSTFLAGS="-D warnings" cargo check --features=kvm-v4_14_0,fam-wrappers
-      - RUSTFLAGS="-D warnings" cargo check --features=kvm-v4_20_0,fam-wrappers
-      - RUSTFLAGS="-D warnings" cargo check --features=kvm-v4_14_0
+      - RUSTFLAGS="-D warnings" cargo check --features=fam-wrappers
     retry:
       automatic: false
     agents:
@@ -96,9 +46,7 @@ steps:
 
   - label: "check-warnings-arm"
     commands:
-      - RUSTFLAGS="-D warnings" cargo check --features=kvm-v4_14_0,fam-wrappers
-      - RUSTFLAGS="-D warnings" cargo check --features=kvm-v4_20_0,fam-wrappers
-      - RUSTFLAGS="-D warnings" cargo check --features=kvm-v4_14_0
+      - RUSTFLAGS="-D warnings" cargo check --features=fam-wrappers
     retry:
       automatic: false
     agents:
