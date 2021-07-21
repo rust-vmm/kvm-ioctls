@@ -47,7 +47,9 @@ pub enum VcpuExit<'a> {
     /// Corresponds to KVM_EXIT_HYPERCALL.
     Hypercall,
     /// Corresponds to KVM_EXIT_DEBUG.
-    Debug,
+    ///
+    /// Provides architecture specific information for the debug event.
+    Debug(kvm_debug_exit_arch),
     /// Corresponds to KVM_EXIT_HLT.
     Hlt,
     /// Corresponds to KVM_EXIT_IRQ_WINDOW_OPEN.
@@ -1278,7 +1280,12 @@ impl VcpuFd {
                     }
                 }
                 KVM_EXIT_HYPERCALL => Ok(VcpuExit::Hypercall),
-                KVM_EXIT_DEBUG => Ok(VcpuExit::Debug),
+                KVM_EXIT_DEBUG => {
+                    // Safe because the exit_reason (which comes from the kernel) told us which
+                    // union field to use.
+                    let debug = unsafe { run.__bindgen_anon_1.debug };
+                    Ok(VcpuExit::Debug(debug.arch))
+                }
                 KVM_EXIT_HLT => Ok(VcpuExit::Hlt),
                 KVM_EXIT_MMIO => {
                     // Safe because the exit_reason (which comes from the kernel) told us which
@@ -1932,7 +1939,7 @@ mod tests {
                     assert_eq!(data.len(), 1);
                     assert_eq!(data[0], 0);
                 }
-                VcpuExit::Debug => {
+                VcpuExit::Debug(debug) => {
                     if instr_idx == expected_rips.len() - 1 {
                         // Disabling debugging/single-stepping
                         debug_struct.control = 0;
@@ -1942,6 +1949,13 @@ mod tests {
                     }
                     let vcpu_regs = vcpu_fd.get_regs().unwrap();
                     assert_eq!(vcpu_regs.rip, expected_rips[instr_idx]);
+                    assert_eq!(debug.exception, 1);
+                    assert_eq!(debug.pc, expected_rips[instr_idx]);
+                    // Check first 15 bits of DR6
+                    let mask = (1 << 16) - 1;
+                    assert_eq!(debug.dr6 & mask, 0b100111111110000);
+                    // Bit 10 in DR7 is always 1
+                    assert_eq!(debug.dr7, 1 << 10);
                     instr_idx += 1;
                 }
                 VcpuExit::Hlt => {
