@@ -1376,18 +1376,20 @@ impl VcpuFd {
     ///
     /// # Arguments
     ///
-    /// * `freq` - The frequency unit is KHz as per the the KVM API documentation
+    /// * `freq` - The frequency unit is KHz as per the KVM API documentation
     /// for `KVM_SET_TSC_KHZ`.
     ///
     /// # Example
     ///
     ///  ```rust
     /// # extern crate kvm_ioctls;
-    /// # use kvm_ioctls::Kvm;
+    /// # use kvm_ioctls::{Cap, Kvm};
     /// let kvm = Kvm::new().unwrap();
     /// let vm = kvm.create_vm().unwrap();
     /// let vcpu = vm.create_vcpu(0).unwrap();
-    /// vcpu.set_tsc_khz(1000).unwrap();
+    /// if kvm.check_extension(Cap::GetTscKhz) && kvm.check_extension(Cap::TscControl) {
+    ///     vcpu.set_tsc_khz(1000).unwrap();
+    /// }
     /// ```
     ///
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
