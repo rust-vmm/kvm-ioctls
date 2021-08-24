@@ -1,3 +1,11 @@
+# v0.10.0
+
+## Changed
+- Now depends on kvm-bindings >=0.5.0 which replaced the v4.20 KVM bindings
+  with the v5.13 ones.
+- Updated `VcpuExit::Debug` to return architecture specific information for the
+  debug event.
+
 # v0.9.0
 
 ## Added
