@@ -1,0 +1,28 @@
+{
+    "tests": [
+        {
+            "test_name": "build-fam-gnu",
+            "command": "cargo build --release --features=fam-wrappers",
+            "platform": [
+                "x86_64",
+                "aarch64"
+            ]
+        },
+        {
+            "test_name": "build-fam-musl",
+            "command": "cargo build --release --features=fam-wrappers --target {target_platform}-unknown-linux-musl",
+            "platform": [
+                "x86_64",
+                "aarch64"
+            ]
+        },
+        {
+            "test_name": "check-warnings-fam",
+            "command": "RUSTFLAGS=\"-D warnings\" cargo check --features=fam-wrappers",
+            "platform": [
+                "x86_64",
+                "aarch64"
+            ]
+        }
+    ]
+}
