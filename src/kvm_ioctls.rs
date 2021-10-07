@@ -96,6 +96,9 @@ ioctl_iow_nr!(KVM_SET_PIT2, KVMIO, 0xa0, kvm_pit_state2);
 /* KVM_MEMORY_ENCRYPT_OP. Takes opaque platform dependent type: i.e. TDX or SEV */
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 ioctl_iowr_nr!(KVM_MEMORY_ENCRYPT_OP, KVMIO, 0xba, std::os::raw::c_ulong);
+/* Available on SEV-enabled guests. */
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+ioctl_ior_nr!(KVM_MEMORY_ENCRYPT_REG_REGION, KVMIO, 0xbb, kvm_enc_region);
 
 // Ioctls for VCPU fds.
 
