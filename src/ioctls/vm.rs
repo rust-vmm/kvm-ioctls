@@ -1399,6 +1399,83 @@ impl VmFd {
             Err(errno::Error::last())
         }
     }
+
+    /// Unregister a guest memory region registered with
+    /// [`register_enc_memory_region`](Self::register_enc_memory_region).
+    ///
+    /// It is used in the SEV-enabled guest.
+    ///
+    /// See the documentation for `KVM_MEMORY_ENCRYPT_UNREG_REGION` in the
+    /// [KVM API doc](https://www.kernel.org/doc/Documentation/virtual/kvm/api.txt).
+    ///
+    /// # Arguments
+    ///
+    /// * `memory_region` - Guest physical memory region.
+    ///
+    /// # Example
+    #[cfg_attr(has_sev, doc = "```rust")]
+    #[cfg_attr(not(has_sev), doc = "```rust,no_run")]
+    /// # extern crate kvm_bindings;
+    /// # extern crate kvm_ioctls;
+    /// # extern crate libc;
+    /// # use std::{fs::OpenOptions, ptr::null_mut};
+    /// # use std::os::unix::io::AsRawFd;
+    /// use kvm_bindings::bindings::{kvm_enc_region, kvm_sev_cmd, kvm_sev_launch_start, sev_cmd_id_KVM_SEV_LAUNCH_START};
+    /// # use kvm_ioctls::Kvm;
+    /// use libc;
+    ///
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    /// let sev = OpenOptions::new()
+    ///     .read(true)
+    ///     .write(true)
+    ///     .open("/dev/sev")
+    ///     .unwrap();
+    ///
+    /// // Initialize the SEV platform context.
+    /// let mut init: kvm_sev_cmd = Default::default();
+    /// assert!(vm.encrypt_op_sev(&mut init).is_ok());
+    ///
+    /// // Create the memory encryption context.
+    /// let start_data: kvm_sev_launch_start = Default::default();
+    /// let mut start = kvm_sev_cmd {
+    ///     id: sev_cmd_id_KVM_SEV_LAUNCH_START,
+    ///     data: &start_data as *const kvm_sev_launch_start as _,
+    ///     sev_fd: sev.as_raw_fd() as _,
+    ///     ..Default::default()
+    /// };
+    /// assert!(vm.encrypt_op_sev(&mut start).is_ok());
+    ///
+    /// let addr = unsafe {
+    ///     libc::mmap(
+    ///         null_mut(),
+    ///         4096,
+    ///         libc::PROT_READ | libc::PROT_WRITE,
+    ///         libc::MAP_PRIVATE | libc::MAP_ANONYMOUS,
+    ///         -1,
+    ///         0,
+    ///     )
+    /// };
+    /// assert_ne!(addr, libc::MAP_FAILED);
+    ///
+    /// let memory_region = kvm_enc_region {
+    ///     addr: addr as _,
+    ///     size: 4096,
+    /// };
+    /// vm.register_enc_memory_region(&memory_region).unwrap();
+    /// vm.unregister_enc_memory_region(&memory_region).unwrap();
+    /// ```
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    pub fn unregister_enc_memory_region(&self, memory_region: &kvm_enc_region) -> Result<()> {
+        // Safe because we know that our file is a VM fd, we know the kernel will only read the
+        // correct amount of memory from our pointer, and we verify the return result.
+        let ret = unsafe { ioctl_with_ref(self, KVM_MEMORY_ENCRYPT_UNREG_REGION(), memory_region) };
+        if ret == 0 {
+            Ok(())
+        } else {
+            Err(errno::Error::last())
+        }
+    }
 }
 
 /// Helper function to create a new `VmFd`.
