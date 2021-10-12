@@ -1557,6 +1557,9 @@ mod tests {
     use super::*;
     use Kvm;
 
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    use std::{fs::OpenOptions, ptr::null_mut};
+
     use libc::EFD_NONBLOCK;
 
     #[test]
@@ -2053,5 +2056,72 @@ mod tests {
 
         let mut init: kvm_sev_cmd = Default::default();
         assert!(vm.encrypt_op_sev(&mut init).is_ok());
+    }
+
+    #[test]
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg_attr(not(has_sev), ignore)]
+    fn test_register_unregister_enc_memory_region() {
+        let sev = OpenOptions::new()
+            .read(true)
+            .write(true)
+            .open("/dev/sev")
+            .unwrap();
+
+        let kvm = Kvm::new().unwrap();
+        let vm = kvm.create_vm().unwrap();
+
+        // Perform SEV launch sequence according to
+        // https://www.kernel.org/doc/Documentation/virtual/kvm/amd-memory-encryption.rst
+
+        let mut init: kvm_sev_cmd = Default::default();
+        assert!(vm.encrypt_op_sev(&mut init).is_ok());
+
+        let start_data: kvm_sev_launch_start = Default::default();
+        let mut start = kvm_sev_cmd {
+            id: sev_cmd_id_KVM_SEV_LAUNCH_START,
+            data: &start_data as *const kvm_sev_launch_start as _,
+            sev_fd: sev.as_raw_fd() as _,
+            ..Default::default()
+        };
+        assert!(vm.encrypt_op_sev(&mut start).is_ok());
+
+        let addr = unsafe {
+            libc::mmap(
+                null_mut(),
+                4096,
+                libc::PROT_READ | libc::PROT_WRITE,
+                libc::MAP_PRIVATE | libc::MAP_ANONYMOUS,
+                -1,
+                0,
+            )
+        };
+        assert_ne!(addr, libc::MAP_FAILED);
+
+        assert_eq!(
+            vm.register_enc_memory_region(&Default::default())
+                .unwrap_err()
+                .errno(),
+            libc::EINVAL
+        );
+        assert_eq!(
+            vm.unregister_enc_memory_region(&Default::default())
+                .unwrap_err()
+                .errno(),
+            libc::EINVAL
+        );
+
+        let memory_region = kvm_enc_region {
+            addr: addr as _,
+            size: 4096,
+        };
+        assert_eq!(
+            vm.unregister_enc_memory_region(&memory_region)
+                .unwrap_err()
+                .errno(),
+            libc::EINVAL
+        );
+        assert!(vm.register_enc_memory_region(&memory_region).is_ok());
+        assert!(vm.unregister_enc_memory_region(&memory_region).is_ok());
     }
 }
