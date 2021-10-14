@@ -22,7 +22,6 @@ impl DeviceFd {
     /// # Arguments
     ///
     /// * `device_attr` - The device attribute to be tested. `addr` field is ignored.
-    ///
     pub fn has_device_attr(&self, device_attr: &kvm_device_attr) -> Result<()> {
         let ret = unsafe { ioctl_with_ref(self, KVM_HAS_DEVICE_ATTR(), device_attr) };
         if ret != 0 {
@@ -72,7 +71,6 @@ impl DeviceFd {
     ///     device_fd.set_device_attr(&dist_attr).unwrap();
     /// }
     /// ```
-    ///
     pub fn set_device_attr(&self, device_attr: &kvm_device_attr) -> Result<()> {
         let ret = unsafe { ioctl_with_ref(self, KVM_SET_DEVICE_ATTR(), device_attr) };
         if ret != 0 {
@@ -115,8 +113,8 @@ impl DeviceFd {
     /// #[cfg(any(target_arch = "aarch64"))]
     /// {
     ///     use kvm_bindings::{
-    ///         KVM_DEV_ARM_VGIC_GRP_NR_IRQS, kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V2,
-    ///         kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V3,
+    ///         kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V2, kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V3,
+    ///         KVM_DEV_ARM_VGIC_GRP_NR_IRQS,
     ///     };
     ///
     ///     // Create a GIC device.
@@ -126,12 +124,12 @@ impl DeviceFd {
     ///         flags: 0,
     ///     };
     ///     let device_fd = match vm.create_device(&mut gic_device) {
-    ///        Ok(fd) => fd,
-    ///        Err(_) => {
-    ///        gic_device.type_ = kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V2;
-    ///        vm.create_device(&mut gic_device)
-    ///            .expect("Cannot create KVM vGIC device")
-    ///        }
+    ///         Ok(fd) => fd,
+    ///         Err(_) => {
+    ///             gic_device.type_ = kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V2;
+    ///             vm.create_device(&mut gic_device)
+    ///                 .expect("Cannot create KVM vGIC device")
+    ///         }
     ///     };
     ///
     ///     let mut data: u32 = 0;
@@ -142,7 +140,6 @@ impl DeviceFd {
     ///     device_fd.get_device_attr(&mut gic_attr).unwrap();
     /// }
     /// ```
-    ///
     pub fn get_device_attr(&self, device_attr: &mut kvm_device_attr) -> Result<()> {
         let ret = unsafe { ioctl_with_mut_ref(self, KVM_GET_DEVICE_ATTR(), device_attr) };
         if ret != 0 {

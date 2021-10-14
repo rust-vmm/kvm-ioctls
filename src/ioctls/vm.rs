@@ -26,7 +26,6 @@ use vmm_sys_util::ioctl::{ioctl, ioctl_with_mut_ref, ioctl_with_ref, ioctl_with_
 ///
 /// The `IoEventAddress` is used for specifying the type when registering an event
 /// in [register_ioevent](struct.VmFd.html#method.register_ioevent).
-///
 pub enum IoEventAddress {
     /// Representation of an programmable I/O address.
     Pio(u64),
@@ -40,7 +39,6 @@ pub enum IoEventAddress {
 /// [`register_ioevent`](struct.VmFd.html#method.register_ioevent)
 /// to disable filtering of events based on the datamatch flag. For details check the
 /// [KVM API documentation](https://www.kernel.org/doc/Documentation/virtual/kvm/api.txt).
-///
 pub struct NoDatamatch;
 impl From<NoDatamatch> for u64 {
     fn from(_: NoDatamatch) -> u64 {
@@ -80,23 +78,22 @@ impl VmFd {
     /// # extern crate kvm_ioctls;
     /// extern crate kvm_bindings;
     ///
-    /// use kvm_ioctls::Kvm;
     /// use kvm_bindings::kvm_userspace_memory_region;
+    /// use kvm_ioctls::Kvm;
     ///
     /// let kvm = Kvm::new().unwrap();
     /// let vm = kvm.create_vm().unwrap();
     /// let mem_region = kvm_userspace_memory_region {
-    ///                     slot: 0,
-    ///                     guest_phys_addr: 0x10000 as u64,
-    ///                     memory_size: 0x10000 as u64,
-    ///                     userspace_addr: 0x0 as u64,
-    ///                     flags: 0,
-    ///                 };
+    ///     slot: 0,
+    ///     guest_phys_addr: 0x10000 as u64,
+    ///     memory_size: 0x10000 as u64,
+    ///     userspace_addr: 0x0 as u64,
+    ///     flags: 0,
+    /// };
     /// unsafe {
     ///     vm.set_user_memory_region(mem_region).unwrap();
     /// };
     /// ```
-    ///
     pub unsafe fn set_user_memory_region(
         &self,
         user_memory_region: kvm_userspace_memory_region,
@@ -126,7 +123,6 @@ impl VmFd {
     /// let vm = kvm.create_vm().unwrap();
     /// vm.set_tss_address(0xfffb_d000).unwrap();
     /// ```
-    ///
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn set_tss_address(&self, offset: usize) -> Result<()> {
         // Safe because we know that our file is a VM fd and we verify the return result.
@@ -153,9 +149,11 @@ impl VmFd {
     ///
     /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     /// vm.create_irq_chip().unwrap();
-    /// #[cfg(any(target_arch = "arm", target_arch = "aarch64"))] {
-    ///     use kvm_bindings::{kvm_create_device,
-    ///         kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V2, KVM_CREATE_DEVICE_TEST};
+    /// #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
+    /// {
+    ///     use kvm_bindings::{
+    ///         kvm_create_device, kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V2, KVM_CREATE_DEVICE_TEST,
+    ///     };
     ///     let mut gic_device = kvm_bindings::kvm_create_device {
     ///         type_: kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V2,
     ///         fd: 0,
@@ -166,7 +164,6 @@ impl VmFd {
     ///     }
     /// }
     /// ```
-    ///
     #[cfg(any(
         target_arch = "x86",
         target_arch = "x86_64",
@@ -207,7 +204,6 @@ impl VmFd {
     /// irqchip.chip_id = KVM_IRQCHIP_PIC_MASTER;
     /// vm.get_irqchip(&mut irqchip).unwrap();
     /// ```
-    ///
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn get_irqchip(&self, irqchip: &mut kvm_irqchip) -> Result<()> {
         let ret = unsafe {
@@ -246,7 +242,6 @@ impl VmFd {
     /// // Your `irqchip` manipulation here.
     /// vm.set_irqchip(&mut irqchip).unwrap();
     /// ```
-    ///
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn set_irqchip(&self, irqchip: &kvm_irqchip) -> Result<()> {
         let ret = unsafe {
@@ -279,7 +274,6 @@ impl VmFd {
     /// let pit_config = kvm_pit_config::default();
     /// vm.create_pit2(pit_config).unwrap();
     /// ```
-    ///
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn create_pit2(&self, pit_config: kvm_pit_config) -> Result<()> {
         // Safe because we know that our file is a VM fd, we know the kernel will only read the
@@ -315,7 +309,6 @@ impl VmFd {
     /// vm.create_pit2(pit_config).unwrap();
     /// let pitstate = vm.get_pit2().unwrap();
     /// ```
-    ///
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn get_pit2(&self) -> Result<kvm_pit_state2> {
         let mut pitstate = Default::default();
@@ -355,7 +348,6 @@ impl VmFd {
     /// // Your `pitstate` manipulation here.
     /// vm.set_pit2(&mut pitstate).unwrap();
     /// ```
-    ///
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn set_pit2(&self, pitstate: &kvm_pit_state2) -> Result<()> {
         let ret = unsafe {
@@ -387,7 +379,6 @@ impl VmFd {
     /// let vm = kvm.create_vm().unwrap();
     /// let clock = vm.get_clock().unwrap();
     /// ```
-    ///
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn get_clock(&self) -> Result<kvm_clock_data> {
         let mut clock = Default::default();
@@ -423,7 +414,6 @@ impl VmFd {
     /// let mut clock = kvm_clock_data::default();
     /// vm.set_clock(&mut clock).unwrap();
     /// ```
-    ///
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn set_clock(&self, clock: &kvm_clock_data) -> Result<()> {
         let ret = unsafe {
@@ -471,7 +461,6 @@ impl VmFd {
     /// vm.create_irq_chip().unwrap();
     /// //vm.signal_msi(msi).unwrap();
     /// ```
-    ///
     #[cfg(any(
         target_arch = "x86",
         target_arch = "x86_64",
@@ -519,7 +508,6 @@ impl VmFd {
     /// let irq_routing = kvm_irq_routing::default();
     /// vm.set_gsi_routing(&irq_routing).unwrap();
     /// ```
-    ///
     #[cfg(any(
         target_arch = "x86",
         target_arch = "x86_64",
@@ -563,13 +551,12 @@ impl VmFd {
     /// let vm_fd = kvm.create_vm().unwrap();
     /// let evtfd = EventFd::new(EFD_NONBLOCK).unwrap();
     /// vm_fd
-    ///    .register_ioevent(&evtfd, &IoEventAddress::Pio(0xf4), NoDatamatch)
-    ///    .unwrap();
+    ///     .register_ioevent(&evtfd, &IoEventAddress::Pio(0xf4), NoDatamatch)
+    ///     .unwrap();
     /// vm_fd
-    ///    .register_ioevent(&evtfd, &IoEventAddress::Mmio(0x1000), NoDatamatch)
-    ///    .unwrap();
+    ///     .register_ioevent(&evtfd, &IoEventAddress::Mmio(0x1000), NoDatamatch)
+    ///     .unwrap();
     /// ```
-    ///
     pub fn register_ioevent<T: Into<u64>>(
         &self,
         fd: &EventFd,
@@ -634,19 +621,18 @@ impl VmFd {
     /// let pio_addr = IoEventAddress::Pio(0xf4);
     /// let mmio_addr = IoEventAddress::Mmio(0x1000);
     /// vm_fd
-    ///    .register_ioevent(&evtfd, &pio_addr, NoDatamatch)
-    ///    .unwrap();
+    ///     .register_ioevent(&evtfd, &pio_addr, NoDatamatch)
+    ///     .unwrap();
     /// vm_fd
-    ///    .register_ioevent(&evtfd, &mmio_addr, 0x1234u32)
-    ///    .unwrap();
+    ///     .register_ioevent(&evtfd, &mmio_addr, 0x1234u32)
+    ///     .unwrap();
     /// vm_fd
-    ///    .unregister_ioevent(&evtfd, &pio_addr, NoDatamatch)
-    ///    .unwrap();
+    ///     .unregister_ioevent(&evtfd, &pio_addr, NoDatamatch)
+    ///     .unwrap();
     /// vm_fd
-    ///    .unregister_ioevent(&evtfd, &mmio_addr, 0x1234u32)
-    ///    .unwrap();
+    ///     .unregister_ioevent(&evtfd, &mmio_addr, 0x1234u32)
+    ///     .unwrap();
     /// ```
-    ///
     pub fn unregister_ioevent<T: Into<u64>>(
         &self,
         fd: &EventFd,
@@ -733,15 +719,14 @@ impl VmFd {
     ///
     /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     /// // ASM code that just forces a MMIO Write.
-    /// let asm_code = [
-    ///         0xc6, 0x06, 0x00, 0x80, 0x00,
-    /// ];
+    /// let asm_code = [0xc6, 0x06, 0x00, 0x80, 0x00];
     /// #[cfg(target_arch = "aarch64")]
     /// let asm_code = [
     ///     0x01, 0x00, 0x00, 0x10, /* adr x1, <this address> */
     ///     0x22, 0x10, 0x00, 0xb9, /* str w2, [x1, #16]; write to this page */
     ///     0x02, 0x00, 0x00, 0xb9, /* str w2, [x0]; force MMIO exit */
-    ///     0x00, 0x00, 0x00, 0x14, /* b <this address>; shouldn't get here, but if so loop forever */
+    ///     0x00, 0x00, 0x00,
+    ///     0x14, /* b <this address>; shouldn't get here, but if so loop forever */
     /// ];
     ///
     /// // Write the code in the guest memory. This will generate a dirty page.
@@ -789,9 +774,9 @@ impl VmFd {
     ///             // while on aarch64 the dirty bit comes from writing to guest_addr (current PC).
     ///             let dirty_pages_bitmap = vm.get_dirty_log(0, mem_size).unwrap();
     ///             let dirty_pages = dirty_pages_bitmap
-    ///                     .into_iter()
-    ///                     .map(|page| page.count_ones())
-    ///                     .fold(0, |dirty_page_count, i| dirty_page_count + i);
+    ///                 .into_iter()
+    ///                 .map(|page| page.count_ones())
+    ///                 .fold(0, |dirty_page_count, i| dirty_page_count + i);
     ///             assert_eq!(dirty_pages, 1);
     ///             break;
     ///         }
@@ -799,7 +784,6 @@ impl VmFd {
     ///     }
     /// }
     /// ```
-    ///
     pub fn get_dirty_log(&self, slot: u32, memory_size: usize) -> Result<Vec<u64>> {
         // Compute the length of the bitmap needed for all dirty pages in one memory slot.
         // One memory page is `page_size` bytes and `KVM_GET_DIRTY_LOG` returns one dirty bit for
@@ -851,12 +835,12 @@ impl VmFd {
     /// let kvm = Kvm::new().unwrap();
     /// let vm = kvm.create_vm().unwrap();
     /// let evtfd = EventFd::new(EFD_NONBLOCK).unwrap();
-    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))] {
+    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    /// {
     ///     vm.create_irq_chip().unwrap();
     ///     vm.register_irqfd(&evtfd, 0).unwrap();
     /// }
     /// ```
-    ///
     #[cfg(any(
         target_arch = "x86",
         target_arch = "x86_64",
@@ -898,13 +882,13 @@ impl VmFd {
     /// let kvm = Kvm::new().unwrap();
     /// let vm = kvm.create_vm().unwrap();
     /// let evtfd = EventFd::new(EFD_NONBLOCK).unwrap();
-    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))] {
+    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    /// {
     ///     vm.create_irq_chip().unwrap();
     ///     vm.register_irqfd(&evtfd, 0).unwrap();
     ///     vm.unregister_irqfd(&evtfd, 0).unwrap();
     /// }
     /// ```
-    ///
     #[cfg(any(
         target_arch = "x86",
         target_arch = "x86_64",
@@ -965,16 +949,17 @@ impl VmFd {
     /// let kvm = Kvm::new().unwrap();
     /// let vm = kvm.create_vm().unwrap();
     /// arch_setup(&vm);
-    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))] {
+    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    /// {
     ///     vm.set_irq_line(4, true);
     ///     // ...
     /// }
-    /// #[cfg(any(target_arch = "arm", target_arch = "aarch64"))] {
+    /// #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
+    /// {
     ///     vm.set_irq_line(0x01_00_0020, true);
     ///     // ....
     /// }
     /// ```
-    ///
     #[cfg(any(
         target_arch = "x86",
         target_arch = "x86_64",
@@ -1020,7 +1005,6 @@ impl VmFd {
     /// // Create one vCPU with the ID=0.
     /// let vcpu = vm.create_vcpu(0);
     /// ```
-    ///
     pub fn create_vcpu(&self, id: u64) -> Result<VcpuFd> {
         // Safe because we know that vm is a VM fd and we verify the return result.
         #[allow(clippy::cast_lossless)]
@@ -1067,7 +1051,6 @@ impl VmFd {
     /// assert!(rawfd >= 0);
     /// let vcpu = unsafe { vm.create_vcpu_from_rawfd(rawfd).unwrap() };
     /// ```
-    ///
     pub unsafe fn create_vcpu_from_rawfd(&self, fd: RawFd) -> Result<VcpuFd> {
         let vcpu = File::from_raw_fd(fd);
         let kvm_run_ptr = KvmRunWrapper::mmap_from_fd(&vcpu, self.run_size)?;
@@ -1090,10 +1073,8 @@ impl VmFd {
     /// # extern crate kvm_bindings;
     /// # use kvm_ioctls::Kvm;
     /// use kvm_bindings::{
-    ///     kvm_device_type_KVM_DEV_TYPE_VFIO,
-    ///     kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V2,
-    ///     kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V3,
-    ///     KVM_CREATE_DEVICE_TEST,
+    ///     kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V2, kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V3,
+    ///     kvm_device_type_KVM_DEV_TYPE_VFIO, KVM_CREATE_DEVICE_TEST,
     /// };
     /// let kvm = Kvm::new().unwrap();
     /// let vm = kvm.create_vm().unwrap();
@@ -1117,11 +1098,11 @@ impl VmFd {
     ///     #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
     ///     {
     ///         device.type_ = kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V2;
-    ///         vm.create_device(&mut device).expect("Cannot create vGIC device")
+    ///         vm.create_device(&mut device)
+    ///             .expect("Cannot create vGIC device")
     ///     }
     /// });
     /// ```
-    ///
     pub fn create_device(&self, device: &mut kvm_create_device) -> Result<DeviceFd> {
         let ret = unsafe { ioctl_with_ref(self, KVM_CREATE_DEVICE(), device) };
         if ret == 0 {
@@ -1153,7 +1134,6 @@ impl VmFd {
     /// let mut kvi = kvm_vcpu_init::default();
     /// vm.get_preferred_target(&mut kvi).unwrap();
     /// ```
-    ///
     #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
     pub fn get_preferred_target(&self, kvi: &mut kvm_vcpu_init) -> Result<()> {
         // The ioctl is safe because we allocated the struct and we know the
@@ -1208,7 +1188,6 @@ impl VmFd {
     ///     vm.enable_cap(&cap).unwrap();
     /// }
     /// ```
-    ///
     #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
     pub fn enable_cap(&self, cap: &kvm_enable_cap) -> Result<()> {
         // The ioctl is safe because we allocated the struct and we know the
@@ -1255,7 +1234,6 @@ impl VmFd {
     /// // Check if `KVM_CAP_MP_STATE` is supported.
     /// assert!(vm.check_extension(Cap::MpState));
     /// ```
-    ///
     pub fn check_extension(&self, c: Cap) -> bool {
         self.check_extension_int(c) > 0
     }
@@ -1282,7 +1260,6 @@ impl AsRawFd for VmFd {
 ///
 /// * `vm` - The vm file descriptor.
 /// * `flags` - Flags to be passed to `KVM_CREATE_DEVICE`.
-///
 #[cfg(test)]
 #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
 pub(crate) fn create_gic_device(vm: &VmFd, flags: u32) -> DeviceFd {
@@ -1307,7 +1284,6 @@ pub(crate) fn create_gic_device(vm: &VmFd, flags: u32) -> DeviceFd {
 ///
 /// * `vgic` - The vGIC file descriptor.
 /// * `nr_irqs` - Number of IRQs.
-///
 #[cfg(test)]
 #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
 pub(crate) fn set_supported_nr_irqs(vgic: &DeviceFd, nr_irqs: u32) {
@@ -1325,7 +1301,6 @@ pub(crate) fn set_supported_nr_irqs(vgic: &DeviceFd, nr_irqs: u32) {
 /// # Arguments
 ///
 /// * `vgic` - The vGIC file descriptor.
-///
 #[cfg(test)]
 #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
 pub(crate) fn request_gic_init(vgic: &DeviceFd) {

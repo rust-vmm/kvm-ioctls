@@ -36,7 +36,6 @@ impl Kvm {
     /// use kvm_ioctls::Kvm;
     /// let kvm = Kvm::new().unwrap();
     /// ```
-    ///
     #[allow(clippy::new_ret_no_self)]
     pub fn new() -> Result<Self> {
         // Open `/dev/kvm` using `O_CLOEXEC` flag.
@@ -66,7 +65,6 @@ impl Kvm {
     /// // `from_raw_fd` for creating a `Kvm` object:
     /// let kvm = unsafe { Kvm::from_raw_fd(kvm_fd) };
     /// ```
-    ///
     pub fn open_with_cloexec(close_on_exec: bool) -> Result<RawFd> {
         let open_flags = O_RDWR | if close_on_exec { O_CLOEXEC } else { 0 };
         // Safe because we give a constant nul-terminated string and verify the result.
@@ -89,7 +87,6 @@ impl Kvm {
     /// let kvm = Kvm::new().unwrap();
     /// assert_eq!(kvm.get_api_version(), 12);
     /// ```
-    ///
     pub fn get_api_version(&self) -> i32 {
         // Safe because we know that our file is a KVM fd and that the request is one of the ones
         // defined by kernel.
@@ -132,7 +129,6 @@ impl Kvm {
     /// // Check if `KVM_CAP_USER_MEMORY` is supported.
     /// assert!(kvm.check_extension(Cap::UserMemory));
     /// ```
-    ///
     pub fn check_extension(&self, c: Cap) -> bool {
         self.check_extension_int(c) > 0
     }
@@ -148,7 +144,6 @@ impl Kvm {
     /// let kvm = Kvm::new().unwrap();
     /// assert!(kvm.get_vcpu_mmap_size().unwrap() > 0);
     /// ```
-    ///
     pub fn get_vcpu_mmap_size(&self) -> Result<usize> {
         // Safe because we know that our file is a KVM fd and we verify the return result.
         let res = unsafe { ioctl(self, KVM_GET_VCPU_MMAP_SIZE()) };
@@ -172,7 +167,6 @@ impl Kvm {
     /// // We expect the number of vCPUs to be > 0 as per KVM API documentation.
     /// assert!(kvm.get_nr_vcpus() > 0);
     /// ```
-    ///
     pub fn get_nr_vcpus(&self) -> usize {
         let x = self.check_extension_int(Cap::NrVcpus);
         if x > 0 {
@@ -196,7 +190,6 @@ impl Kvm {
     /// let kvm = Kvm::new().unwrap();
     /// assert!(kvm.get_nr_memslots() > 0);
     /// ```
-    ///
     pub fn get_nr_memslots(&self) -> usize {
         let x = self.check_extension_int(Cap::NrMemslots);
         if x > 0 {
@@ -219,7 +212,6 @@ impl Kvm {
     /// let kvm = Kvm::new().unwrap();
     /// assert!(kvm.get_max_vcpus() > 0);
     /// ```
-    ///
     pub fn get_max_vcpus(&self) -> usize {
         match self.check_extension_int(Cap::MaxVcpus) {
             0 => self.get_nr_vcpus(),
@@ -240,7 +232,6 @@ impl Kvm {
     /// let kvm = Kvm::new().unwrap();
     /// assert!(kvm.get_max_vcpu_id() > 0);
     /// ```
-    ///
     pub fn get_max_vcpu_id(&self) -> usize {
         match self.check_extension_int(Cap::MaxVcpuId) {
             0 => self.get_max_vcpus(),
@@ -294,7 +285,6 @@ impl Kvm {
     /// let cpuid_entries = cpuid.as_mut_slice();
     /// assert!(cpuid_entries.len() <= KVM_MAX_CPUID_ENTRIES);
     /// ```
-    ///
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn get_emulated_cpuid(&self, num_entries: usize) -> Result<CpuId> {
         self.get_cpuid(KVM_GET_EMULATED_CPUID(), num_entries)
@@ -324,7 +314,6 @@ impl Kvm {
     /// let cpuid_entries = cpuid.as_mut_slice();
     /// assert!(cpuid_entries.len() <= KVM_MAX_CPUID_ENTRIES);
     /// ```
-    ///
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn get_supported_cpuid(&self, num_entries: usize) -> Result<CpuId> {
         self.get_cpuid(KVM_GET_SUPPORTED_CPUID(), num_entries)
@@ -380,7 +369,6 @@ impl Kvm {
     /// // Check that the VM mmap size is the same reported by `KVM_GET_VCPU_MMAP_SIZE`.
     /// assert!(vm.run_size() == kvm.get_vcpu_mmap_size().unwrap());
     /// ```
-    ///
     #[cfg(not(any(target_arch = "aarch64")))]
     pub fn create_vm(&self) -> Result<VmFd> {
         self.create_vm_with_type(0) // Create using default VM type
@@ -401,7 +389,6 @@ impl Kvm {
     /// // Check that the VM mmap size is the same reported by `KVM_GET_VCPU_MMAP_SIZE`.
     /// assert!(vm.run_size() == kvm.get_vcpu_mmap_size().unwrap());
     /// ```
-    ///
     #[cfg(any(target_arch = "aarch64"))]
     pub fn create_vm(&self) -> Result<VmFd> {
         let mut ipa_size = 0; // Create using default VM type
@@ -441,7 +428,6 @@ impl Kvm {
     ///     assert!(vm.run_size() == kvm.get_vcpu_mmap_size().unwrap());
     /// }
     /// ```
-    ///
     #[cfg(any(target_arch = "aarch64"))]
     pub fn create_vm_with_ipa_size(&self, ipa_size: u32) -> Result<VmFd> {
         self.create_vm_with_type((ipa_size & KVM_VM_TYPE_ARM_IPA_SIZE_MASK).into())
@@ -464,7 +450,6 @@ impl Kvm {
     /// // Check that the VM mmap size is the same reported by `KVM_GET_VCPU_MMAP_SIZE`.
     /// assert!(vm.run_size() == kvm.get_vcpu_mmap_size().unwrap());
     /// ```
-    ///
     pub fn create_vm_with_type(&self, vm_type: u64) -> Result<VmFd> {
         // Safe because we know `self.kvm` is a real KVM fd as this module is the only one that
         // create Kvm objects.
@@ -506,7 +491,6 @@ impl Kvm {
     /// assert!(rawfd >= 0);
     /// let vm = unsafe { kvm.create_vmfd_from_rawfd(rawfd).unwrap() };
     /// ```
-    ///
     pub unsafe fn create_vmfd_from_rawfd(&self, fd: RawFd) -> Result<VmFd> {
         let run_mmap_size = self.get_vcpu_mmap_size()?;
         Ok(new_vmfd(File::from_raw_fd(fd), run_mmap_size))
@@ -547,7 +531,6 @@ impl FromRawFd for Kvm {
     /// // Safe because we verify that the fd is valid in `open_with_cloexec` and we own the fd.
     /// let kvm = unsafe { Kvm::from_raw_fd(kvm_fd) };
     /// ```
-    ///
     unsafe fn from_raw_fd(fd: RawFd) -> Self {
         Kvm {
             kvm: File::from_raw_fd(fd),

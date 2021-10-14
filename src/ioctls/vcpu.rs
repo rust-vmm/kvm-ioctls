@@ -23,7 +23,6 @@ use vmm_sys_util::ioctl::{ioctl_with_mut_ptr, ioctl_with_ptr, ioctl_with_val};
 ///
 /// The exit reasons are mapped to the `KVM_EXIT_*` defines in the
 /// [Linux KVM header](https://elixir.bootlin.com/linux/latest/source/include/uapi/linux/kvm.h).
-///
 #[derive(Debug)]
 pub enum VcpuExit<'a> {
     /// An out port instruction was run on the given port with the given data.
@@ -120,7 +119,6 @@ impl VcpuFd {
     /// #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
     /// let regs = vcpu.get_regs().unwrap();
     /// ```
-    ///
     #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
     pub fn get_regs(&self) -> Result<kvm_regs> {
         // Safe because we know that our file is a vCPU fd, we know the kernel will only read the
@@ -149,7 +147,8 @@ impl VcpuFd {
     /// let vm = kvm.create_vm().unwrap();
     /// let vcpu = vm.create_vcpu(0).unwrap();
     ///
-    /// #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))] {
+    /// #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
+    /// {
     ///     // Get the current vCPU registers.
     ///     let mut regs = vcpu.get_regs().unwrap();
     ///     // Set a new value for the Instruction Pointer.
@@ -157,7 +156,6 @@ impl VcpuFd {
     ///     vcpu.set_regs(&regs).unwrap();
     /// }
     /// ```
-    ///
     #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
     pub fn set_regs(&self, regs: &kvm_regs) -> Result<()> {
         // Safe because we know that our file is a vCPU fd, we know the kernel will only read the
@@ -186,7 +184,6 @@ impl VcpuFd {
     /// #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
     /// let sregs = vcpu.get_sregs().unwrap();
     /// ```
-    ///
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn get_sregs(&self) -> Result<kvm_sregs> {
         // Safe because we know that our file is a vCPU fd, we know the kernel will only write the
@@ -215,7 +212,8 @@ impl VcpuFd {
     /// let kvm = Kvm::new().unwrap();
     /// let vm = kvm.create_vm().unwrap();
     /// let vcpu = vm.create_vcpu(0).unwrap();
-    /// #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))] {
+    /// #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
+    /// {
     ///     let mut sregs = vcpu.get_sregs().unwrap();
     ///     // Update the code segment (cs).
     ///     sregs.cs.base = 0;
@@ -223,7 +221,6 @@ impl VcpuFd {
     ///     vcpu.set_sregs(&sregs).unwrap();
     /// }
     /// ```
-    ///
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn set_sregs(&self, sregs: &kvm_sregs) -> Result<()> {
         // Safe because we know that our file is a vCPU fd, we know the kernel will only read the
@@ -252,7 +249,6 @@ impl VcpuFd {
     /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     /// let fpu = vcpu.get_fpu().unwrap();
     /// ```
-    ///
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn get_fpu(&self) -> Result<kvm_fpu> {
         let mut fpu = kvm_fpu::default();
@@ -284,7 +280,8 @@ impl VcpuFd {
     /// let kvm = Kvm::new().unwrap();
     /// let vm = kvm.create_vm().unwrap();
     /// let vcpu = vm.create_vcpu(0).unwrap();
-    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))] {
+    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    /// {
     ///     let KVM_FPU_CWD: u16 = 0x37f;
     ///     let fpu = kvm_fpu {
     ///         fcw: KVM_FPU_CWD,
@@ -293,7 +290,6 @@ impl VcpuFd {
     ///     vcpu.set_fpu(&fpu).unwrap();
     /// }
     /// ```
-    ///
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn set_fpu(&self, fpu: &kvm_fpu) -> Result<()> {
         let ret = unsafe {
@@ -458,7 +454,6 @@ impl VcpuFd {
     /// let vcpu = vm.create_vcpu(0).unwrap();
     /// let lapic = vcpu.get_lapic().unwrap();
     /// ```
-    ///
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn get_lapic(&self) -> Result<kvm_lapic_state> {
         let mut klapic = kvm_lapic_state::default();
@@ -504,9 +499,8 @@ impl VcpuFd {
     /// apic_icr_slice.write(write_value).unwrap();
     ///
     /// // Update the value of LAPIC.
-    ///vcpu.set_lapic(&lapic).unwrap();
+    /// vcpu.set_lapic(&lapic).unwrap();
     /// ```
-    ///
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn set_lapic(&self, klapic: &kvm_lapic_state) -> Result<()> {
         let ret = unsafe {
@@ -550,11 +544,11 @@ impl VcpuFd {
     ///         index: 0x0000_0175,
     ///         ..Default::default()
     ///     },
-    /// ]).unwrap();
+    /// ])
+    /// .unwrap();
     /// let read = vcpu.get_msrs(&mut msrs).unwrap();
     /// assert_eq!(read, 2);
     /// ```
-    ///
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn get_msrs(&self, msrs: &mut Msrs) -> Result<usize> {
         let ret = unsafe {
@@ -588,16 +582,14 @@ impl VcpuFd {
     /// let vcpu = vm.create_vcpu(0).unwrap();
     ///
     /// // Configure the entries we want to set.
-    /// let mut msrs = Msrs::from_entries(&[
-    ///     kvm_msr_entry {
-    ///         index: 0x0000_0174,
-    ///         ..Default::default()
-    ///     },
-    /// ]).unwrap();
+    /// let mut msrs = Msrs::from_entries(&[kvm_msr_entry {
+    ///     index: 0x0000_0174,
+    ///     ..Default::default()
+    /// }])
+    /// .unwrap();
     /// let written = vcpu.set_msrs(&msrs).unwrap();
     /// assert_eq!(written, 1);
     /// ```
-    ///
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn set_msrs(&self, msrs: &Msrs) -> Result<usize> {
         let ret = unsafe {
@@ -630,7 +622,6 @@ impl VcpuFd {
     /// let vcpu = vm.create_vcpu(0).unwrap();
     /// let mp_state = vcpu.get_mp_state().unwrap();
     /// ```
-    ///
     #[cfg(any(
         target_arch = "x86",
         target_arch = "x86_64",
@@ -671,7 +662,6 @@ impl VcpuFd {
     /// // Your `mp_state` manipulation here.
     /// vcpu.set_mp_state(mp_state).unwrap();
     /// ```
-    ///
     #[cfg(any(
         target_arch = "x86",
         target_arch = "x86_64",
@@ -709,7 +699,6 @@ impl VcpuFd {
     /// let vcpu = vm.create_vcpu(0).unwrap();
     /// let xsave = vcpu.get_xsave().unwrap();
     /// ```
-    ///
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn get_xsave(&self) -> Result<kvm_xsave> {
         let mut xsave = Default::default();
@@ -744,7 +733,6 @@ impl VcpuFd {
     /// // Your `xsave` manipulation here.
     /// vcpu.set_xsave(&xsave).unwrap();
     /// ```
-    ///
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn set_xsave(&self, xsave: &kvm_xsave) -> Result<()> {
         let ret = unsafe {
@@ -776,7 +764,6 @@ impl VcpuFd {
     /// let vcpu = vm.create_vcpu(0).unwrap();
     /// let xcrs = vcpu.get_xcrs().unwrap();
     /// ```
-    ///
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn get_xcrs(&self) -> Result<kvm_xcrs> {
         let mut xcrs = Default::default();
@@ -811,7 +798,6 @@ impl VcpuFd {
     /// // Your `xcrs` manipulation here.
     /// vcpu.set_xcrs(&xcrs).unwrap();
     /// ```
-    ///
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn set_xcrs(&self, xcrs: &kvm_xcrs) -> Result<()> {
         let ret = unsafe {
@@ -843,7 +829,6 @@ impl VcpuFd {
     /// let vcpu = vm.create_vcpu(0).unwrap();
     /// let debug_regs = vcpu.get_debug_regs().unwrap();
     /// ```
-    ///
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn get_debug_regs(&self) -> Result<kvm_debugregs> {
         let mut debug_regs = Default::default();
@@ -878,7 +863,6 @@ impl VcpuFd {
     /// // Your `debug_regs` manipulation here.
     /// vcpu.set_debug_regs(&debug_regs).unwrap();
     /// ```
-    ///
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn set_debug_regs(&self, debug_regs: &kvm_debugregs) -> Result<()> {
         let ret = unsafe {
@@ -913,7 +897,6 @@ impl VcpuFd {
     ///     let vcpu_events = vcpu.get_vcpu_events().unwrap();
     /// }
     /// ```
-    ///
     #[cfg(any(
         target_arch = "x86",
         target_arch = "x86_64",
@@ -955,7 +938,6 @@ impl VcpuFd {
     ///     vcpu.set_vcpu_events(&vcpu_events).unwrap();
     /// }
     /// ```
-    ///
     #[cfg(any(
         target_arch = "x86",
         target_arch = "x86_64",
@@ -1000,7 +982,6 @@ impl VcpuFd {
     /// vm.get_preferred_target(&mut kvi).unwrap();
     /// vcpu.vcpu_init(&kvi).unwrap();
     /// ```
-    ///
     #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
     pub fn vcpu_init(&self, kvi: &kvm_vcpu_init) -> Result<()> {
         // This is safe because we allocated the struct and we know the kernel will read
@@ -1041,7 +1022,6 @@ impl VcpuFd {
     /// vcpu.get_reg_list(&mut reg_list).unwrap();
     /// assert!(reg_list.as_fam_struct_ref().n > 0);
     /// ```
-    ///
     #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
     pub fn get_reg_list(&self, reg_list: &mut RegList) -> Result<()> {
         let ret =
@@ -1074,7 +1054,8 @@ impl VcpuFd {
     /// let vm = kvm.create_vm().unwrap();
     /// let vcpu = vm.create_vcpu(0).unwrap();
     ///
-    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))] {
+    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    /// {
     ///     let debug_struct = kvm_guest_debug {
     ///         // Configure the vcpu so that a KVM_DEBUG_EXIT would be generated
     ///         // when encountering a software breakpoint during execution
@@ -1089,7 +1070,6 @@ impl VcpuFd {
     ///     vcpu.set_guest_debug(&debug_struct).unwrap();
     /// }
     /// ```
-    ///
     #[cfg(any(
         target_arch = "x86",
         target_arch = "x86_64",
@@ -1114,7 +1094,6 @@ impl VcpuFd {
     ///
     /// * `reg_id` - ID of the register for which we are setting the value.
     /// * `data` - value for the specified register.
-    ///
     #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
     pub fn set_one_reg(&self, reg_id: u64, data: u64) -> Result<()> {
         let data_ref = &data as *const u64;
@@ -1139,7 +1118,6 @@ impl VcpuFd {
     /// # Arguments
     ///
     /// * `reg_id` - ID of the register.
-    ///
     #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
     pub fn get_one_reg(&self, reg_id: u64) -> Result<u64> {
         let mut reg_value = 0;
@@ -1159,7 +1137,6 @@ impl VcpuFd {
     ///
     /// See the documentation for `KVM_KVMCLOCK_CTRL` in the
     /// [KVM API documentation](https://www.kernel.org/doc/Documentation/virtual/kvm/api.txt).
-    ///
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn kvmclock_ctrl(&self) -> Result<()> {
         // Safe because we know that our file is a KVM fd and that the request
@@ -1188,7 +1165,8 @@ impl VcpuFd {
     /// # let kvm = Kvm::new().unwrap();
     /// # let vm = kvm.create_vm().unwrap();
     /// // This is a dummy example for running on x86 based on https://lwn.net/Articles/658511/.
-    /// #[cfg(target_arch = "x86_64")] {
+    /// #[cfg(target_arch = "x86_64")]
+    /// {
     ///     let mem_size = 0x4000;
     ///     let guest_addr: u64 = 0x1000;
     ///     let load_addr: *mut u8 = unsafe {
@@ -1212,9 +1190,7 @@ impl VcpuFd {
     ///     unsafe { vm.set_user_memory_region(mem_region).unwrap() };
     ///
     ///     // Dummy x86 code that just calls halt.
-    ///     let x86_code = [
-    ///             0xf4,             /* hlt */
-    ///     ];
+    ///     let x86_code = [0xf4 /* hlt */];
     ///
     ///     // Write the code in the guest memory. This will generate a dirty page.
     ///     unsafe {
@@ -1247,7 +1223,6 @@ impl VcpuFd {
     ///     }
     /// }
     /// ```
-    ///
     pub fn run(&self) -> Result<VcpuExit> {
         // Safe because we know that our file is a vCPU fd and we verify the return result.
         let ret = unsafe { ioctl(self, KVM_RUN()) };

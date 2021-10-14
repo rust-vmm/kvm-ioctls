@@ -15,7 +15,6 @@ use kvm_bindings::*;
 ///
 /// The list of capabilities is based on the the KVM_CAP_* defines from the
 /// [Linux KVM header](https://elixir.bootlin.com/linux/latest/source/include/uapi/linux/kvm.h).
-///
 #[derive(Clone, Copy, Debug)]
 #[repr(u32)]
 // We are allowing docs to be missing here because this enum is a wrapper

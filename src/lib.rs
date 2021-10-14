@@ -50,16 +50,16 @@
 //! extern crate kvm_ioctls;
 //! extern crate kvm_bindings;
 //!
-//! use kvm_ioctls::{Kvm, VmFd, VcpuFd};
 //! use kvm_ioctls::VcpuExit;
+//! use kvm_ioctls::{Kvm, VcpuFd, VmFd};
 //!
-//! fn main(){
+//! fn main() {
 //!     use std::io::Write;
-//!     use std::slice;
 //!     use std::ptr::null_mut;
+//!     use std::slice;
 //!
-//!     use kvm_bindings::KVM_MEM_LOG_DIRTY_PAGES;
 //!     use kvm_bindings::kvm_userspace_memory_region;
+//!     use kvm_bindings::KVM_MEM_LOG_DIRTY_PAGES;
 //!
 //!     let mem_size = 0x4000;
 //!     let guest_addr = 0x1000;
@@ -67,27 +67,29 @@
 //!
 //!     // Setting up architectural dependent values.
 //!     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-//!    {
-//!        asm_code = &[
-//!         0xba, 0xf8, 0x03, /* mov $0x3f8, %dx */
-//!         0x00, 0xd8, /* add %bl, %al */
-//!         0x04, b'0', /* add $'0', %al */
-//!         0xee, /* out %al, %dx */
-//!         0xec, /* in %dx, %al */
-//!         0xc6, 0x06, 0x00, 0x80, 0x00, /* movl $0, (0x8000); This generates a MMIO Write.*/
-//!         0x8a, 0x16, 0x00, 0x80, /* movl (0x8000), %dl; This generates a MMIO Read.*/
-//!         0xf4, /* hlt */
-//!        ];
-//!    }
-//!    #[cfg(target_arch = "aarch64")]
-//!    {
-//!        asm_code = &[
+//!     {
+//!         asm_code = &[
+//!             0xba, 0xf8, 0x03, /* mov $0x3f8, %dx */
+//!             0x00, 0xd8, /* add %bl, %al */
+//!             0x04, b'0', /* add $'0', %al */
+//!             0xee, /* out %al, %dx */
+//!             0xec, /* in %dx, %al */
+//!             0xc6, 0x06, 0x00, 0x80,
+//!             0x00, /* movl $0, (0x8000); This generates a MMIO Write. */
+//!             0x8a, 0x16, 0x00, 0x80, /* movl (0x8000), %dl; This generates a MMIO Read. */
+//!             0xf4, /* hlt */
+//!         ];
+//!     }
+//!     #[cfg(target_arch = "aarch64")]
+//!     {
+//!         asm_code = &[
 //!             0x01, 0x00, 0x00, 0x10, /* adr x1, <this address> */
 //!             0x22, 0x10, 0x00, 0xb9, /* str w2, [x1, #16]; write to this page */
-//!             0x02, 0x00, 0x00, 0xb9, /* str w2, [x0]; This generates a MMIO Write.*/
-//!             0x00, 0x00, 0x00, 0x14, /* b <this address>; shouldn't get here, but if so loop forever */
+//!             0x02, 0x00, 0x00, 0xb9, /* str w2, [x0]; This generates a MMIO Write. */
+//!             0x00, 0x00, 0x00,
+//!             0x14, /* b <this address>; shouldn't get here, but if so loop forever */
 //!         ];
-//!    }
+//!     }
 //!
 //!     // 1. Instantiate KVM.
 //!     let kvm = Kvm::new().unwrap();
@@ -164,28 +166,20 @@
 //!             VcpuExit::IoIn(addr, data) => {
 //!                 println!(
 //!                     "Received an I/O in exit. Address: {:#x}. Data: {:#x}",
-//!                     addr,
-//!                     data[0],
+//!                     addr, data[0],
 //!                 );
 //!             }
 //!             VcpuExit::IoOut(addr, data) => {
 //!                 println!(
 //!                     "Received an I/O out exit. Address: {:#x}. Data: {:#x}",
-//!                     addr,
-//!                     data[0],
+//!                     addr, data[0],
 //!                 );
 //!             }
 //!             VcpuExit::MmioRead(addr, data) => {
-//!                 println!(
-//!                     "Received an MMIO Read Request for the address {:#x}.",
-//!                     addr,
-//!                 );
+//!                 println!("Received an MMIO Read Request for the address {:#x}.", addr,);
 //!             }
 //!             VcpuExit::MmioWrite(addr, data) => {
-//!                 println!(
-//!                     "Received an MMIO Write Request to the address {:#x}.",
-//!                     addr,
-//!                 );
+//!                 println!("Received an MMIO Write Request to the address {:#x}.", addr,);
 //!                 // The code snippet dirties 1 page when it is loaded in memory
 //!                 let dirty_pages_bitmap = vm.get_dirty_log(slot, mem_size).unwrap();
 //!                 let dirty_pages = dirty_pages_bitmap
@@ -229,7 +223,7 @@ pub use ioctls::vm::{IoEventAddress, NoDatamatch, VmFd};
 ///
 /// ```
 /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-/// use kvm_ioctls::{KvmRunWrapper, Error};
+/// use kvm_ioctls::{Error, KvmRunWrapper};
 /// ```
 pub use ioctls::KvmRunWrapper;
 pub use vmm_sys_util::errno::Error;
