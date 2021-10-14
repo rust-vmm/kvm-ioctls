@@ -73,7 +73,6 @@ impl KvmRunWrapper {
     }
 
     /// Returns a mutable reference to `kvm_run`.
-    ///
     #[allow(clippy::mut_from_ref)]
     pub fn as_mut_ref(&self) -> &mut kvm_run {
         // Safe because we know we mapped enough memory to hold the kvm_run struct because the
