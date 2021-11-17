@@ -1,3 +1,13 @@
+# v0.11.0
+
+## Added
+- [[#178](https://github.com/rust-vmm/kvm-ioctls/pull/178)] Support for the AMD
+  Security Encrypted Virtualization (SEV) through the following VM ioctls:
+  `encrypt_op`, `encrypt_op_sev`, `register_enc_memory_region` and
+   `unregister_enc_memory_region`.
+- [[#184](https://github.com/rust-vmm/kvm-ioctls/pull/184)] `DeviceFd` now
+  derives `Debug`.
+
 # v0.10.0
 
 ## Changed

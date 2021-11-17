@@ -1,6 +1,6 @@
 [package]
 name = "kvm-ioctls"
-version = "0.10.0"
+version = "0.11.0"
 authors = ["Amazon Firecracker Team <firecracker-maintainers@amazon.com>"]
 description = "Safe wrappers over KVM ioctls"
 repository = "https://github.com/rust-vmm/kvm-ioctls"
