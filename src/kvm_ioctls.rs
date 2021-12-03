@@ -36,6 +36,9 @@ ioctl_iow_nr!(
 /* Available with KVM_CAP_SET_TSS_ADDR */
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 ioctl_io_nr!(KVM_SET_TSS_ADDR, KVMIO, 0x47);
+/* Available with KVM_CAP_SET_IDENTITY_MAP_ADDR */
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+ioctl_iow_nr!(KVM_SET_IDENTITY_MAP_ADDR, KVMIO, 0x48, u64);
 /* Available with KVM_CAP_IRQCHIP */
 #[cfg(any(
     target_arch = "x86",
