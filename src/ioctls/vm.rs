@@ -136,6 +136,34 @@ impl VmFd {
         }
     }
 
+    /// Sets the address of the one-page region in the VM's address space.
+    ///
+    /// See the documentation for `KVM_SET_IDENTITY_MAP_ADDR`.
+    ///
+    /// # Arguments
+    ///
+    /// * `address` - Physical address of a one-page region in the guest's physical address space.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # extern crate kvm_ioctls;
+    /// # use kvm_ioctls::Kvm;
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    /// vm.set_identity_map_address(0xfffb_c000).unwrap();
+    /// ```
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    pub fn set_identity_map_address(&self, address: u64) -> Result<()> {
+        // Safe because we know that our file is a VM fd and we verify the return result.
+        let ret = unsafe { ioctl_with_ref(self, KVM_SET_IDENTITY_MAP_ADDR(), &address) };
+        if ret == 0 {
+            Ok(())
+        } else {
+            Err(errno::Error::last())
+        }
+    }
+
     /// Creates an in-kernel interrupt controller.
     ///
     /// See the documentation for `KVM_CREATE_IRQCHIP`.
@@ -1582,6 +1610,19 @@ mod tests {
         let kvm = Kvm::new().unwrap();
         let vm = kvm.create_vm().unwrap();
         assert!(vm.set_tss_address(0xfffb_d000).is_ok());
+    }
+
+    #[test]
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    fn test_set_identity_map_address() {
+        let kvm = Kvm::new().unwrap();
+        if kvm.check_extension(Cap::SetIdentityMapAddr) {
+            let vm = kvm.create_vm().unwrap();
+            assert!(vm.set_identity_map_address(0xfffb_c000).is_ok());
+            vm.create_vcpu(0).unwrap();
+            // Setting the identity map after creating a vCPU must fail.
+            assert!(vm.set_identity_map_address(0xfffb_c000).is_err());
+        }
     }
 
     #[test]
