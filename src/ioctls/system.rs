@@ -23,6 +23,7 @@ use vmm_sys_util::ioctl::ioctl_with_mut_ptr;
 use vmm_sys_util::ioctl::{ioctl, ioctl_with_val};
 
 /// Wrapper over KVM system ioctls.
+#[derive(Debug)]
 pub struct Kvm {
     kvm: File,
 }
