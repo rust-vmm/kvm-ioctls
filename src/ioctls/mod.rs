@@ -30,6 +30,7 @@ pub type Result<T> = std::result::Result<T, errno::Error>;
 ///
 /// The wrapper is needed for sending the pointer to `kvm_run` between
 /// threads as raw pointers do not implement `Send` and `Sync`.
+#[derive(Debug)]
 pub struct KvmRunWrapper {
     kvm_run_ptr: *mut u8,
     // This field is need so we can `munmap` the memory mapped to hold `kvm_run`.

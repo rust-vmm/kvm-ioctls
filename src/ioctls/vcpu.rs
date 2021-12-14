@@ -96,6 +96,7 @@ pub enum VcpuExit<'a> {
 }
 
 /// Wrapper over KVM vCPU ioctls.
+#[derive(Debug)]
 pub struct VcpuFd {
     vcpu: File,
     kvm_run_ptr: KvmRunWrapper,
