@@ -1459,6 +1459,43 @@ impl VcpuFd {
             Ok(())
         }
     }
+
+    /// Translates a virtual address according to the vCPU's current address translation mode.
+    ///
+    /// The physical address is returned in a `kvm_translation` structure as defined in the
+    /// [KVM API documentation](https://www.kernel.org/doc/Documentation/virtual/kvm/api.txt).
+    /// See documentation for `KVM_TRANSLATE`.
+    ///
+    /// # Arguments
+    ///
+    /// * `gva` - The virtual address to translate.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # extern crate kvm_ioctls;
+    /// # use kvm_ioctls::Kvm;
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    /// let vcpu = vm.create_vcpu(0).unwrap();
+    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    /// let tr = vcpu.translate_gva(0x10000).unwrap();
+    /// ```
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    pub fn translate_gva(&self, gva: u64) -> Result<kvm_translation> {
+        let mut tr = kvm_translation {
+            linear_address: gva,
+            ..Default::default()
+        };
+
+        // Safe because we know that our file is a vCPU fd, we know the kernel will only write the
+        // correct amount of memory to our pointer, and we verify the return result.
+        let ret = unsafe { ioctl_with_mut_ref(self, KVM_TRANSLATE(), &mut tr) };
+        if ret != 0 {
+            return Err(errno::Error::last());
+        }
+        Ok(tr)
+    }
 }
 
 /// Helper function to create a new `VcpuFd`.
@@ -2172,6 +2209,7 @@ mod tests {
         );
         assert!(faulty_vcpu_fd.get_tsc_khz().is_err());
         assert!(faulty_vcpu_fd.set_tsc_khz(1000000).is_err());
+        assert!(faulty_vcpu_fd.translate_gva(u64::MAX).is_err());
     }
 
     #[test]
@@ -2335,6 +2373,22 @@ mod tests {
             assert!(vcpu.set_tsc_khz(freq + 500000).is_ok());
             assert_eq!(vcpu.get_tsc_khz().unwrap(), freq + 500000);
         }
+    }
+
+    #[test]
+    #[cfg(target_arch = "x86_64")]
+    fn test_translate_gva() {
+        let kvm = Kvm::new().unwrap();
+        let vm = kvm.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+        assert!(vcpu.translate_gva(0x10000).is_ok());
+        assert_eq!(vcpu.translate_gva(0x10000).unwrap().valid, 1);
+        assert_eq!(
+            vcpu.translate_gva(0x10000).unwrap().physical_address,
+            0x10000
+        );
+        assert!(vcpu.translate_gva(u64::MAX).is_ok());
+        assert_eq!(vcpu.translate_gva(u64::MAX).unwrap().valid, 0);
     }
 
     #[test]

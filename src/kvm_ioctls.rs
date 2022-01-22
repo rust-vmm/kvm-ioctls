@@ -127,6 +127,8 @@ ioctl_ior_nr!(KVM_GET_SREGS, KVMIO, 0x83, kvm_sregs);
     target_arch = "powerpc64"
 ))]
 ioctl_iow_nr!(KVM_SET_SREGS, KVMIO, 0x84, kvm_sregs);
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+ioctl_iowr_nr!(KVM_TRANSLATE, KVMIO, 0x85, kvm_translation);
 /* Available with KVM_CAP_GET_MSR_FEATURES */
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 ioctl_iowr_nr!(KVM_GET_MSR_INDEX_LIST, KVMIO, 0x02, kvm_msr_list);
