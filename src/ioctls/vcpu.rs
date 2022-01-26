@@ -102,6 +102,21 @@ pub struct VcpuFd {
     kvm_run_ptr: KvmRunWrapper,
 }
 
+/// KVM Sync Registers used to tell KVM which registers to sync
+#[repr(u32)]
+#[derive(Debug, Copy, Clone)]
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+pub enum SyncReg {
+    /// General purpose registers,
+    Register = KVM_SYNC_X86_REGS,
+
+    /// System registers
+    SystemRegister = KVM_SYNC_X86_SREGS,
+
+    /// CPU events
+    VcpuEvents = KVM_SYNC_X86_EVENTS,
+}
+
 impl VcpuFd {
     /// Returns the vCPU general purpose registers.
     ///
@@ -1496,6 +1511,151 @@ impl VcpuFd {
         }
         Ok(tr)
     }
+
+    /// Enable the given [`SyncReg`] to be copied to userspace on the next exit
+    ///
+    /// # Arguments
+    ///
+    /// * `reg` - The [`SyncReg`] to copy out of the guest
+    ///
+    /// # Example
+    ///
+    ///  ```rust
+    /// # extern crate kvm_ioctls;
+    /// # use kvm_ioctls::{Kvm, SyncReg, Cap};
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    /// let mut vcpu = vm.create_vcpu(0).unwrap();
+    /// vcpu.set_sync_valid_reg(SyncReg::Register);
+    /// vcpu.set_sync_valid_reg(SyncReg::SystemRegister);
+    /// vcpu.set_sync_valid_reg(SyncReg::VcpuEvents);
+    /// ```
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    pub fn set_sync_valid_reg(&mut self, reg: SyncReg) {
+        let mut kvm_run: &mut kvm_run = self.kvm_run_ptr.as_mut_ref();
+        kvm_run.kvm_valid_regs |= reg as u64;
+    }
+
+    /// Tell KVM to copy the given [`SyncReg`] into the guest on the next entry
+    ///
+    /// # Arguments
+    ///
+    /// * `reg` - The [`SyncReg`] to copy into the guest
+    ///
+    /// # Example
+    ///
+    ///  ```rust
+    /// # extern crate kvm_ioctls;
+    /// # use kvm_ioctls::{Kvm, SyncReg, Cap};
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    /// let mut vcpu = vm.create_vcpu(0).unwrap();
+    /// vcpu.set_sync_dirty_reg(SyncReg::Register);
+    /// ```
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    pub fn set_sync_dirty_reg(&mut self, reg: SyncReg) {
+        let mut kvm_run: &mut kvm_run = self.kvm_run_ptr.as_mut_ref();
+        kvm_run.kvm_dirty_regs |= reg as u64;
+    }
+
+    /// Disable the given [`SyncReg`] to be copied to userspace on the next exit
+    ///
+    /// # Arguments
+    ///
+    /// * `reg` - The [`SyncReg`] to not copy out of the guest
+    ///
+    /// # Example
+    ///
+    ///  ```rust
+    /// # extern crate kvm_ioctls;
+    /// # use kvm_ioctls::{Kvm, SyncReg, Cap};
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    /// let mut vcpu = vm.create_vcpu(0).unwrap();
+    /// vcpu.clear_sync_valid_reg(SyncReg::Register);
+    /// ```
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    pub fn clear_sync_valid_reg(&mut self, reg: SyncReg) {
+        let mut kvm_run: &mut kvm_run = self.kvm_run_ptr.as_mut_ref();
+        kvm_run.kvm_valid_regs &= !(reg as u64);
+    }
+
+    /// Tell KVM to not copy the given [`SyncReg`] into the guest on the next entry
+    ///
+    /// # Arguments
+    ///
+    /// * `reg` - The [`SyncReg`] to not copy out into the guest
+    ///
+    /// # Example
+    ///
+    ///  ```rust
+    /// # extern crate kvm_ioctls;
+    /// # use kvm_ioctls::{Kvm, SyncReg, Cap};
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    /// let mut vcpu = vm.create_vcpu(0).unwrap();
+    /// vcpu.clear_sync_dirty_reg(SyncReg::Register);
+    /// ```
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    pub fn clear_sync_dirty_reg(&mut self, reg: SyncReg) {
+        let mut kvm_run: &mut kvm_run = self.kvm_run_ptr.as_mut_ref();
+        kvm_run.kvm_dirty_regs &= !(reg as u64);
+    }
+
+    /// Get the [`kvm_sync_regs`] from the VM
+    ///
+    /// # Example
+    ///
+    ///  ```rust
+    /// # extern crate kvm_ioctls;
+    /// # use kvm_ioctls::{Kvm, SyncReg, Cap};
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    /// let mut vcpu = vm.create_vcpu(0).unwrap();
+    /// if kvm.check_extension(Cap::SyncRegs) {
+    ///     vcpu.set_sync_valid_reg(SyncReg::Register);
+    ///     vcpu.run();
+    ///     let guest_rax = vcpu.sync_regs().regs.rax;
+    /// }
+    /// ```
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    pub fn sync_regs(&self) -> kvm_sync_regs {
+        let kvm_run: &mut kvm_run = self.kvm_run_ptr.as_mut_ref();
+
+        // SAFETY: Accessing this union field could be out of bounds if the `kvm_run`
+        // allocation isn't large enough. The `kvm_run` region is set using
+        // `get_vcpu_map_size`, so this region is in bounds
+        unsafe { kvm_run.s.regs }
+    }
+
+    /// Get a mutable reference to the [`kvm_sync_regs`] from the VM
+    ///
+    /// # Example
+    ///
+    ///  ```rust
+    /// # extern crate kvm_ioctls;
+    /// # use kvm_ioctls::{Kvm, SyncReg, Cap};
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    /// let mut vcpu = vm.create_vcpu(0).unwrap();
+    /// if kvm.check_extension(Cap::SyncRegs) {
+    ///     vcpu.set_sync_valid_reg(SyncReg::Register);
+    ///     vcpu.run();
+    ///     // Set the guest RAX to 0xdeadbeef
+    ///     vcpu.sync_regs_mut().regs.rax = 0xdeadbeef;
+    ///     vcpu.set_sync_dirty_reg(SyncReg::Register);
+    ///     vcpu.run();
+    /// }
+    /// ```
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    pub fn sync_regs_mut(&mut self) -> &mut kvm_sync_regs {
+        let kvm_run: &mut kvm_run = self.kvm_run_ptr.as_mut_ref();
+
+        // SAFETY: Accessing this union field could be out of bounds if the `kvm_run`
+        // allocation isn't large enough. The `kvm_run` region is set using
+        // `get_vcpu_map_size`, so this region is in bounds
+        unsafe { &mut kvm_run.s.regs }
+    }
 }
 
 /// Helper function to create a new `VcpuFd`.
@@ -2372,6 +2532,131 @@ mod tests {
             assert_eq!(vcpu.get_tsc_khz().unwrap(), freq - 500000);
             assert!(vcpu.set_tsc_khz(freq + 500000).is_ok());
             assert_eq!(vcpu.get_tsc_khz().unwrap(), freq + 500000);
+        }
+    }
+
+    #[cfg(target_arch = "x86_64")]
+    #[test]
+    fn test_sync_regs() {
+        let kvm = Kvm::new().unwrap();
+        let vm = kvm.create_vm().unwrap();
+        let mut vcpu = vm.create_vcpu(0).unwrap();
+
+        // Test setting each valid register
+        let sync_regs = [
+            SyncReg::Register,
+            SyncReg::SystemRegister,
+            SyncReg::VcpuEvents,
+        ];
+        for reg in &sync_regs {
+            vcpu.set_sync_valid_reg(*reg);
+            assert_eq!(vcpu.kvm_run_ptr.as_mut_ref().kvm_valid_regs, *reg as u64);
+            vcpu.clear_sync_valid_reg(*reg);
+            assert_eq!(vcpu.kvm_run_ptr.as_mut_ref().kvm_valid_regs, 0);
+        }
+
+        // Test that multiple valid SyncRegs can be set at the same time
+        vcpu.set_sync_valid_reg(SyncReg::Register);
+        vcpu.set_sync_valid_reg(SyncReg::SystemRegister);
+        vcpu.set_sync_valid_reg(SyncReg::VcpuEvents);
+        assert_eq!(
+            vcpu.kvm_run_ptr.as_mut_ref().kvm_valid_regs,
+            SyncReg::Register as u64 | SyncReg::SystemRegister as u64 | SyncReg::VcpuEvents as u64
+        );
+
+        // Test setting each dirty register
+        let sync_regs = [
+            SyncReg::Register,
+            SyncReg::SystemRegister,
+            SyncReg::VcpuEvents,
+        ];
+
+        for reg in &sync_regs {
+            vcpu.set_sync_dirty_reg(*reg);
+            assert_eq!(vcpu.kvm_run_ptr.as_mut_ref().kvm_dirty_regs, *reg as u64);
+            vcpu.clear_sync_dirty_reg(*reg);
+            assert_eq!(vcpu.kvm_run_ptr.as_mut_ref().kvm_dirty_regs, 0);
+        }
+
+        // Test that multiple dirty SyncRegs can be set at the same time
+        vcpu.set_sync_dirty_reg(SyncReg::Register);
+        vcpu.set_sync_dirty_reg(SyncReg::SystemRegister);
+        vcpu.set_sync_dirty_reg(SyncReg::VcpuEvents);
+        assert_eq!(
+            vcpu.kvm_run_ptr.as_mut_ref().kvm_dirty_regs,
+            SyncReg::Register as u64 | SyncReg::SystemRegister as u64 | SyncReg::VcpuEvents as u64
+        );
+    }
+
+    #[cfg(target_arch = "x86_64")]
+    #[test]
+    fn test_sync_regs_with_run() {
+        use std::io::Write;
+
+        let kvm = Kvm::new().unwrap();
+        let vm = kvm.create_vm().unwrap();
+        if kvm.check_extension(Cap::SyncRegs) {
+            // This example is based on https://lwn.net/Articles/658511/
+            #[rustfmt::skip]
+            let code = [
+                0xff, 0xc0, /* inc eax */
+                0xf4, /* hlt */
+            ];
+
+            let mem_size = 0x4000;
+            let load_addr = mmap_anonymous(mem_size);
+            let guest_addr: u64 = 0x1000;
+            let slot: u32 = 0;
+            let mem_region = kvm_userspace_memory_region {
+                slot,
+                guest_phys_addr: guest_addr,
+                memory_size: mem_size as u64,
+                userspace_addr: load_addr as u64,
+                flags: KVM_MEM_LOG_DIRTY_PAGES,
+            };
+            unsafe {
+                vm.set_user_memory_region(mem_region).unwrap();
+            }
+
+            unsafe {
+                // Get a mutable slice of `mem_size` from `load_addr`.
+                // This is safe because we mapped it before.
+                let mut slice = std::slice::from_raw_parts_mut(load_addr, mem_size);
+                slice.write_all(&code).unwrap();
+            }
+
+            let mut vcpu = vm.create_vcpu(0).unwrap();
+
+            let orig_sregs = vcpu.get_sregs().unwrap();
+
+            let mut sync_regs = vcpu.sync_regs_mut();
+
+            // Initialize the sregs in sync_regs to be the original sregs
+            sync_regs.sregs = orig_sregs;
+            sync_regs.sregs.cs.base = 0;
+            sync_regs.sregs.cs.selector = 0;
+
+            // Set up the guest to attempt to `inc rax`
+            sync_regs.regs.rip = guest_addr;
+            sync_regs.regs.rax = 0x8000;
+            sync_regs.regs.rflags = 2;
+
+            // Initialize the sync_reg flags
+            vcpu.set_sync_valid_reg(SyncReg::Register);
+            vcpu.set_sync_valid_reg(SyncReg::SystemRegister);
+            vcpu.set_sync_valid_reg(SyncReg::VcpuEvents);
+            vcpu.set_sync_dirty_reg(SyncReg::Register);
+            vcpu.set_sync_dirty_reg(SyncReg::SystemRegister);
+            vcpu.set_sync_dirty_reg(SyncReg::VcpuEvents);
+
+            // hlt is the only expected return from guest execution
+            assert!(matches!(vcpu.run().expect("run failed"), VcpuExit::Hlt));
+
+            let regs = vcpu.get_regs().unwrap();
+
+            let sync_regs = vcpu.sync_regs();
+            assert_eq!(regs, sync_regs.regs);
+            assert_eq!(sync_regs.regs.rax, 0x8001);
         }
     }
 

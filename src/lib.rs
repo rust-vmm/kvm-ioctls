@@ -216,6 +216,10 @@ pub use cap::Cap;
 pub use ioctls::device::DeviceFd;
 pub use ioctls::system::Kvm;
 pub use ioctls::vcpu::{VcpuExit, VcpuFd};
+
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+pub use ioctls::vcpu::SyncReg;
+
 pub use ioctls::vm::{IoEventAddress, NoDatamatch, VmFd};
 // The following example is used to verify that our public
 // structures are exported properly.
