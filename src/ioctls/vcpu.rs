@@ -1403,6 +1403,12 @@ impl VcpuFd {
         kvm_run.immediate_exit = val;
     }
 
+    /// Sets the `request_interrupt_window` flag on the `kvm_run` struct associated with this vCPU to `val`.
+    pub fn set_kvm_request_interrupt_window(&self, val: u8) {
+        let kvm_run = self.kvm_run_ptr.as_mut_ref();
+        kvm_run.request_interrupt_window = val;
+    }
+
     /// Returns the vCPU TSC frequency in KHz or an error if the host has unstable TSC.
     ///
     /// # Example
@@ -1427,6 +1433,8 @@ impl VcpuFd {
             Err(errno::Error::new(ret))
         }
     }
+
+
 
     /// Sets the specified vCPU TSC frequency.
     ///
