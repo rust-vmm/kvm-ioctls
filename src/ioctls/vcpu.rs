@@ -93,6 +93,10 @@ pub enum VcpuExit<'a> {
     IoapicEoi(u8 /* vector */),
     /// Corresponds to KVM_EXIT_HYPERV.
     Hyperv,
+    /// Corresponds to an exit reason that is unknown from the current version
+    /// of the kvm-ioctls crate. Let the consumer decide about what to do with
+    /// it.
+    Unsupported(u32),
 }
 
 /// Wrapper over KVM vCPU ioctls.
@@ -1405,7 +1409,7 @@ impl VcpuFd {
                     Ok(VcpuExit::IoapicEoi(eoi.vector))
                 }
                 KVM_EXIT_HYPERV => Ok(VcpuExit::Hyperv),
-                r => panic!("unknown kvm exit reason: {}", r),
+                r => Ok(VcpuExit::Unsupported(r)),
             }
         } else {
             Err(errno::Error::last())
