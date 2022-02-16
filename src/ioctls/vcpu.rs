@@ -1416,6 +1416,11 @@ impl VcpuFd {
         }
     }
 
+    /// Returns a mutable reference to the kvm_run structure
+    pub fn get_kvm_run(&mut self) -> &mut kvm_run {
+        self.kvm_run_ptr.as_mut_ref()
+    }
+
     /// Sets the `immediate_exit` flag on the `kvm_run` struct associated with this vCPU to `val`.
     pub fn set_kvm_immediate_exit(&self, val: u8) {
         let kvm_run = self.kvm_run_ptr.as_mut_ref();
@@ -2476,7 +2481,16 @@ mod tests {
     }
 
     #[test]
-    fn set_kvm_immediate_exit() {
+    fn test_get_kvm_run() {
+        let kvm = Kvm::new().unwrap();
+        let vm = kvm.create_vm().unwrap();
+        let mut vcpu = vm.create_vcpu(0).unwrap();
+        vcpu.kvm_run_ptr.as_mut_ref().immediate_exit = 1;
+        assert_eq!(vcpu.get_kvm_run().immediate_exit, 1);
+    }
+
+    #[test]
+    fn test_set_kvm_immediate_exit() {
         let kvm = Kvm::new().unwrap();
         let vm = kvm.create_vm().unwrap();
         let vcpu = vm.create_vcpu(0).unwrap();
