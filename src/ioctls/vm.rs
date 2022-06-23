@@ -896,6 +896,65 @@ impl VmFd {
         }
     }
 
+    /// Registers an event that will, when signaled, assert the `gsi` IRQ.
+    /// If the irqchip is resampled by the guest, the IRQ is de-asserted,
+    /// and `resamplefd` is notified.
+    ///
+    /// # Arguments
+    ///
+    /// * `fd` - `EventFd` to be signaled.
+    /// * `resamplefd` - `EventFd`to be notified on resample.
+    /// * `gsi` - IRQ to be triggered.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # extern crate kvm_ioctls;
+    /// # extern crate libc;
+    /// # extern crate vmm_sys_util;
+    /// # use kvm_ioctls::Kvm;
+    /// # use libc::EFD_NONBLOCK;
+    /// # use vmm_sys_util::eventfd::EventFd;
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    /// let evtfd = EventFd::new(EFD_NONBLOCK).unwrap();
+    /// let resamplefd = EventFd::new(EFD_NONBLOCK).unwrap();
+    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    /// {
+    ///     vm.create_irq_chip().unwrap();
+    ///     vm.register_irqfd_with_resample(&evtfd, &resamplefd, 0)
+    ///         .unwrap();
+    /// }
+    /// ```
+    #[cfg(any(
+        target_arch = "x86",
+        target_arch = "x86_64",
+        target_arch = "arm",
+        target_arch = "aarch64"
+    ))]
+    pub fn register_irqfd_with_resample(
+        &self,
+        fd: &EventFd,
+        resamplefd: &EventFd,
+        gsi: u32,
+    ) -> Result<()> {
+        let irqfd = kvm_irqfd {
+            fd: fd.as_raw_fd() as u32,
+            resamplefd: resamplefd.as_raw_fd() as u32,
+            gsi,
+            flags: KVM_IRQFD_FLAG_RESAMPLE,
+            ..Default::default()
+        };
+        // Safe because we know that our file is a VM fd, we know the kernel will only read the
+        // correct amount of memory from our pointer, and we verify the return result.
+        let ret = unsafe { ioctl_with_ref(self, KVM_IRQFD(), &irqfd) };
+        if ret == 0 {
+            Ok(())
+        } else {
+            Err(errno::Error::last())
+        }
+    }
+
     /// Unregisters an event that will, when signaled, trigger the `gsi` IRQ.
     ///
     /// # Arguments
@@ -915,10 +974,14 @@ impl VmFd {
     /// let kvm = Kvm::new().unwrap();
     /// let vm = kvm.create_vm().unwrap();
     /// let evtfd = EventFd::new(EFD_NONBLOCK).unwrap();
+    /// let resamplefd = EventFd::new(EFD_NONBLOCK).unwrap();
     /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     /// {
     ///     vm.create_irq_chip().unwrap();
     ///     vm.register_irqfd(&evtfd, 0).unwrap();
+    ///     vm.unregister_irqfd(&evtfd, 0).unwrap();
+    ///     vm.register_irqfd_with_resample(&evtfd, &resamplefd, 0)
+    ///         .unwrap();
     ///     vm.unregister_irqfd(&evtfd, 0).unwrap();
     /// }
     /// ```
@@ -1792,6 +1855,8 @@ mod tests {
         let evtfd1 = EventFd::new(EFD_NONBLOCK).unwrap();
         let evtfd2 = EventFd::new(EFD_NONBLOCK).unwrap();
         let evtfd3 = EventFd::new(EFD_NONBLOCK).unwrap();
+        let evtfd4 = EventFd::new(EFD_NONBLOCK).unwrap();
+        let resamplefd = EventFd::new(EFD_NONBLOCK).unwrap();
 
         assert!(vm_fd.create_irq_chip().is_ok());
 
@@ -1808,6 +1873,17 @@ mod tests {
         assert!(vm_fd.register_irqfd(&evtfd3, 5).is_err());
         // KVM irqfd doesn't report failure on this case:(
         assert!(vm_fd.unregister_irqfd(&evtfd3, 5).is_ok());
+
+        if vm_fd.check_extension(Cap::IrqfdResample) {
+            assert!(vm_fd
+                .register_irqfd_with_resample(&evtfd4, &resamplefd, 6)
+                .is_ok());
+            assert!(vm_fd.unregister_irqfd(&evtfd4, 6).is_ok());
+        } else {
+            assert!(vm_fd
+                .register_irqfd_with_resample(&evtfd4, &resamplefd, 6)
+                .is_err());
+        }
     }
 
     #[test]
@@ -1818,6 +1894,8 @@ mod tests {
         let evtfd1 = EventFd::new(EFD_NONBLOCK).unwrap();
         let evtfd2 = EventFd::new(EFD_NONBLOCK).unwrap();
         let evtfd3 = EventFd::new(EFD_NONBLOCK).unwrap();
+        let evtfd4 = EventFd::new(EFD_NONBLOCK).unwrap();
+        let resamplefd = EventFd::new(EFD_NONBLOCK).unwrap();
 
         // Create the vGIC device.
         let vgic_fd = create_gic_device(&vm_fd, 0);
@@ -1845,6 +1923,17 @@ mod tests {
         assert!(vm_fd.register_irqfd(&evtfd3, 5).is_err());
         // KVM irqfd doesn't report failure on this case:(
         assert!(vm_fd.unregister_irqfd(&evtfd3, 5).is_ok());
+
+        if vm_fd.check_extension(Cap::IrqfdResample) {
+            assert!(vm_fd
+                .register_irqfd_with_resample(&evtfd4, &resamplefd, 6)
+                .is_ok());
+            assert!(vm_fd.unregister_irqfd(&evtfd4, 6).is_ok());
+        } else {
+            assert!(vm_fd
+                .register_irqfd_with_resample(&evtfd4, &resamplefd, 6)
+                .is_err());
+        }
     }
 
     #[test]
