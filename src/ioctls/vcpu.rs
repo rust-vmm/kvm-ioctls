@@ -1157,17 +1157,15 @@ impl VcpuFd {
     /// let vm = kvm.create_vm().unwrap();
     /// let vcpu = vm.create_vcpu(0).unwrap();
     ///
-    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64", target_arch = "aarch64"))]
     /// {
     ///     let debug_struct = kvm_guest_debug {
     ///         // Configure the vcpu so that a KVM_DEBUG_EXIT would be generated
     ///         // when encountering a software breakpoint during execution
     ///         control: KVM_GUESTDBG_ENABLE | KVM_GUESTDBG_USE_SW_BP,
     ///         pad: 0,
-    ///         // Reset all x86-specific debug registers
-    ///         arch: kvm_guest_debug_arch {
-    ///             debugreg: [0, 0, 0, 0, 0, 0, 0, 0],
-    ///         },
+    ///         // Reset all arch-specific debug registers
+    ///         arch: Default::default(),
     ///     };
     ///
     ///     vcpu.set_guest_debug(&debug_struct).unwrap();
@@ -1176,7 +1174,7 @@ impl VcpuFd {
     #[cfg(any(
         target_arch = "x86",
         target_arch = "x86_64",
-        target_arch = "arm64",
+        target_arch = "aarch64",
         target_arch = "s390",
         target_arch = "ppc"
     ))]
