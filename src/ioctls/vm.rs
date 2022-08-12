@@ -796,8 +796,8 @@ impl VmFd {
     ///
     ///     let core_reg_base: u64 = 0x6030_0000_0010_0000;
     ///     let mmio_addr: u64 = guest_addr + mem_size as u64;
-    ///     vcpu_fd.set_one_reg(core_reg_base + 2 * 32, guest_addr); // set PC
-    ///     vcpu_fd.set_one_reg(core_reg_base + 2 * 0, mmio_addr); // set X0
+    ///     vcpu_fd.set_one_reg(core_reg_base + 2 * 32, guest_addr as u128); // set PC
+    ///     vcpu_fd.set_one_reg(core_reg_base + 2 * 0, mmio_addr as u128); // set X0
     /// }
     ///
     /// loop {
