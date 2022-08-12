@@ -1196,11 +1196,11 @@ impl VcpuFd {
     /// * `reg_id` - ID of the register for which we are setting the value.
     /// * `data` - value for the specified register.
     #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
-    pub fn set_one_reg(&self, reg_id: u64, data: u64) -> Result<()> {
-        let data_ref = &data as *const u64;
+    pub fn set_one_reg(&self, reg_id: u64, data: u128) -> Result<()> {
+        let data_ptr = &data as *const _;
         let onereg = kvm_one_reg {
             id: reg_id,
-            addr: data_ref as u64,
+            addr: data_ptr as u64,
         };
         // This is safe because we allocated the struct and we know the kernel will read
         // exactly the size of the struct.
@@ -1220,11 +1220,11 @@ impl VcpuFd {
     ///
     /// * `reg_id` - ID of the register.
     #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
-    pub fn get_one_reg(&self, reg_id: u64) -> Result<u64> {
+    pub fn get_one_reg(&self, reg_id: u64) -> Result<u128> {
         let mut reg_value = 0;
         let mut onereg = kvm_one_reg {
             id: reg_id,
-            addr: &mut reg_value as *mut u64 as u64,
+            addr: &mut reg_value as *mut _ as u64,
         };
 
         let ret = unsafe { ioctl_with_mut_ref(self, KVM_GET_ONE_REG(), &mut onereg) };
@@ -2074,15 +2074,15 @@ mod tests {
 
         // Set the PC to the guest address where we loaded the code.
         vcpu_fd
-            .set_one_reg(core_reg_base + 2 * 32, guest_addr)
+            .set_one_reg(core_reg_base + 2 * 32, guest_addr as u128)
             .unwrap();
 
         // Set x8 and x9 to the addresses the guest test code needs
         vcpu_fd
-            .set_one_reg(core_reg_base + 2 * 8, guest_addr + 0x10000)
+            .set_one_reg(core_reg_base + 2 * 8, guest_addr as u128 + 0x10000)
             .unwrap();
         vcpu_fd
-            .set_one_reg(core_reg_base + 2 * 9, mmio_addr)
+            .set_one_reg(core_reg_base + 2 * 9, mmio_addr as u128)
             .unwrap();
 
         loop {
@@ -2416,7 +2416,7 @@ mod tests {
         vm.get_preferred_target(&mut kvi)
             .expect("Cannot get preferred target");
         vcpu.vcpu_init(&kvi).expect("Cannot initialize vcpu");
-        let data: u64 = 0;
+        let data: u128 = 0;
         let reg_id: u64 = 0;
 
         assert!(vcpu.set_one_reg(reg_id, data).is_err());
@@ -2448,7 +2448,7 @@ mod tests {
         const PSR_D_BIT: u64 = 0x0000_0200;
         const PSTATE_FAULT_BITS_64: u64 =
             PSR_MODE_EL1H | PSR_A_BIT | PSR_F_BIT | PSR_I_BIT | PSR_D_BIT;
-        let data: u64 = PSTATE_FAULT_BITS_64;
+        let data: u128 = PSTATE_FAULT_BITS_64 as u128;
         const PSTATE_REG_ID: u64 = 0x6030_0000_0010_0042;
         vcpu.set_one_reg(PSTATE_REG_ID, data)
             .expect("Failed to set pstate register");
@@ -2456,7 +2456,7 @@ mod tests {
         assert_eq!(
             vcpu.get_one_reg(PSTATE_REG_ID)
                 .expect("Failed to get pstate register"),
-            PSTATE_FAULT_BITS_64
+            PSTATE_FAULT_BITS_64 as u128
         );
     }
 
