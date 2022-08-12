@@ -19,6 +19,12 @@ use vmm_sys_util::ioctl::{ioctl, ioctl_with_mut_ref, ioctl_with_ref};
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 use vmm_sys_util::ioctl::{ioctl_with_mut_ptr, ioctl_with_ptr, ioctl_with_val};
 
+pub trait ValidRegisterType: Sized {}
+impl ValidRegisterType for u16 {}
+impl ValidRegisterType for u32 {}
+impl ValidRegisterType for u64 {}
+impl ValidRegisterType for u128 {}
+
 /// Reasons for vCPU exits.
 ///
 /// The exit reasons are mapped to the `KVM_EXIT_*` defines in the
@@ -1196,8 +1202,8 @@ impl VcpuFd {
     /// * `reg_id` - ID of the register for which we are setting the value.
     /// * `data` - value for the specified register.
     #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
-    pub fn set_one_reg(&self, reg_id: u64, data: u64) -> Result<()> {
-        let data_ref = &data as *const u64;
+    pub fn set_one_reg<T: Sized>(&self, reg_id: u64, data: T) -> Result<()> {
+        let data_ref = &data as *const T;
         let onereg = kvm_one_reg {
             id: reg_id,
             addr: data_ref as u64,
@@ -1220,18 +1226,20 @@ impl VcpuFd {
     ///
     /// * `reg_id` - ID of the register.
     #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
-    pub fn get_one_reg(&self, reg_id: u64) -> Result<u64> {
-        let mut reg_value = 0;
+    pub fn get_one_reg<T: ValidRegisterType>(&self, reg_id: u64) -> Result<T> {
+        let mut reg_value = std::mem::MaybeUninit::<T>::uninit();
         let mut onereg = kvm_one_reg {
             id: reg_id,
-            addr: &mut reg_value as *mut u64 as u64,
+            addr: reg_value.as_mut_ptr() as u64,
         };
 
         let ret = unsafe { ioctl_with_mut_ref(self, KVM_GET_ONE_REG(), &mut onereg) };
         if ret < 0 {
             return Err(errno::Error::last());
         }
-        Ok(reg_value)
+
+        // SAFETY: Value has been initialised by the kernel
+        Ok(unsafe { reg_value.assume_init() })
     }
 
     /// Notify the guest about the vCPU being paused.
@@ -2454,7 +2462,7 @@ mod tests {
             .expect("Failed to set pstate register");
 
         assert_eq!(
-            vcpu.get_one_reg(PSTATE_REG_ID)
+            vcpu.get_one_reg::<u64>(PSTATE_REG_ID)
                 .expect("Failed to get pstate register"),
             PSTATE_FAULT_BITS_64
         );
