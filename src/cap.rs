@@ -144,4 +144,6 @@ pub enum Cap {
     MsiDevid = KVM_CAP_MSI_DEVID,
     HypervSynic = KVM_CAP_HYPERV_SYNIC,
     HypervSynic2 = KVM_CAP_HYPERV_SYNIC2,
+    DebugHwBps = KVM_CAP_GUEST_DEBUG_HW_BPS,
+    DebugHwWps = KVM_CAP_GUEST_DEBUG_HW_WPS,
 }
