@@ -97,9 +97,25 @@ impl Kvm {
     /// AArch64 specific call to get the host Intermediate Physical Address space limit.
     ///
     /// Returns 0 if the capability is not available and an integer >= 32 otherwise.
-    #[cfg(any(target_arch = "aarch64"))]
+    #[cfg(target_arch = "aarch64")]
     pub fn get_host_ipa_limit(&self) -> i32 {
         self.check_extension_int(Cap::ArmVmIPASize)
+    }
+
+    /// AArch64 specific call to get the number of supported hardware breakpoints.
+    ///
+    /// Returns 0 if the capability is not available and a positive integer otherwise.
+    #[cfg(target_arch = "aarch64")]
+    pub fn get_guest_debug_hw_bps(&self) -> i32 {
+        self.check_extension_int(Cap::DebugHwBps)
+    }
+
+    /// AArch64 specific call to get the number of supported hardware watchpoints.
+    ///
+    /// Returns 0 if the capability is not available and a positive integer otherwise.
+    #[cfg(target_arch = "aarch64")]
+    pub fn get_guest_debug_hw_wps(&self) -> i32 {
+        self.check_extension_int(Cap::DebugHwWps)
     }
 
     /// Wrapper over `KVM_CHECK_EXTENSION`.
@@ -571,7 +587,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(any(target_arch = "aarch64"))]
+    #[cfg(target_arch = "aarch64")]
     fn test_get_host_ipa_limit() {
         let kvm = Kvm::new().unwrap();
         let host_ipa_limit = kvm.get_host_ipa_limit();
@@ -582,6 +598,17 @@ mod tests {
             // if unsupported, the return value should be 0.
             assert_eq!(host_ipa_limit, 0);
         }
+    }
+
+    #[test]
+    #[cfg(target_arch = "aarch64")]
+    fn test_guest_debug_hw_capacity() {
+        let kvm = Kvm::new().unwrap();
+        // The number of supported breakpoints and watchpoints may vary on
+        // different platforms.
+        // It could be 0 if no supported, or any positive integer otherwise.
+        assert!(kvm.get_guest_debug_hw_bps() >= 0);
+        assert!(kvm.get_guest_debug_hw_wps() >= 0);
     }
 
     #[test]
