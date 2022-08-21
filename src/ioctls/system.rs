@@ -121,7 +121,22 @@ impl Kvm {
     /// Wrapper over `KVM_CHECK_EXTENSION`.
     ///
     /// Returns 0 if the capability is not available and a positive integer otherwise.
-    fn check_extension_int(&self, c: Cap) -> i32 {
+    /// See the documentation for `KVM_CHECK_EXTENSION`.
+    ///
+    /// # Arguments
+    ///
+    /// * `c` - KVM capability to check.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use kvm_ioctls::Kvm;
+    /// use kvm_ioctls::Cap;
+    ///
+    /// let kvm = Kvm::new().unwrap();
+    /// assert!(kvm.check_extension_int(Cap::MaxVcpuId) > 0);
+    /// ```
+    pub fn check_extension_int(&self, c: Cap) -> i32 {
         // Safe because we know that our file is a KVM fd and that the extension is one of the ones
         // defined by kernel.
         unsafe { ioctl_with_val(self, KVM_CHECK_EXTENSION(), c as c_ulong) }
