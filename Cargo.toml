@@ -9,9 +9,9 @@ keywords = ["kvm"]
 license = "Apache-2.0 OR MIT"
 
 [dependencies]
-libc = ">=0.2.39"
-kvm-bindings = { version = ">=0.5.0", features = ["fam-wrappers"] }
-vmm-sys-util = ">=0.8.0"
+libc = "0.2.39"
+kvm-bindings = { version = "0.5.0", features = ["fam-wrappers"] }
+vmm-sys-util = "0.10.0"
 
 [dev-dependencies]
-byteorder = ">=1.2.1"
+byteorder = "1.2.1"
