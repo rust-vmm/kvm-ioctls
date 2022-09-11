@@ -4,9 +4,9 @@
 use std::fs::File;
 use std::os::unix::io::{AsRawFd, FromRawFd, RawFd};
 
-use ioctls::Result;
+use crate::ioctls::Result;
+use crate::kvm_ioctls::{KVM_GET_DEVICE_ATTR, KVM_HAS_DEVICE_ATTR, KVM_SET_DEVICE_ATTR};
 use kvm_bindings::kvm_device_attr;
-use kvm_ioctls::{KVM_GET_DEVICE_ATTR, KVM_HAS_DEVICE_ATTR, KVM_SET_DEVICE_ATTR};
 use vmm_sys_util::errno;
 use vmm_sys_util::ioctl::{ioctl_with_mut_ref, ioctl_with_ref};
 
@@ -178,7 +178,7 @@ impl FromRawFd for DeviceFd {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ioctls::system::Kvm;
+    use crate::ioctls::system::Kvm;
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     use kvm_bindings::{
         kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V3, kvm_device_type_KVM_DEV_TYPE_VFIO,
@@ -238,7 +238,7 @@ mod tests {
     #[test]
     #[cfg(target_arch = "aarch64")]
     fn test_create_device() {
-        use ioctls::vm::{create_gic_device, set_supported_nr_irqs};
+        use crate::ioctls::vm::{create_gic_device, set_supported_nr_irqs};
         use kvm_bindings::{
             kvm_device_type_KVM_DEV_TYPE_FSL_MPIC_20, KVM_DEV_ARM_VGIC_GRP_NR_IRQS,
         };

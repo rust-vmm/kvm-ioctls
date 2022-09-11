@@ -11,13 +11,13 @@ use std::os::raw::c_void;
 use std::os::raw::{c_int, c_ulong};
 use std::os::unix::io::{AsRawFd, FromRawFd, RawFd};
 
-use cap::Cap;
-use ioctls::device::new_device;
-use ioctls::device::DeviceFd;
-use ioctls::vcpu::new_vcpu;
-use ioctls::vcpu::VcpuFd;
-use ioctls::{KvmRunWrapper, Result};
-use kvm_ioctls::*;
+use crate::cap::Cap;
+use crate::ioctls::device::new_device;
+use crate::ioctls::device::DeviceFd;
+use crate::ioctls::vcpu::new_vcpu;
+use crate::ioctls::vcpu::VcpuFd;
+use crate::ioctls::{KvmRunWrapper, Result};
+use crate::kvm_ioctls::*;
 use vmm_sys_util::errno;
 use vmm_sys_util::eventfd::EventFd;
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
@@ -1649,7 +1649,7 @@ pub(crate) fn request_gic_init(vgic: &DeviceFd) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use Kvm;
+    use crate::Kvm;
 
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     use std::{fs::OpenOptions, ptr::null_mut};
