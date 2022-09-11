@@ -10,10 +10,10 @@ use libc::EINVAL;
 use std::fs::File;
 use std::os::unix::io::{AsRawFd, RawFd};
 
-use ioctls::{KvmRunWrapper, Result};
+use crate::ioctls::{KvmRunWrapper, Result};
+use crate::kvm_ioctls::*;
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 use kvm_bindings::{CpuId, Msrs, KVM_MAX_CPUID_ENTRIES};
-use kvm_ioctls::*;
 use vmm_sys_util::errno;
 use vmm_sys_util::ioctl::{ioctl, ioctl_with_mut_ref, ioctl_with_ref};
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
@@ -1696,14 +1696,14 @@ mod tests {
     extern crate byteorder;
 
     use super::*;
-    use ioctls::system::Kvm;
     #[cfg(any(
         target_arch = "x86",
         target_arch = "x86_64",
         target_arch = "arm",
         target_arch = "aarch64"
     ))]
-    use Cap;
+    use crate::cap::Cap;
+    use crate::ioctls::system::Kvm;
 
     // Helper function for memory mapping `size` bytes of anonymous memory.
     // Panics if the mmap fails.

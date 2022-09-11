@@ -9,14 +9,14 @@ use std::fs::File;
 use std::os::raw::{c_char, c_ulong};
 use std::os::unix::io::{AsRawFd, FromRawFd, RawFd};
 
-use cap::Cap;
-use ioctls::vm::{new_vmfd, VmFd};
-use ioctls::Result;
+use crate::cap::Cap;
+use crate::ioctls::vm::{new_vmfd, VmFd};
+use crate::ioctls::Result;
+use crate::kvm_ioctls::*;
 #[cfg(any(target_arch = "aarch64"))]
 use kvm_bindings::KVM_VM_TYPE_ARM_IPA_SIZE_MASK;
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 use kvm_bindings::{CpuId, MsrList, KVM_MAX_CPUID_ENTRIES, KVM_MAX_MSR_ENTRIES};
-use kvm_ioctls::*;
 use vmm_sys_util::errno;
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 use vmm_sys_util::ioctl::ioctl_with_mut_ptr;
