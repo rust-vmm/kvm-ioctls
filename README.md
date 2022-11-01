@@ -38,7 +38,7 @@ docker run --device=/dev/kvm \
            -it \
            --security-opt seccomp=unconfined \
            --volume $(pwd)/kvm-ioctls:/kvm-ioctls \
-           rustvmm/dev:v5
+           rustvmm/dev:v16
 cd kvm-ioctls/
 cargo test
 ```
