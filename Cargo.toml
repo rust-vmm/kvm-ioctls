@@ -11,8 +11,8 @@ edition = "2021"
 
 [dependencies]
 libc = "0.2.39"
-kvm-bindings = { version = "0.5.0", features = ["fam-wrappers"] }
-vmm-sys-util = "0.10.0"
+kvm-bindings = { version = "0.6.0", features = ["fam-wrappers"] }
+vmm-sys-util = "0.11.0"
 
 [dev-dependencies]
 byteorder = "1.2.1"
