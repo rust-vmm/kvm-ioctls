@@ -1,6 +1,6 @@
 // Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-
+#[allow(clippy::undocumented_unsafe_blocks)]
 #[allow(clippy::all)]
 // Keep this until https://github.com/rust-lang/rust-bindgen/issues/1651 is fixed.
 #[cfg_attr(test, allow(deref_nullptr))]
