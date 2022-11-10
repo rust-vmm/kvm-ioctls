@@ -1,6 +1,6 @@
 [package]
 name = "kvm-bindings"
-version = "0.5.0"
+version = "0.6.0"
 authors = ["Amazon firecracker team <firecracker-devel@amazon.com>"]
 description = "Rust FFI bindings to KVM generated using bindgen."
 repository = "https://github.com/rust-vmm/kvm-bindings"

@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.6.0]
+
+### Changed
+
+- Updated vmm-sys-utils dependency to 0.11.0
+- Switched to specifying dependencies using caret requirements
+  instead of comparision requirements
+
+### Added
+
+- Implement `PartialEq` for fam\_wrappers 
+
 ## [0.5.0]
 
 ### Changed
