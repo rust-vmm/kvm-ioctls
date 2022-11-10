@@ -12,4 +12,4 @@ license = "Apache-2.0"
 fam-wrappers = ["vmm-sys-util"]
 
 [dependencies]
-vmm-sys-util = { version = ">=0.8.0", optional = true }
+vmm-sys-util = { version = "0.11.0", optional = true }
