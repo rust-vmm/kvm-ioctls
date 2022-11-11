@@ -1,3 +1,40 @@
+# v0.12.0
+
+## Added
+
+- [[#187](https://github.com/rust-vmm/kvm-ioctls/pull/187)] Support for 
+  `KVM_SET_IDENTITY_MAP_ADDR`
+- Derive Debug for all exported structs and enums
+- [[#189](https://github.com/rust-vmm/kvm-ioctls/pull/189)] Expose `KVM_SET_` and 
+  `KVM_HAS_DEVICE_ATTR` for vcpu
+- [[#191](https://github.com/rust-vmm/kvm-ioctls/pull/191)] Add `KVM_TRANSLATE` support and
+  the `translate_gva` function that translates guest virtual address to the physical address
+- [[#190](https://github.com/rust-vmm/kvm-ioctls/pull/190)] Enable usage of `sync_regs`
+  to allow bulk getting and setting of general purpose registers, reducing the number of
+  ioctls needed.
+- [[#198](https://github.com/rust-vmm/kvm-ioctls/pull/198)] Return details about
+  `KVM_EXIT_FAIL_ENTRY` in vCPU run
+- [[#199](https://github.com/rust-vmm/kvm-ioctls/pull/199)] Add `register_irqfd_with_resample`
+  so that `irqfd` + `resaplefd` can be registered through `KVM_IRQFD`
+- [[#202](https://github.com/rust-vmm/kvm-ioctls/pull/202)] Add `KVM_CAP_GUEST_DEBUG_HVM_DPS/WPS`
+- [[#202](https://github.com/rust-vmm/kvm-ioctls/pull/202)] Added `check_extension_int`
+  which allows checking the capabilities that return numbers instead of booleans
+
+## Changed
+
+- Updated vmm-sys-util to 0.11.0
+- Updated kvm-bindings to 0.6.0
+- Upgraded to rust 2021 edition
+- Switched to specifying dependencies using caret requirements
+  instead of comparision requirements
+- [[#195](https://github.com/rust-vmm/kvm-ioctls/pull/195)] Do not panic on unsupported
+  `KVM_EXIT` reason
+- [[#196](https://github.com/rust-vmm/kvm-ioctls/pull/196)] Expose a mutable reference
+  to the `kvm_run` structure to allow proper handling of unsupported exit reasons 
+- [[#200](https://github.com/rust-vmm/kvm-ioctls/pull/200)] Fix wrong `target_arch` gate
+  preventing `set_guest_debug` from being exported on ARM
+- [[#206](https://github.com/rust-vmm/kvm-ioctls/pull/206)] use `u128` in `get/set_on_reg`
+
 # v0.11.0
 
 ## Added
