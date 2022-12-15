@@ -1,3 +1,10 @@
+# Unreleased
+
+## Added
+- [[#213](https://github.com/rust-vmm/kvm-ioctls/pull/213)] Add `Kvm::new_with_path()`
+  and `Kvm::open_with_cloexec_at()` to allowing using kvm device file other than
+  `/dev/kvm`.
+
 # v0.12.0
 
 ## Added
