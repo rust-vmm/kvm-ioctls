@@ -5,6 +5,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the THIRD-PARTY file.
 use libc::{open, O_CLOEXEC, O_RDWR};
+use std::ffi::CStr;
 use std::fs::File;
 use std::os::raw::{c_char, c_ulong};
 use std::os::unix::io::{AsRawFd, FromRawFd, RawFd};
@@ -46,6 +47,32 @@ impl Kvm {
         Ok(unsafe { Self::from_raw_fd(fd) })
     }
 
+    /// Opens the KVM device at `kvm_path` and returns a `Kvm` object on success.
+    ///
+    /// # Arguments
+    ///
+    /// * `kvm_path`: path to the KVM device. Usually it is `/dev/kvm`.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use kvm_ioctls::Kvm;
+    /// use std::ffi::CString;
+    /// let kvm_path = CString::new("/dev/kvm").unwrap();
+    /// let kvm = Kvm::new_with_path(&kvm_path).unwrap();
+    /// ```
+    #[allow(clippy::new_ret_no_self)]
+    pub fn new_with_path<P>(kvm_path: P) -> Result<Self>
+    where
+        P: AsRef<CStr>,
+    {
+        // Open `kvm_path` using `O_CLOEXEC` flag.
+        let fd = Self::open_with_cloexec_at(kvm_path, true)?;
+        // SAFETY: Safe because we verify that the fd is valid in `open_with_cloexec_at`
+        // and we own the fd.
+        Ok(unsafe { Self::from_raw_fd(fd) })
+    }
+
     /// Opens `/dev/kvm` and returns the fd number on success.
     ///
     /// One usecase for this method is opening `/dev/kvm` before exec-ing into a
@@ -68,9 +95,39 @@ impl Kvm {
     /// let kvm = unsafe { Kvm::from_raw_fd(kvm_fd) };
     /// ```
     pub fn open_with_cloexec(close_on_exec: bool) -> Result<RawFd> {
+        // SAFETY: Safe because we give a constant nul-terminated string.
+        let kvm_path = unsafe { CStr::from_bytes_with_nul_unchecked(b"/dev/kvm\0") };
+        Self::open_with_cloexec_at(kvm_path, close_on_exec)
+    }
+
+    /// Opens the KVM device at `kvm_path` and returns the fd number on success.
+    /// Same as [open_with_cloexec()](struct.Kvm.html#method.open_with_cloexec)
+    /// except this method opens `kvm_path` instead of `/dev/kvm`.
+    ///
+    /// # Arguments
+    ///
+    /// * `kvm_path`: path to the KVM device. Usually it is `/dev/kvm`.
+    /// * `close_on_exec`: If true opens `kvm_path` using the `O_CLOEXEC` flag.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use kvm_ioctls::Kvm;
+    /// # use std::ffi::CString;
+    /// # use std::os::unix::io::FromRawFd;
+    /// let kvm_path = CString::new("/dev/kvm").unwrap();
+    /// let kvm_fd = Kvm::open_with_cloexec_at(kvm_path, false).unwrap();
+    /// // The `kvm_fd` can now be passed to another process where we can use
+    /// // `from_raw_fd` for creating a `Kvm` object:
+    /// let kvm = unsafe { Kvm::from_raw_fd(kvm_fd) };
+    /// ```
+    pub fn open_with_cloexec_at<P>(path: P, close_on_exec: bool) -> Result<RawFd>
+    where
+        P: AsRef<CStr>,
+    {
         let open_flags = O_RDWR | if close_on_exec { O_CLOEXEC } else { 0 };
-        // SAFETY: Safe because we give a constant nul-terminated string and verify the result.
-        let ret = unsafe { open("/dev/kvm\0".as_ptr() as *const c_char, open_flags) };
+        // SAFETY: Safe because we verify the result.
+        let ret = unsafe { open(path.as_ref().as_ptr() as *const c_char, open_flags) };
         if ret < 0 {
             Err(errno::Error::last())
         } else {
@@ -584,11 +641,28 @@ mod tests {
     }
 
     #[test]
+    fn test_kvm_new_with_path() {
+        let kvm_path = unsafe { CStr::from_bytes_with_nul_unchecked(b"/dev/kvm\0") };
+        Kvm::new_with_path(kvm_path).unwrap();
+    }
+
+    #[test]
     fn test_open_with_cloexec() {
         let fd = Kvm::open_with_cloexec(false).unwrap();
         let flags = unsafe { fcntl(fd, F_GETFD, 0) };
         assert_eq!(flags & FD_CLOEXEC, 0);
         let fd = Kvm::open_with_cloexec(true).unwrap();
+        let flags = unsafe { fcntl(fd, F_GETFD, 0) };
+        assert_eq!(flags & FD_CLOEXEC, FD_CLOEXEC);
+    }
+
+    #[test]
+    fn test_open_with_cloexec_at() {
+        let kvm_path = std::ffi::CString::new("/dev/kvm").unwrap();
+        let fd = Kvm::open_with_cloexec_at(&kvm_path, false).unwrap();
+        let flags = unsafe { fcntl(fd, F_GETFD, 0) };
+        assert_eq!(flags & FD_CLOEXEC, 0);
+        let fd = Kvm::open_with_cloexec_at(&kvm_path, true).unwrap();
         let flags = unsafe { fcntl(fd, F_GETFD, 0) };
         assert_eq!(flags & FD_CLOEXEC, FD_CLOEXEC);
     }
