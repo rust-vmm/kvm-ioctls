@@ -608,7 +608,7 @@ impl VmFd {
             datamatch: datamatch.into(),
             len: std::mem::size_of::<T>() as u32,
             addr: match addr {
-                IoEventAddress::Pio(ref p) => *p as u64,
+                IoEventAddress::Pio(ref p) => *p,
                 IoEventAddress::Mmio(ref m) => *m,
             },
             fd: fd.as_raw_fd(),
@@ -684,7 +684,7 @@ impl VmFd {
             datamatch: datamatch.into(),
             len: std::mem::size_of::<T>() as u32,
             addr: match addr {
-                IoEventAddress::Pio(ref p) => *p as u64,
+                IoEventAddress::Pio(ref p) => *p,
                 IoEventAddress::Mmio(ref m) => *m,
             },
             fd: fd.as_raw_fd(),
