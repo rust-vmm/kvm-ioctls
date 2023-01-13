@@ -240,9 +240,7 @@ impl VmFd {
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn get_irqchip(&self, irqchip: &mut kvm_irqchip) -> Result<()> {
         // SAFETY: Here we trust the kernel not to read past the end of the kvm_irqchip struct.
-        let ret = unsafe {
-            ioctl_with_mut_ref(self, KVM_GET_IRQCHIP(), irqchip)
-        };
+        let ret = unsafe { ioctl_with_mut_ref(self, KVM_GET_IRQCHIP(), irqchip) };
         if ret == 0 {
             Ok(())
         } else {
@@ -278,9 +276,7 @@ impl VmFd {
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn set_irqchip(&self, irqchip: &kvm_irqchip) -> Result<()> {
         // SAFETY: Here we trust the kernel not to read past the end of the kvm_irqchip struct.
-        let ret = unsafe {
-            ioctl_with_ref(self, KVM_SET_IRQCHIP(), irqchip)
-        };
+        let ret = unsafe { ioctl_with_ref(self, KVM_SET_IRQCHIP(), irqchip) };
         if ret == 0 {
             Ok(())
         } else {
@@ -346,9 +342,7 @@ impl VmFd {
     pub fn get_pit2(&self) -> Result<kvm_pit_state2> {
         let mut pitstate = Default::default();
         // SAFETY: Here we trust the kernel not to read past the end of the kvm_pit_state2 struct.
-        let ret = unsafe {
-            ioctl_with_mut_ref(self, KVM_GET_PIT2(), &mut pitstate)
-        };
+        let ret = unsafe { ioctl_with_mut_ref(self, KVM_GET_PIT2(), &mut pitstate) };
         if ret == 0 {
             Ok(pitstate)
         } else {
@@ -384,9 +378,7 @@ impl VmFd {
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn set_pit2(&self, pitstate: &kvm_pit_state2) -> Result<()> {
         // SAFETY: Here we trust the kernel not to read past the end of the kvm_pit_state2 struct.
-        let ret = unsafe {
-            ioctl_with_ref(self, KVM_SET_PIT2(), pitstate)
-        };
+        let ret = unsafe { ioctl_with_ref(self, KVM_SET_PIT2(), pitstate) };
         if ret == 0 {
             Ok(())
         } else {
@@ -416,9 +408,7 @@ impl VmFd {
     pub fn get_clock(&self) -> Result<kvm_clock_data> {
         let mut clock = Default::default();
         // SAFETY: Here we trust the kernel not to read past the end of the kvm_clock_data struct.
-        let ret = unsafe {
-            ioctl_with_mut_ref(self, KVM_GET_CLOCK(), &mut clock)
-        };
+        let ret = unsafe { ioctl_with_mut_ref(self, KVM_GET_CLOCK(), &mut clock) };
         if ret == 0 {
             Ok(clock)
         } else {
@@ -450,9 +440,7 @@ impl VmFd {
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn set_clock(&self, clock: &kvm_clock_data) -> Result<()> {
         // SAFETY: Here we trust the kernel not to read past the end of the kvm_clock_data struct.
-        let ret = unsafe {
-            ioctl_with_ref(self, KVM_SET_CLOCK(), clock)
-        };
+        let ret = unsafe { ioctl_with_ref(self, KVM_SET_CLOCK(), clock) };
         if ret == 0 {
             Ok(())
         } else {

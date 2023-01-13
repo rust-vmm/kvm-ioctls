@@ -283,9 +283,7 @@ impl Kvm {
         // SAFETY: The kernel is trusted not to write beyond the bounds of the memory
         // allocated for the struct. The limit is read from nent, which is set to the allocated
         // size(num_entries) above.
-        let ret = unsafe {
-            ioctl_with_mut_ptr(self, kind, cpuid.as_mut_fam_struct_ptr())
-        };
+        let ret = unsafe { ioctl_with_mut_ptr(self, kind, cpuid.as_mut_fam_struct_ptr()) };
         if ret < 0 {
             return Err(errno::Error::last());
         }
