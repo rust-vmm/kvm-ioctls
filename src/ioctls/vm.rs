@@ -130,7 +130,7 @@ impl VmFd {
     /// ```
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn set_tss_address(&self, offset: usize) -> Result<()> {
-        // Safe because we know that our file is a VM fd and we verify the return result.
+        // SAFETY: Safe because we know that our file is a VM fd and we verify the return result.
         let ret = unsafe { ioctl_with_val(self, KVM_SET_TSS_ADDR(), offset as c_ulong) };
         if ret == 0 {
             Ok(())
@@ -158,7 +158,7 @@ impl VmFd {
     /// ```
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn set_identity_map_address(&self, address: u64) -> Result<()> {
-        // Safe because we know that our file is a VM fd and we verify the return result.
+        // SAFETY: Safe because we know that our file is a VM fd and we verify the return result.
         let ret = unsafe { ioctl_with_ref(self, KVM_SET_IDENTITY_MAP_ADDR(), &address) };
         if ret == 0 {
             Ok(())
@@ -204,7 +204,7 @@ impl VmFd {
         target_arch = "aarch64"
     ))]
     pub fn create_irq_chip(&self) -> Result<()> {
-        // Safe because we know that our file is a VM fd and we verify the return result.
+        // SAFETY: Safe because we know that our file is a VM fd and we verify the return result.
         let ret = unsafe { ioctl(self, KVM_CREATE_IRQCHIP()) };
         if ret == 0 {
             Ok(())
@@ -239,8 +239,8 @@ impl VmFd {
     /// ```
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn get_irqchip(&self, irqchip: &mut kvm_irqchip) -> Result<()> {
+        // SAFETY: Here we trust the kernel not to read past the end of the kvm_irqchip struct.
         let ret = unsafe {
-            // Here we trust the kernel not to read past the end of the kvm_irqchip struct.
             ioctl_with_mut_ref(self, KVM_GET_IRQCHIP(), irqchip)
         };
         if ret == 0 {
@@ -277,8 +277,8 @@ impl VmFd {
     /// ```
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn set_irqchip(&self, irqchip: &kvm_irqchip) -> Result<()> {
+        // SAFETY: Here we trust the kernel not to read past the end of the kvm_irqchip struct.
         let ret = unsafe {
-            // Here we trust the kernel not to read past the end of the kvm_irqchip struct.
             ioctl_with_ref(self, KVM_SET_IRQCHIP(), irqchip)
         };
         if ret == 0 {
@@ -309,8 +309,8 @@ impl VmFd {
     /// ```
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn create_pit2(&self, pit_config: kvm_pit_config) -> Result<()> {
-        // Safe because we know that our file is a VM fd, we know the kernel will only read the
-        // correct amount of memory from our pointer, and we verify the return result.
+        // SAFETY: Safe because we know that our file is a VM fd, we know the kernel will only read
+        // the correct amount of memory from our pointer, and we verify the return result.
         let ret = unsafe { ioctl_with_ref(self, KVM_CREATE_PIT2(), &pit_config) };
         if ret == 0 {
             Ok(())
@@ -345,8 +345,8 @@ impl VmFd {
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn get_pit2(&self) -> Result<kvm_pit_state2> {
         let mut pitstate = Default::default();
+        // SAFETY: Here we trust the kernel not to read past the end of the kvm_pit_state2 struct.
         let ret = unsafe {
-            // Here we trust the kernel not to read past the end of the kvm_pit_state2 struct.
             ioctl_with_mut_ref(self, KVM_GET_PIT2(), &mut pitstate)
         };
         if ret == 0 {
@@ -383,8 +383,8 @@ impl VmFd {
     /// ```
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn set_pit2(&self, pitstate: &kvm_pit_state2) -> Result<()> {
+        // SAFETY: Here we trust the kernel not to read past the end of the kvm_pit_state2 struct.
         let ret = unsafe {
-            // Here we trust the kernel not to read past the end of the kvm_pit_state2 struct.
             ioctl_with_ref(self, KVM_SET_PIT2(), pitstate)
         };
         if ret == 0 {
@@ -415,8 +415,8 @@ impl VmFd {
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn get_clock(&self) -> Result<kvm_clock_data> {
         let mut clock = Default::default();
+        // SAFETY: Here we trust the kernel not to read past the end of the kvm_clock_data struct.
         let ret = unsafe {
-            // Here we trust the kernel not to read past the end of the kvm_clock_data struct.
             ioctl_with_mut_ref(self, KVM_GET_CLOCK(), &mut clock)
         };
         if ret == 0 {
@@ -449,8 +449,8 @@ impl VmFd {
     /// ```
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn set_clock(&self, clock: &kvm_clock_data) -> Result<()> {
+        // SAFETY: Here we trust the kernel not to read past the end of the kvm_clock_data struct.
         let ret = unsafe {
-            // Here we trust the kernel not to read past the end of the kvm_clock_data struct.
             ioctl_with_ref(self, KVM_SET_CLOCK(), clock)
         };
         if ret == 0 {
@@ -501,7 +501,7 @@ impl VmFd {
         target_arch = "aarch64"
     ))]
     pub fn signal_msi(&self, msi: kvm_msi) -> Result<c_int> {
-        // Safe because we allocated the structure and we know the kernel
+        // SAFETY: Safe because we allocated the structure and we know the kernel
         // will read exactly the size of the structure.
         let ret = unsafe { ioctl_with_ref(self, KVM_SIGNAL_MSI(), &msi) };
         if ret >= 0 {
@@ -548,7 +548,7 @@ impl VmFd {
         target_arch = "aarch64"
     ))]
     pub fn set_gsi_routing(&self, irq_routing: &kvm_irq_routing) -> Result<()> {
-        // Safe because we allocated the structure and we know the kernel
+        // SAFETY: Safe because we allocated the structure and we know the kernel
         // will read exactly the size of the structure.
         let ret = unsafe { ioctl_with_ref(self, KVM_SET_GSI_ROUTING(), irq_routing) };
         if ret == 0 {
@@ -615,8 +615,8 @@ impl VmFd {
             flags,
             ..Default::default()
         };
-        // Safe because we know that our file is a VM fd, we know the kernel will only read the
-        // correct amount of memory from our pointer, and we verify the return result.
+        // SAFETY: Safe because we know that our file is a VM fd, we know the kernel will only read
+        // the correct amount of memory from our pointer, and we verify the return result.
         let ret = unsafe { ioctl_with_ref(self, KVM_IOEVENTFD(), &ioeventfd) };
         if ret == 0 {
             Ok(())
@@ -691,8 +691,8 @@ impl VmFd {
             flags,
             ..Default::default()
         };
-        // Safe because we know that our file is a VM fd, we know the kernel will only read the
-        // correct amount of memory from our pointer, and we verify the return result.
+        // SAFETY: Safe because we know that our file is a VM fd, we know the kernel will only read
+        // the correct amount of memory from our pointer, and we verify the return result.
         let ret = unsafe { ioctl_with_ref(self, KVM_IOEVENTFD(), &ioeventfd) };
         if ret == 0 {
             Ok(())
@@ -821,6 +821,7 @@ impl VmFd {
         // Compute the length of the bitmap needed for all dirty pages in one memory slot.
         // One memory page is `page_size` bytes and `KVM_GET_DIRTY_LOG` returns one dirty bit for
         // each page.
+        // SAFETY: We trust the sysconf libc function and we're calling it with a correct parameter.
         let page_size = match unsafe { libc::sysconf(libc::_SC_PAGESIZE) } {
             -1 => return Err(errno::Error::last()),
             ps => ps as usize,
@@ -839,8 +840,8 @@ impl VmFd {
                 dirty_bitmap: bitmap.as_mut_ptr() as *mut c_void,
             },
         };
-        // Safe because we know that our file is a VM fd, and we know that the amount of memory
-        // we allocated for the bitmap is at least one bit per page.
+        // SAFETY: Safe because we know that our file is a VM fd, and we know that the amount of
+        // memory we allocated for the bitmap is at least one bit per page.
         let ret = unsafe { ioctl_with_ref(self, KVM_GET_DIRTY_LOG(), &dirtylog) };
         if ret == 0 {
             Ok(bitmap)
@@ -886,8 +887,8 @@ impl VmFd {
             gsi,
             ..Default::default()
         };
-        // Safe because we know that our file is a VM fd, we know the kernel will only read the
-        // correct amount of memory from our pointer, and we verify the return result.
+        // SAFETY: Safe because we know that our file is a VM fd, we know the kernel will only read
+        // the correct amount of memory from our pointer, and we verify the return result.
         let ret = unsafe { ioctl_with_ref(self, KVM_IRQFD(), &irqfd) };
         if ret == 0 {
             Ok(())
@@ -945,8 +946,8 @@ impl VmFd {
             flags: KVM_IRQFD_FLAG_RESAMPLE,
             ..Default::default()
         };
-        // Safe because we know that our file is a VM fd, we know the kernel will only read the
-        // correct amount of memory from our pointer, and we verify the return result.
+        // SAFETY: Safe because we know that our file is a VM fd, we know the kernel will only read
+        // the correct amount of memory from our pointer, and we verify the return result.
         let ret = unsafe { ioctl_with_ref(self, KVM_IRQFD(), &irqfd) };
         if ret == 0 {
             Ok(())
@@ -998,8 +999,8 @@ impl VmFd {
             flags: KVM_IRQFD_FLAG_DEASSIGN,
             ..Default::default()
         };
-        // Safe because we know that our file is a VM fd, we know the kernel will only read the
-        // correct amount of memory from our pointer, and we verify the return result.
+        // SAFETY: Safe because we know that our file is a VM fd, we know the kernel will only read
+        // the correct amount of memory from our pointer, and we verify the return result.
         let ret = unsafe { ioctl_with_ref(self, KVM_IRQFD(), &irqfd) };
         if ret == 0 {
             Ok(())
@@ -1067,8 +1068,8 @@ impl VmFd {
         irq_level.__bindgen_anon_1.irq = irq;
         irq_level.level = if active { 1 } else { 0 };
 
-        // Safe because we know that our file is a VM fd, we know the kernel will only read the
-        // correct amount of memory from our pointer, and we verify the return result.
+        // SAFETY: Safe because we know that our file is a VM fd, we know the kernel will only read
+        // the correct amount of memory from our pointer, and we verify the return result.
         let ret = unsafe { ioctl_with_ref(self, KVM_IRQ_LINE(), &irq_level) };
         if ret == 0 {
             Ok(())
@@ -1102,15 +1103,15 @@ impl VmFd {
     /// let vcpu = vm.create_vcpu(0);
     /// ```
     pub fn create_vcpu(&self, id: u64) -> Result<VcpuFd> {
-        // Safe because we know that vm is a VM fd and we verify the return result.
         #[allow(clippy::cast_lossless)]
+        // SAFETY: Safe because we know that vm is a VM fd and we verify the return result.
         let vcpu_fd = unsafe { ioctl_with_val(&self.vm, KVM_CREATE_VCPU(), id as c_ulong) };
         if vcpu_fd < 0 {
             return Err(errno::Error::last());
         }
 
-        // Wrap the vCPU now in case the following ? returns early. This is safe because we verified
-        // the value of the fd and we own the fd.
+        // Wrap the vCPU now in case the following ? returns early.
+        // SAFETY: This is safe because we verified the value of the fd and we own the fd.
         let vcpu = unsafe { File::from_raw_fd(vcpu_fd) };
 
         let kvm_run_ptr = KvmRunWrapper::mmap_from_fd(&vcpu, self.run_size)?;
@@ -1200,8 +1201,11 @@ impl VmFd {
     /// });
     /// ```
     pub fn create_device(&self, device: &mut kvm_create_device) -> Result<DeviceFd> {
+        // SAFETY: Safe because we are calling this with the VM fd and we trust the kernel.
         let ret = unsafe { ioctl_with_ref(self, KVM_CREATE_DEVICE(), device) };
         if ret == 0 {
+            // SAFETY: We validated the return of the function creating the fd and we trust the
+            // kernel.
             Ok(new_device(unsafe { File::from_raw_fd(device.fd as i32) }))
         } else {
             Err(errno::Error::last())
@@ -1232,7 +1236,7 @@ impl VmFd {
     /// ```
     #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
     pub fn get_preferred_target(&self, kvi: &mut kvm_vcpu_init) -> Result<()> {
-        // The ioctl is safe because we allocated the struct and we know the
+        // SAFETY: The ioctl is safe because we allocated the struct and we know the
         // kernel will write exactly the size of the struct.
         let ret = unsafe { ioctl_with_mut_ref(self, KVM_ARM_PREFERRED_TARGET(), kvi) };
         if ret != 0 {
@@ -1286,7 +1290,7 @@ impl VmFd {
     /// ```
     #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
     pub fn enable_cap(&self, cap: &kvm_enable_cap) -> Result<()> {
-        // The ioctl is safe because we allocated the struct and we know the
+        // SAFETY: The ioctl is safe because we allocated the struct and we know the
         // kernel will write exactly the size of the struct.
         let ret = unsafe { ioctl_with_ref(self, KVM_ENABLE_CAP(), cap) };
         if ret == 0 {
@@ -1305,8 +1309,8 @@ impl VmFd {
     ///
     /// Returns 0 if the capability is not available and a positive integer otherwise.
     fn check_extension_int(&self, c: Cap) -> i32 {
-        // Safe because we know that our file is a VM fd and that the extension is one of the ones
-        // defined by kernel.
+        // SAFETY: Safe because we know that our file is a VM fd and that the extension is one of
+        // the ones defined by kernel.
         unsafe { ioctl_with_val(self, KVM_CHECK_EXTENSION(), c as c_ulong) }
     }
 
@@ -1414,8 +1418,8 @@ impl VmFd {
     /// ```
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn encrypt_op_sev(&self, op: &mut kvm_sev_cmd) -> Result<()> {
-        // Safe because we know that kernel will only read the correct amount of memory from our pointer
-        // and we know where it will write it (op.error).
+        // SAFETY: Safe because we know that kernel will only read the correct amount of memory
+        // from our pointer and we know where it will write it (op.error).
         unsafe { self.encrypt_op(op) }
     }
 
@@ -1484,8 +1488,8 @@ impl VmFd {
     /// ```
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn register_enc_memory_region(&self, memory_region: &kvm_enc_region) -> Result<()> {
-        // Safe because we know that our file is a VM fd, we know the kernel will only read the
-        // correct amount of memory from our pointer, and we verify the return result.
+        // SAFETY: Safe because we know that our file is a VM fd, we know the kernel will only read
+        // the correct amount of memory from our pointer, and we verify the return result.
         let ret = unsafe { ioctl_with_ref(self, KVM_MEMORY_ENCRYPT_REG_REGION(), memory_region) };
         if ret == 0 {
             Ok(())
@@ -1561,8 +1565,8 @@ impl VmFd {
     /// ```
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn unregister_enc_memory_region(&self, memory_region: &kvm_enc_region) -> Result<()> {
-        // Safe because we know that our file is a VM fd, we know the kernel will only read the
-        // correct amount of memory from our pointer, and we verify the return result.
+        // SAFETY: Safe because we know that our file is a VM fd, we know the kernel will only read
+        // the correct amount of memory from our pointer, and we verify the return result.
         let ret = unsafe { ioctl_with_ref(self, KVM_MEMORY_ENCRYPT_UNREG_REGION(), memory_region) };
         if ret == 0 {
             Ok(())
@@ -1648,6 +1652,7 @@ pub(crate) fn request_gic_init(vgic: &DeviceFd) {
 
 #[cfg(test)]
 mod tests {
+    #![allow(clippy::undocumented_unsafe_blocks)]
     use super::*;
     use crate::Kvm;
 

@@ -41,7 +41,8 @@ impl Kvm {
     pub fn new() -> Result<Self> {
         // Open `/dev/kvm` using `O_CLOEXEC` flag.
         let fd = Self::open_with_cloexec(true)?;
-        // Safe because we verify that the fd is valid in `open_with_cloexec` and we own the fd.
+        // SAFETY: Safe because we verify that the fd is valid in `open_with_cloexec` and we own
+        // the fd.
         Ok(unsafe { Self::from_raw_fd(fd) })
     }
 
@@ -68,7 +69,7 @@ impl Kvm {
     /// ```
     pub fn open_with_cloexec(close_on_exec: bool) -> Result<RawFd> {
         let open_flags = O_RDWR | if close_on_exec { O_CLOEXEC } else { 0 };
-        // Safe because we give a constant nul-terminated string and verify the result.
+        // SAFETY: Safe because we give a constant nul-terminated string and verify the result.
         let ret = unsafe { open("/dev/kvm\0".as_ptr() as *const c_char, open_flags) };
         if ret < 0 {
             Err(errno::Error::last())
@@ -89,8 +90,8 @@ impl Kvm {
     /// assert_eq!(kvm.get_api_version(), 12);
     /// ```
     pub fn get_api_version(&self) -> i32 {
-        // Safe because we know that our file is a KVM fd and that the request is one of the ones
-        // defined by kernel.
+        // SAFETY: Safe because we know that our file is a KVM fd and that the request is one of
+        // the ones defined by kernel.
         unsafe { ioctl(self, KVM_GET_API_VERSION()) }
     }
 
@@ -137,8 +138,8 @@ impl Kvm {
     /// assert!(kvm.check_extension_int(Cap::MaxVcpuId) > 0);
     /// ```
     pub fn check_extension_int(&self, c: Cap) -> i32 {
-        // Safe because we know that our file is a KVM fd and that the extension is one of the ones
-        // defined by kernel.
+        // SAFETY: Safe because we know that our file is a KVM fd and that the extension is one of
+        // the ones defined by kernel.
         unsafe { ioctl_with_val(self, KVM_CHECK_EXTENSION(), c as c_ulong) }
     }
 
@@ -177,7 +178,7 @@ impl Kvm {
     /// assert!(kvm.get_vcpu_mmap_size().unwrap() > 0);
     /// ```
     pub fn get_vcpu_mmap_size(&self) -> Result<usize> {
-        // Safe because we know that our file is a KVM fd and we verify the return result.
+        // SAFETY: Safe because we know that our file is a KVM fd and we verify the return result.
         let res = unsafe { ioctl(self, KVM_GET_VCPU_MMAP_SIZE()) };
         if res > 0 {
             Ok(res as usize)
@@ -279,11 +280,10 @@ impl Kvm {
         }
 
         let mut cpuid = CpuId::new(num_entries).map_err(|_| errno::Error::new(libc::ENOMEM))?;
-
+        // SAFETY: The kernel is trusted not to write beyond the bounds of the memory
+        // allocated for the struct. The limit is read from nent, which is set to the allocated
+        // size(num_entries) above.
         let ret = unsafe {
-            // ioctl is unsafe. The kernel is trusted not to write beyond the bounds of the memory
-            // allocated for the struct. The limit is read from nent, which is set to the allocated
-            // size(num_entries) above.
             ioctl_with_mut_ptr(self, kind, cpuid.as_mut_fam_struct_ptr())
         };
         if ret < 0 {
@@ -368,10 +368,10 @@ impl Kvm {
         let mut msr_list =
             MsrList::new(KVM_MAX_MSR_ENTRIES).map_err(|_| errno::Error::new(libc::ENOMEM))?;
 
+        // SAFETY: The kernel is trusted not to write beyond the bounds of the memory
+        // allocated for the struct. The limit is read from nmsrs, which is set to the allocated
+        // size (MAX_KVM_MSR_ENTRIES) above.
         let ret = unsafe {
-            // ioctl is unsafe. The kernel is trusted not to write beyond the bounds of the memory
-            // allocated for the struct. The limit is read from nmsrs, which is set to the allocated
-            // size (MAX_KVM_MSR_ENTRIES) above.
             ioctl_with_mut_ptr(
                 self,
                 KVM_GET_MSR_INDEX_LIST(),
@@ -483,11 +483,11 @@ impl Kvm {
     /// assert!(vm.run_size() == kvm.get_vcpu_mmap_size().unwrap());
     /// ```
     pub fn create_vm_with_type(&self, vm_type: u64) -> Result<VmFd> {
-        // Safe because we know `self.kvm` is a real KVM fd as this module is the only one that
-        // create Kvm objects.
+        // SAFETY: Safe because we know `self.kvm` is a real KVM fd as this module is the only one
+        // that create Kvm objects.
         let ret = unsafe { ioctl_with_val(&self.kvm, KVM_CREATE_VM(), vm_type) };
         if ret >= 0 {
-            // Safe because we verify the value of ret and we are the owners of the fd.
+            // SAFETY: Safe because we verify the value of ret and we are the owners of the fd.
             let vm_file = unsafe { File::from_raw_fd(ret) };
             let run_mmap_size = self.get_vcpu_mmap_size()?;
             Ok(new_vmfd(vm_file, run_mmap_size))
@@ -572,6 +572,7 @@ impl FromRawFd for Kvm {
 
 #[cfg(test)]
 mod tests {
+    #![allow(clippy::undocumented_unsafe_blocks)]
     use super::*;
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     use kvm_bindings::KVM_MAX_CPUID_ENTRIES;

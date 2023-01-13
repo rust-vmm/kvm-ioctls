@@ -24,6 +24,7 @@ impl DeviceFd {
     ///
     /// * `device_attr` - The device attribute to be tested. `addr` field is ignored.
     pub fn has_device_attr(&self, device_attr: &kvm_device_attr) -> Result<()> {
+        // SAFETY: We are calling this function with a Device fd, and we trust the kernel.
         let ret = unsafe { ioctl_with_ref(self, KVM_HAS_DEVICE_ATTR(), device_attr) };
         if ret != 0 {
             return Err(errno::Error::last());
@@ -73,6 +74,7 @@ impl DeviceFd {
     /// }
     /// ```
     pub fn set_device_attr(&self, device_attr: &kvm_device_attr) -> Result<()> {
+        // SAFETY: We are calling this function with a Device fd, and we trust the kernel.
         let ret = unsafe { ioctl_with_ref(self, KVM_SET_DEVICE_ATTR(), device_attr) };
         if ret != 0 {
             return Err(errno::Error::last());
@@ -142,6 +144,7 @@ impl DeviceFd {
     /// }
     /// ```
     pub fn get_device_attr(&self, device_attr: &mut kvm_device_attr) -> Result<()> {
+        // SAFETY: We are calling this function with a Device fd, and we trust the kernel.
         let ret = unsafe { ioctl_with_mut_ref(self, KVM_GET_DEVICE_ATTR(), device_attr) };
         if ret != 0 {
             return Err(errno::Error::last());
@@ -177,6 +180,7 @@ impl FromRawFd for DeviceFd {
 
 #[cfg(test)]
 mod tests {
+    #![allow(clippy::undocumented_unsafe_blocks)]
     use super::*;
     use crate::ioctls::system::Kvm;
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
