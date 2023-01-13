@@ -144,9 +144,10 @@ impl VcpuFd {
     /// ```
     #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
     pub fn get_regs(&self) -> Result<kvm_regs> {
-        // Safe because we know that our file is a vCPU fd, we know the kernel will only read the
-        // correct amount of memory from our pointer, and we verify the return result.
+        // SAFETY: kvm_regs has only POD fields which are safe to be initialized with 0s.
         let mut regs = unsafe { std::mem::zeroed() };
+        // SAFETY: Safe because we know that our file is a vCPU fd, we know the kernel will only
+        // read the correct amount of memory from our pointer, and we verify the return result.
         let ret = unsafe { ioctl_with_mut_ref(self, KVM_GET_REGS(), &mut regs) };
         if ret != 0 {
             return Err(errno::Error::last());
@@ -188,6 +189,7 @@ impl VcpuFd {
     /// ```
     #[cfg(target_arch = "aarch64")]
     pub fn set_device_attr(&self, device_attr: &kvm_device_attr) -> Result<()> {
+        // SAFETY: Safe because we call this with a Vcpu fd and we trust the kernel.
         let ret = unsafe { ioctl_with_ref(self, KVM_SET_DEVICE_ATTR(), device_attr) };
         if ret != 0 {
             return Err(errno::Error::last());
@@ -227,6 +229,7 @@ impl VcpuFd {
     /// ```
     #[cfg(target_arch = "aarch64")]
     pub fn has_device_attr(&self, device_attr: &kvm_device_attr) -> Result<()> {
+        // SAFETY: Safe because we call this with a Vcpu fd and we trust the kernel.
         let ret = unsafe { ioctl_with_ref(self, KVM_HAS_DEVICE_ATTR(), device_attr) };
         if ret != 0 {
             return Err(errno::Error::last());
@@ -261,8 +264,8 @@ impl VcpuFd {
     /// ```
     #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
     pub fn set_regs(&self, regs: &kvm_regs) -> Result<()> {
-        // Safe because we know that our file is a vCPU fd, we know the kernel will only read the
-        // correct amount of memory from our pointer, and we verify the return result.
+        // SAFETY: Safe because we know that our file is a vCPU fd, we know the kernel will only
+        // read the correct amount of memory from our pointer, and we verify the return result.
         let ret = unsafe { ioctl_with_ref(self, KVM_SET_REGS(), regs) };
         if ret != 0 {
             return Err(errno::Error::last());
@@ -289,10 +292,9 @@ impl VcpuFd {
     /// ```
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn get_sregs(&self) -> Result<kvm_sregs> {
-        // Safe because we know that our file is a vCPU fd, we know the kernel will only write the
-        // correct amount of memory to our pointer, and we verify the return result.
         let mut regs = kvm_sregs::default();
-
+        // SAFETY: Safe because we know that our file is a vCPU fd, we know the kernel will only
+        // write the correct amount of memory to our pointer, and we verify the return result.
         let ret = unsafe { ioctl_with_mut_ref(self, KVM_GET_SREGS(), &mut regs) };
         if ret != 0 {
             return Err(errno::Error::last());
@@ -326,8 +328,8 @@ impl VcpuFd {
     /// ```
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn set_sregs(&self, sregs: &kvm_sregs) -> Result<()> {
-        // Safe because we know that our file is a vCPU fd, we know the kernel will only read the
-        // correct amount of memory from our pointer, and we verify the return result.
+        // SAFETY: Safe because we know that our file is a vCPU fd, we know the kernel will only
+        // read the correct amount of memory from our pointer, and we verify the return result.
         let ret = unsafe { ioctl_with_ref(self, KVM_SET_SREGS(), sregs) };
         if ret != 0 {
             return Err(errno::Error::last());
@@ -355,9 +357,8 @@ impl VcpuFd {
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn get_fpu(&self) -> Result<kvm_fpu> {
         let mut fpu = kvm_fpu::default();
-
+        // SAFETY: Here we trust the kernel not to read past the end of the kvm_fpu struct.
         let ret = unsafe {
-            // Here we trust the kernel not to read past the end of the kvm_fpu struct.
             ioctl_with_mut_ref(self, KVM_GET_FPU(), &mut fpu)
         };
         if ret != 0 {
@@ -395,8 +396,8 @@ impl VcpuFd {
     /// ```
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn set_fpu(&self, fpu: &kvm_fpu) -> Result<()> {
+        // SAFETY: Here we trust the kernel not to read past the end of the kvm_fpu struct.
         let ret = unsafe {
-            // Here we trust the kernel not to read past the end of the kvm_fpu struct.
             ioctl_with_ref(self, KVM_SET_FPU(), fpu)
         };
         if ret < 0 {
@@ -442,8 +443,8 @@ impl VcpuFd {
     ///
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn set_cpuid2(&self, cpuid: &CpuId) -> Result<()> {
+        // SAFETY: Here we trust the kernel not to read past the end of the kvm_cpuid2 struct.
         let ret = unsafe {
-            // Here we trust the kernel not to read past the end of the kvm_cpuid2 struct.
             ioctl_with_ptr(self, KVM_SET_CPUID2(), cpuid.as_fam_struct_ptr())
         };
         if ret < 0 {
@@ -483,8 +484,8 @@ impl VcpuFd {
         }
 
         let mut cpuid = CpuId::new(num_entries).map_err(|_| errno::Error::new(libc::ENOMEM))?;
+        // SAFETY: Here we trust the kernel not to read past the end of the kvm_cpuid2 struct.
         let ret = unsafe {
-            // Here we trust the kernel not to read past the end of the kvm_cpuid2 struct.
             ioctl_with_mut_ptr(self, KVM_GET_CPUID2(), cpuid.as_mut_fam_struct_ptr())
         };
         if ret != 0 {
@@ -529,7 +530,7 @@ impl VcpuFd {
     ///
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn enable_cap(&self, cap: &kvm_enable_cap) -> Result<()> {
-        // The ioctl is safe because we allocated the struct and we know the
+        // SAFETY: The ioctl is safe because we allocated the struct and we know the
         // kernel will write exactly the size of the struct.
         let ret = unsafe { ioctl_with_ref(self, KVM_ENABLE_CAP(), cap) };
         if ret == 0 {
@@ -561,9 +562,9 @@ impl VcpuFd {
     pub fn get_lapic(&self) -> Result<kvm_lapic_state> {
         let mut klapic = kvm_lapic_state::default();
 
+        // SAFETY: The ioctl is unsafe unless you trust the kernel not to write past the end of the
+        // local_apic struct.
         let ret = unsafe {
-            // The ioctl is unsafe unless you trust the kernel not to write past the end of the
-            // local_apic struct.
             ioctl_with_mut_ref(self, KVM_GET_LAPIC(), &mut klapic)
         };
         if ret < 0 {
@@ -606,8 +607,8 @@ impl VcpuFd {
     /// ```
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn set_lapic(&self, klapic: &kvm_lapic_state) -> Result<()> {
+        // SAFETY: The ioctl is safe because the kernel will only read from the klapic struct.
         let ret = unsafe {
-            // The ioctl is safe because the kernel will only read from the klapic struct.
             ioctl_with_ref(self, KVM_SET_LAPIC(), klapic)
         };
         if ret < 0 {
@@ -654,8 +655,8 @@ impl VcpuFd {
     /// ```
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn get_msrs(&self, msrs: &mut Msrs) -> Result<usize> {
+        // SAFETY: Here we trust the kernel not to read past the end of the kvm_msrs struct.
         let ret = unsafe {
-            // Here we trust the kernel not to read past the end of the kvm_msrs struct.
             ioctl_with_mut_ptr(self, KVM_GET_MSRS(), msrs.as_mut_fam_struct_ptr())
         };
         if ret < 0 {
@@ -695,8 +696,8 @@ impl VcpuFd {
     /// ```
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn set_msrs(&self, msrs: &Msrs) -> Result<usize> {
+        // SAFETY: Here we trust the kernel not to read past the end of the kvm_msrs struct.
         let ret = unsafe {
-            // Here we trust the kernel not to read past the end of the kvm_msrs struct.
             ioctl_with_ptr(self, KVM_SET_MSRS(), msrs.as_fam_struct_ptr())
         };
         // KVM_SET_MSRS actually returns the number of msr entries written.
@@ -734,8 +735,8 @@ impl VcpuFd {
     ))]
     pub fn get_mp_state(&self) -> Result<kvm_mp_state> {
         let mut mp_state = Default::default();
+        // SAFETY: Here we trust the kernel not to read past the end of the kvm_mp_state struct.
         let ret = unsafe {
-            // Here we trust the kernel not to read past the end of the kvm_mp_state struct.
             ioctl_with_mut_ref(self, KVM_GET_MP_STATE(), &mut mp_state)
         };
         if ret != 0 {
@@ -773,8 +774,8 @@ impl VcpuFd {
         target_arch = "s390"
     ))]
     pub fn set_mp_state(&self, mp_state: kvm_mp_state) -> Result<()> {
+        // SAFETY: Here we trust the kernel not to read past the end of the kvm_mp_state struct.
         let ret = unsafe {
-            // Here we trust the kernel not to read past the end of the kvm_mp_state struct.
             ioctl_with_ref(self, KVM_SET_MP_STATE(), &mp_state)
         };
         if ret != 0 {
@@ -805,8 +806,8 @@ impl VcpuFd {
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn get_xsave(&self) -> Result<kvm_xsave> {
         let mut xsave = Default::default();
+        // SAFETY: Here we trust the kernel not to read past the end of the kvm_xsave struct.
         let ret = unsafe {
-            // Here we trust the kernel not to read past the end of the kvm_xsave struct.
             ioctl_with_mut_ref(self, KVM_GET_XSAVE(), &mut xsave)
         };
         if ret != 0 {
@@ -838,8 +839,8 @@ impl VcpuFd {
     /// ```
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn set_xsave(&self, xsave: &kvm_xsave) -> Result<()> {
+        // SAFETY: Here we trust the kernel not to read past the end of the kvm_xsave struct.
         let ret = unsafe {
-            // Here we trust the kernel not to read past the end of the kvm_xsave struct.
             ioctl_with_ref(self, KVM_SET_XSAVE(), xsave)
         };
         if ret != 0 {
@@ -870,8 +871,8 @@ impl VcpuFd {
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn get_xcrs(&self) -> Result<kvm_xcrs> {
         let mut xcrs = Default::default();
+        // SAFETY: Here we trust the kernel not to read past the end of the kvm_xcrs struct.
         let ret = unsafe {
-            // Here we trust the kernel not to read past the end of the kvm_xcrs struct.
             ioctl_with_mut_ref(self, KVM_GET_XCRS(), &mut xcrs)
         };
         if ret != 0 {
@@ -903,8 +904,8 @@ impl VcpuFd {
     /// ```
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn set_xcrs(&self, xcrs: &kvm_xcrs) -> Result<()> {
+        // SAFETY: Here we trust the kernel not to read past the end of the kvm_xcrs struct.
         let ret = unsafe {
-            // Here we trust the kernel not to read past the end of the kvm_xcrs struct.
             ioctl_with_ref(self, KVM_SET_XCRS(), xcrs)
         };
         if ret != 0 {
@@ -935,8 +936,8 @@ impl VcpuFd {
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn get_debug_regs(&self) -> Result<kvm_debugregs> {
         let mut debug_regs = Default::default();
+        // SAFETY: Here we trust the kernel not to read past the end of the kvm_debugregs struct.
         let ret = unsafe {
-            // Here we trust the kernel not to read past the end of the kvm_debugregs struct.
             ioctl_with_mut_ref(self, KVM_GET_DEBUGREGS(), &mut debug_regs)
         };
         if ret != 0 {
@@ -968,8 +969,8 @@ impl VcpuFd {
     /// ```
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn set_debug_regs(&self, debug_regs: &kvm_debugregs) -> Result<()> {
+        // SAFETY: Here we trust the kernel not to read past the end of the kvm_debugregs struct.
         let ret = unsafe {
-            // Here we trust the kernel not to read past the end of the kvm_debugregs struct.
             ioctl_with_ref(self, KVM_SET_DEBUGREGS(), debug_regs)
         };
         if ret != 0 {
@@ -1008,8 +1009,8 @@ impl VcpuFd {
     ))]
     pub fn get_vcpu_events(&self) -> Result<kvm_vcpu_events> {
         let mut vcpu_events = Default::default();
+        // SAFETY: Here we trust the kernel not to read past the end of the kvm_vcpu_events struct.
         let ret = unsafe {
-            // Here we trust the kernel not to read past the end of the kvm_vcpu_events struct.
             ioctl_with_mut_ref(self, KVM_GET_VCPU_EVENTS(), &mut vcpu_events)
         };
         if ret != 0 {
@@ -1049,8 +1050,8 @@ impl VcpuFd {
     ))]
 
     pub fn set_vcpu_events(&self, vcpu_events: &kvm_vcpu_events) -> Result<()> {
+        // SAFETY: Here we trust the kernel not to read past the end of the kvm_vcpu_events struct.
         let ret = unsafe {
-            // Here we trust the kernel not to read past the end of the kvm_vcpu_events struct.
             ioctl_with_ref(self, KVM_SET_VCPU_EVENTS(), vcpu_events)
         };
         if ret != 0 {
@@ -1087,7 +1088,7 @@ impl VcpuFd {
     /// ```
     #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
     pub fn vcpu_init(&self, kvi: &kvm_vcpu_init) -> Result<()> {
-        // This is safe because we allocated the struct and we know the kernel will read
+        // SAFETY: This is safe because we allocated the struct and we know the kernel will read
         // exactly the size of the struct.
         let ret = unsafe { ioctl_with_ref(self, KVM_ARM_VCPU_INIT(), kvi) };
         if ret < 0 {
@@ -1127,6 +1128,8 @@ impl VcpuFd {
     /// ```
     #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
     pub fn get_reg_list(&self, reg_list: &mut RegList) -> Result<()> {
+        // SAFETY: This is safe because we allocated the struct and we trust the kernel will read
+        // exactly the size of the struct.
         let ret =
             unsafe { ioctl_with_mut_ref(self, KVM_GET_REG_LIST(), reg_list.as_mut_fam_struct()) };
         if ret < 0 {
@@ -1179,6 +1182,7 @@ impl VcpuFd {
         target_arch = "ppc"
     ))]
     pub fn set_guest_debug(&self, debug_struct: &kvm_guest_debug) -> Result<()> {
+        // SAFETY: Safe because we allocated the structure and we trust the kernel.
         let ret = unsafe { ioctl_with_ref(self, KVM_SET_GUEST_DEBUG(), debug_struct) };
         if ret < 0 {
             return Err(errno::Error::last());
@@ -1202,7 +1206,7 @@ impl VcpuFd {
             id: reg_id,
             addr: data_ptr as u64,
         };
-        // This is safe because we allocated the struct and we know the kernel will read
+        // SAFETY: This is safe because we allocated the struct and we know the kernel will read
         // exactly the size of the struct.
         let ret = unsafe { ioctl_with_ref(self, KVM_SET_ONE_REG(), &onereg) };
         if ret < 0 {
@@ -1226,7 +1230,8 @@ impl VcpuFd {
             id: reg_id,
             addr: &mut reg_value as *mut _ as u64,
         };
-
+        // SAFETY: This is safe because we allocated the struct and we know the kernel will read
+        // exactly the size of the struct.
         let ret = unsafe { ioctl_with_mut_ref(self, KVM_GET_ONE_REG(), &mut onereg) };
         if ret < 0 {
             return Err(errno::Error::last());
@@ -1240,7 +1245,7 @@ impl VcpuFd {
     /// [KVM API documentation](https://www.kernel.org/doc/Documentation/virtual/kvm/api.txt).
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn kvmclock_ctrl(&self) -> Result<()> {
-        // Safe because we know that our file is a KVM fd and that the request
+        // SAFETY: Safe because we know that our file is a KVM fd and that the request
         // is one of the ones defined by kernel.
         let ret = unsafe { ioctl(self, KVM_KVMCLOCK_CTRL()) };
         if ret != 0 {
@@ -1325,7 +1330,7 @@ impl VcpuFd {
     /// }
     /// ```
     pub fn run(&self) -> Result<VcpuExit> {
-        // Safe because we know that our file is a vCPU fd and we verify the return result.
+        // SAFETY: Safe because we know that our file is a vCPU fd and we verify the return result.
         let ret = unsafe { ioctl(self, KVM_RUN()) };
         if ret == 0 {
             let run = self.kvm_run_ptr.as_mut_ref();
@@ -1336,15 +1341,15 @@ impl VcpuFd {
                 KVM_EXIT_EXCEPTION => Ok(VcpuExit::Exception),
                 KVM_EXIT_IO => {
                     let run_start = run as *mut kvm_run as *mut u8;
-                    // Safe because the exit_reason (which comes from the kernel) told us which
-                    // union field to use.
+                    // SAFETY: Safe because the exit_reason (which comes from the kernel) told us
+                    // which union field to use.
                     let io = unsafe { run.__bindgen_anon_1.io };
                     let port = io.port;
                     let data_size = io.count as usize * io.size as usize;
-                    // The data_offset is defined by the kernel to be some number of bytes into the
-                    // kvm_run stucture, which we have fully mmap'd.
+                    // SAFETY: The data_offset is defined by the kernel to be some number of bytes
+                    // into the kvm_run stucture, which we have fully mmap'd.
                     let data_ptr = unsafe { run_start.offset(io.data_offset as isize) };
-                    // The slice's lifetime is limited to the lifetime of this vCPU, which is equal
+                    // SAFETY: The slice's lifetime is limited to the lifetime of this vCPU, which is equal
                     // to the mmap of the `kvm_run` struct that this is slicing from.
                     let data_slice = unsafe {
                         std::slice::from_raw_parts_mut::<u8>(data_ptr as *mut u8, data_size)
@@ -1357,15 +1362,15 @@ impl VcpuFd {
                 }
                 KVM_EXIT_HYPERCALL => Ok(VcpuExit::Hypercall),
                 KVM_EXIT_DEBUG => {
-                    // Safe because the exit_reason (which comes from the kernel) told us which
-                    // union field to use.
+                    // SAFETY: Safe because the exit_reason (which comes from the kernel) told us
+                    // which union field to use.
                     let debug = unsafe { run.__bindgen_anon_1.debug };
                     Ok(VcpuExit::Debug(debug.arch))
                 }
                 KVM_EXIT_HLT => Ok(VcpuExit::Hlt),
                 KVM_EXIT_MMIO => {
-                    // Safe because the exit_reason (which comes from the kernel) told us which
-                    // union field to use.
+                    // SAFETY: Safe because the exit_reason (which comes from the kernel) told us
+                    // which union field to use.
                     let mmio = unsafe { &mut run.__bindgen_anon_1.mmio };
                     let addr = mmio.phys_addr;
                     let len = mmio.len as usize;
@@ -1379,8 +1384,8 @@ impl VcpuFd {
                 KVM_EXIT_IRQ_WINDOW_OPEN => Ok(VcpuExit::IrqWindowOpen),
                 KVM_EXIT_SHUTDOWN => Ok(VcpuExit::Shutdown),
                 KVM_EXIT_FAIL_ENTRY => {
-                    // Safe because the exit_reason (which comes from the kernel) told us which
-                    // union field to use.
+                    // SAFETY: Safe because the exit_reason (which comes from the kernel) told us
+                    // which union field to use.
                     let fail_entry = unsafe { &mut run.__bindgen_anon_1.fail_entry };
                     Ok(VcpuExit::FailEntry(
                         fail_entry.hardware_entry_failure_reason,
@@ -1402,8 +1407,8 @@ impl VcpuFd {
                 KVM_EXIT_S390_TSCH => Ok(VcpuExit::S390Tsch),
                 KVM_EXIT_EPR => Ok(VcpuExit::Epr),
                 KVM_EXIT_SYSTEM_EVENT => {
-                    // Safe because the exit_reason (which comes from the kernel) told us which
-                    // union field to use.
+                    // SAFETY: Safe because the exit_reason (which comes from the kernel) told us
+                    // which union field to use.
                     let system_event = unsafe { &mut run.__bindgen_anon_1.system_event };
                     Ok(VcpuExit::SystemEvent(
                         system_event.type_,
@@ -1412,8 +1417,8 @@ impl VcpuFd {
                 }
                 KVM_EXIT_S390_STSI => Ok(VcpuExit::S390Stsi),
                 KVM_EXIT_IOAPIC_EOI => {
-                    // Safe because the exit_reason (which comes from the kernel) told us which
-                    // union field to use.
+                    // SAFETY: Safe because the exit_reason (which comes from the kernel) told us
+                    // which union field to use.
                     let eoi = unsafe { &mut run.__bindgen_anon_1.eoi };
                     Ok(VcpuExit::IoapicEoi(eoi.vector))
                 }
@@ -1451,8 +1456,8 @@ impl VcpuFd {
     ///
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn get_tsc_khz(&self) -> Result<u32> {
-        // Safe because we know that our file is a KVM fd and that the request is one of the ones
-        // defined by kernel.
+        // SAFETY:  Safe because we know that our file is a KVM fd and that the request is one of
+        // the ones defined by kernel.
         let ret = unsafe { ioctl(self, KVM_GET_TSC_KHZ()) };
         if ret >= 0 {
             Ok(ret as u32)
@@ -1483,8 +1488,8 @@ impl VcpuFd {
     ///
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn set_tsc_khz(&self, freq: u32) -> Result<()> {
-        // Safe because we know that our file is a KVM fd and that the request is one of the ones
-        // defined by kernel.
+        // SAFETY: Safe because we know that our file is a KVM fd and that the request is one of
+        // the ones defined by kernel.
         let ret = unsafe { ioctl_with_val(self, KVM_SET_TSC_KHZ(), freq as u64) };
         if ret < 0 {
             Err(errno::Error::last())
@@ -1521,8 +1526,8 @@ impl VcpuFd {
             ..Default::default()
         };
 
-        // Safe because we know that our file is a vCPU fd, we know the kernel will only write the
-        // correct amount of memory to our pointer, and we verify the return result.
+        // SAFETY: Safe because we know that our file is a vCPU fd, we know the kernel will only
+        // write the correct amount of memory to our pointer, and we verify the return result.
         let ret = unsafe { ioctl_with_mut_ref(self, KVM_TRANSLATE(), &mut tr) };
         if ret != 0 {
             return Err(errno::Error::last());
@@ -1693,6 +1698,7 @@ impl AsRawFd for VcpuFd {
 
 #[cfg(test)]
 mod tests {
+    #![allow(clippy::undocumented_unsafe_blocks)]
     extern crate byteorder;
 
     use super::*;

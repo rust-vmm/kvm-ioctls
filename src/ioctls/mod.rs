@@ -37,11 +37,12 @@ pub struct KvmRunWrapper {
     mmap_size: usize,
 }
 
-// Send and Sync aren't automatically inherited for the raw address pointer.
+// SAFETY: Send and Sync aren't automatically inherited for the raw address pointer.
 // Accessing that pointer is only done through the stateless interface which
 // allows the object to be shared by multiple threads without a decrease in
 // safety.
 unsafe impl Send for KvmRunWrapper {}
+// SAFETY: See above.
 unsafe impl Sync for KvmRunWrapper {}
 
 impl KvmRunWrapper {
@@ -51,8 +52,8 @@ impl KvmRunWrapper {
     /// * `fd` - File descriptor to mmap from.
     /// * `size` - Size of memory region in bytes.
     pub fn mmap_from_fd(fd: &dyn AsRawFd, size: usize) -> Result<KvmRunWrapper> {
-        // This is safe because we are creating a mapping in a place not already used by any other
-        // area in this process.
+        // SAFETY: This is safe because we are creating a mapping in a place not already used by
+        // any other area in this process.
         let addr = unsafe {
             libc::mmap(
                 null_mut(),
@@ -76,9 +77,9 @@ impl KvmRunWrapper {
     /// Returns a mutable reference to `kvm_run`.
     #[allow(clippy::mut_from_ref)]
     pub fn as_mut_ref(&self) -> &mut kvm_run {
-        // Safe because we know we mapped enough memory to hold the kvm_run struct because the
-        // kernel told us how large it was.
         #[allow(clippy::cast_ptr_alignment)]
+        // SAFETY: Safe because we know we mapped enough memory to hold the kvm_run struct because
+        // the kernel told us how large it was.
         unsafe {
             &mut *(self.kvm_run_ptr as *mut kvm_run)
         }
@@ -87,7 +88,7 @@ impl KvmRunWrapper {
 
 impl Drop for KvmRunWrapper {
     fn drop(&mut self) {
-        // This is safe because we mmap the area at kvm_run_ptr ourselves,
+        // SAFETY: This is safe because we mmap the area at kvm_run_ptr ourselves,
         // and nobody else is holding a reference to it.
         unsafe {
             libc::munmap(self.kvm_run_ptr as *mut libc::c_void, self.mmap_size);
