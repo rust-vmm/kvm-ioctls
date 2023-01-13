@@ -1941,7 +1941,7 @@ mod tests {
 
         // Verify the lengths match.
         assert_eq!(nmsrs, msrs_to_set.len());
-        assert_eq!(nmsrs, returned_kvm_msrs.as_fam_struct_ref().len() as usize);
+        assert_eq!(nmsrs, returned_kvm_msrs.as_fam_struct_ref().len());
 
         // Verify the contents match.
         let returned_kvm_msr_entries = returned_kvm_msrs.as_slice();
