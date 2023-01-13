@@ -477,8 +477,8 @@ impl VcpuFd {
         }
 
         let mut cpuid = CpuId::new(num_entries).map_err(|_| errno::Error::new(libc::ENOMEM))?;
-        // SAFETY: Here we trust the kernel not to read past the end of the kvm_cpuid2 struct.
         let ret =
+            // SAFETY: Here we trust the kernel not to read past the end of the kvm_cpuid2 struct.
             unsafe { ioctl_with_mut_ptr(self, KVM_GET_CPUID2(), cpuid.as_mut_fam_struct_ptr()) };
         if ret != 0 {
             return Err(errno::Error::last());
@@ -1092,9 +1092,9 @@ impl VcpuFd {
     /// ```
     #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
     pub fn get_reg_list(&self, reg_list: &mut RegList) -> Result<()> {
-        // SAFETY: This is safe because we allocated the struct and we trust the kernel will read
-        // exactly the size of the struct.
         let ret =
+            // SAFETY: This is safe because we allocated the struct and we trust the kernel will read
+            // exactly the size of the struct.
             unsafe { ioctl_with_mut_ref(self, KVM_GET_REG_LIST(), reg_list.as_mut_fam_struct()) };
         if ret < 0 {
             return Err(errno::Error::last());
