@@ -144,8 +144,7 @@ impl VcpuFd {
     /// ```
     #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
     pub fn get_regs(&self) -> Result<kvm_regs> {
-        // SAFETY: kvm_regs has only POD fields which are safe to be initialized with 0s.
-        let mut regs = unsafe { std::mem::zeroed() };
+        let mut regs = kvm_regs::default();
         // SAFETY: Safe because we know that our file is a vCPU fd, we know the kernel will only
         // read the correct amount of memory from our pointer, and we verify the return result.
         let ret = unsafe { ioctl_with_mut_ref(self, KVM_GET_REGS(), &mut regs) };
