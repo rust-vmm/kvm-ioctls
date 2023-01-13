@@ -357,9 +357,7 @@ impl VcpuFd {
     pub fn get_fpu(&self) -> Result<kvm_fpu> {
         let mut fpu = kvm_fpu::default();
         // SAFETY: Here we trust the kernel not to read past the end of the kvm_fpu struct.
-        let ret = unsafe {
-            ioctl_with_mut_ref(self, KVM_GET_FPU(), &mut fpu)
-        };
+        let ret = unsafe { ioctl_with_mut_ref(self, KVM_GET_FPU(), &mut fpu) };
         if ret != 0 {
             return Err(errno::Error::last());
         }
@@ -396,9 +394,7 @@ impl VcpuFd {
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn set_fpu(&self, fpu: &kvm_fpu) -> Result<()> {
         // SAFETY: Here we trust the kernel not to read past the end of the kvm_fpu struct.
-        let ret = unsafe {
-            ioctl_with_ref(self, KVM_SET_FPU(), fpu)
-        };
+        let ret = unsafe { ioctl_with_ref(self, KVM_SET_FPU(), fpu) };
         if ret < 0 {
             return Err(errno::Error::last());
         }
@@ -443,9 +439,7 @@ impl VcpuFd {
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn set_cpuid2(&self, cpuid: &CpuId) -> Result<()> {
         // SAFETY: Here we trust the kernel not to read past the end of the kvm_cpuid2 struct.
-        let ret = unsafe {
-            ioctl_with_ptr(self, KVM_SET_CPUID2(), cpuid.as_fam_struct_ptr())
-        };
+        let ret = unsafe { ioctl_with_ptr(self, KVM_SET_CPUID2(), cpuid.as_fam_struct_ptr()) };
         if ret < 0 {
             return Err(errno::Error::last());
         }
@@ -484,9 +478,8 @@ impl VcpuFd {
 
         let mut cpuid = CpuId::new(num_entries).map_err(|_| errno::Error::new(libc::ENOMEM))?;
         // SAFETY: Here we trust the kernel not to read past the end of the kvm_cpuid2 struct.
-        let ret = unsafe {
-            ioctl_with_mut_ptr(self, KVM_GET_CPUID2(), cpuid.as_mut_fam_struct_ptr())
-        };
+        let ret =
+            unsafe { ioctl_with_mut_ptr(self, KVM_GET_CPUID2(), cpuid.as_mut_fam_struct_ptr()) };
         if ret != 0 {
             return Err(errno::Error::last());
         }
@@ -563,9 +556,7 @@ impl VcpuFd {
 
         // SAFETY: The ioctl is unsafe unless you trust the kernel not to write past the end of the
         // local_apic struct.
-        let ret = unsafe {
-            ioctl_with_mut_ref(self, KVM_GET_LAPIC(), &mut klapic)
-        };
+        let ret = unsafe { ioctl_with_mut_ref(self, KVM_GET_LAPIC(), &mut klapic) };
         if ret < 0 {
             return Err(errno::Error::last());
         }
@@ -607,9 +598,7 @@ impl VcpuFd {
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn set_lapic(&self, klapic: &kvm_lapic_state) -> Result<()> {
         // SAFETY: The ioctl is safe because the kernel will only read from the klapic struct.
-        let ret = unsafe {
-            ioctl_with_ref(self, KVM_SET_LAPIC(), klapic)
-        };
+        let ret = unsafe { ioctl_with_ref(self, KVM_SET_LAPIC(), klapic) };
         if ret < 0 {
             return Err(errno::Error::last());
         }
@@ -655,9 +644,7 @@ impl VcpuFd {
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn get_msrs(&self, msrs: &mut Msrs) -> Result<usize> {
         // SAFETY: Here we trust the kernel not to read past the end of the kvm_msrs struct.
-        let ret = unsafe {
-            ioctl_with_mut_ptr(self, KVM_GET_MSRS(), msrs.as_mut_fam_struct_ptr())
-        };
+        let ret = unsafe { ioctl_with_mut_ptr(self, KVM_GET_MSRS(), msrs.as_mut_fam_struct_ptr()) };
         if ret < 0 {
             return Err(errno::Error::last());
         }
@@ -696,9 +683,7 @@ impl VcpuFd {
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn set_msrs(&self, msrs: &Msrs) -> Result<usize> {
         // SAFETY: Here we trust the kernel not to read past the end of the kvm_msrs struct.
-        let ret = unsafe {
-            ioctl_with_ptr(self, KVM_SET_MSRS(), msrs.as_fam_struct_ptr())
-        };
+        let ret = unsafe { ioctl_with_ptr(self, KVM_SET_MSRS(), msrs.as_fam_struct_ptr()) };
         // KVM_SET_MSRS actually returns the number of msr entries written.
         if ret < 0 {
             return Err(errno::Error::last());
@@ -735,9 +720,7 @@ impl VcpuFd {
     pub fn get_mp_state(&self) -> Result<kvm_mp_state> {
         let mut mp_state = Default::default();
         // SAFETY: Here we trust the kernel not to read past the end of the kvm_mp_state struct.
-        let ret = unsafe {
-            ioctl_with_mut_ref(self, KVM_GET_MP_STATE(), &mut mp_state)
-        };
+        let ret = unsafe { ioctl_with_mut_ref(self, KVM_GET_MP_STATE(), &mut mp_state) };
         if ret != 0 {
             return Err(errno::Error::last());
         }
@@ -774,9 +757,7 @@ impl VcpuFd {
     ))]
     pub fn set_mp_state(&self, mp_state: kvm_mp_state) -> Result<()> {
         // SAFETY: Here we trust the kernel not to read past the end of the kvm_mp_state struct.
-        let ret = unsafe {
-            ioctl_with_ref(self, KVM_SET_MP_STATE(), &mp_state)
-        };
+        let ret = unsafe { ioctl_with_ref(self, KVM_SET_MP_STATE(), &mp_state) };
         if ret != 0 {
             return Err(errno::Error::last());
         }
@@ -806,9 +787,7 @@ impl VcpuFd {
     pub fn get_xsave(&self) -> Result<kvm_xsave> {
         let mut xsave = Default::default();
         // SAFETY: Here we trust the kernel not to read past the end of the kvm_xsave struct.
-        let ret = unsafe {
-            ioctl_with_mut_ref(self, KVM_GET_XSAVE(), &mut xsave)
-        };
+        let ret = unsafe { ioctl_with_mut_ref(self, KVM_GET_XSAVE(), &mut xsave) };
         if ret != 0 {
             return Err(errno::Error::last());
         }
@@ -839,9 +818,7 @@ impl VcpuFd {
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn set_xsave(&self, xsave: &kvm_xsave) -> Result<()> {
         // SAFETY: Here we trust the kernel not to read past the end of the kvm_xsave struct.
-        let ret = unsafe {
-            ioctl_with_ref(self, KVM_SET_XSAVE(), xsave)
-        };
+        let ret = unsafe { ioctl_with_ref(self, KVM_SET_XSAVE(), xsave) };
         if ret != 0 {
             return Err(errno::Error::last());
         }
@@ -871,9 +848,7 @@ impl VcpuFd {
     pub fn get_xcrs(&self) -> Result<kvm_xcrs> {
         let mut xcrs = Default::default();
         // SAFETY: Here we trust the kernel not to read past the end of the kvm_xcrs struct.
-        let ret = unsafe {
-            ioctl_with_mut_ref(self, KVM_GET_XCRS(), &mut xcrs)
-        };
+        let ret = unsafe { ioctl_with_mut_ref(self, KVM_GET_XCRS(), &mut xcrs) };
         if ret != 0 {
             return Err(errno::Error::last());
         }
@@ -904,9 +879,7 @@ impl VcpuFd {
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn set_xcrs(&self, xcrs: &kvm_xcrs) -> Result<()> {
         // SAFETY: Here we trust the kernel not to read past the end of the kvm_xcrs struct.
-        let ret = unsafe {
-            ioctl_with_ref(self, KVM_SET_XCRS(), xcrs)
-        };
+        let ret = unsafe { ioctl_with_ref(self, KVM_SET_XCRS(), xcrs) };
         if ret != 0 {
             return Err(errno::Error::last());
         }
@@ -936,9 +909,7 @@ impl VcpuFd {
     pub fn get_debug_regs(&self) -> Result<kvm_debugregs> {
         let mut debug_regs = Default::default();
         // SAFETY: Here we trust the kernel not to read past the end of the kvm_debugregs struct.
-        let ret = unsafe {
-            ioctl_with_mut_ref(self, KVM_GET_DEBUGREGS(), &mut debug_regs)
-        };
+        let ret = unsafe { ioctl_with_mut_ref(self, KVM_GET_DEBUGREGS(), &mut debug_regs) };
         if ret != 0 {
             return Err(errno::Error::last());
         }
@@ -969,9 +940,7 @@ impl VcpuFd {
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn set_debug_regs(&self, debug_regs: &kvm_debugregs) -> Result<()> {
         // SAFETY: Here we trust the kernel not to read past the end of the kvm_debugregs struct.
-        let ret = unsafe {
-            ioctl_with_ref(self, KVM_SET_DEBUGREGS(), debug_regs)
-        };
+        let ret = unsafe { ioctl_with_ref(self, KVM_SET_DEBUGREGS(), debug_regs) };
         if ret != 0 {
             return Err(errno::Error::last());
         }
@@ -1009,9 +978,7 @@ impl VcpuFd {
     pub fn get_vcpu_events(&self) -> Result<kvm_vcpu_events> {
         let mut vcpu_events = Default::default();
         // SAFETY: Here we trust the kernel not to read past the end of the kvm_vcpu_events struct.
-        let ret = unsafe {
-            ioctl_with_mut_ref(self, KVM_GET_VCPU_EVENTS(), &mut vcpu_events)
-        };
+        let ret = unsafe { ioctl_with_mut_ref(self, KVM_GET_VCPU_EVENTS(), &mut vcpu_events) };
         if ret != 0 {
             return Err(errno::Error::last());
         }
@@ -1050,9 +1017,7 @@ impl VcpuFd {
 
     pub fn set_vcpu_events(&self, vcpu_events: &kvm_vcpu_events) -> Result<()> {
         // SAFETY: Here we trust the kernel not to read past the end of the kvm_vcpu_events struct.
-        let ret = unsafe {
-            ioctl_with_ref(self, KVM_SET_VCPU_EVENTS(), vcpu_events)
-        };
+        let ret = unsafe { ioctl_with_ref(self, KVM_SET_VCPU_EVENTS(), vcpu_events) };
         if ret != 0 {
             return Err(errno::Error::last());
         }
