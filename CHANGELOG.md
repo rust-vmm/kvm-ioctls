@@ -1,4 +1,10 @@
 # Changelog
+## [Unreleased]
+
+- API change in the bindings from upstream kernel changes:
+* system_event has been made into a new union
+- The x86 module has been renamed to x86_64 for consistency (matches the kernel
+  architecture directory name)
 
 ## [0.6.0]
 
