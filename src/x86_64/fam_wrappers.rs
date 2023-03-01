@@ -3,7 +3,7 @@
 
 use vmm_sys_util::fam::{FamStruct, FamStructWrapper};
 
-use x86::bindings::*;
+use x86_64::bindings::*;
 
 /// Maximum number of CPUID entries that can be returned by a call to KVM ioctls.
 ///
@@ -97,7 +97,7 @@ pub type MsrList = FamStructWrapper<kvm_msr_list>;
 #[cfg(test)]
 mod tests {
     use super::{CpuId, MsrList, Msrs};
-    use x86::bindings::kvm_cpuid_entry2;
+    use x86_64::bindings::kvm_cpuid_entry2;
 
     #[test]
     fn test_cpuid_eq() {

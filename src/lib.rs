@@ -12,9 +12,9 @@
 extern crate vmm_sys_util;
 
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-mod x86;
+mod x86_64;
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-pub use self::x86::*;
+pub use self::x86_64::*;
 
 #[cfg(any(target_arch = "aarch", target_arch = "aarch64"))]
 mod arm64;
