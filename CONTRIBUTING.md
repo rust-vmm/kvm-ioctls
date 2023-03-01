@@ -4,9 +4,9 @@
 
 ### Bindgen
 The bindings are currently generated using
-[bindgen](https://crates.io/crates/bindgen) version 0.59.1:
+[bindgen](https://crates.io/crates/bindgen) version 0.64.0:
 ```bash
-cargo install bindgen --vers 0.59.1
+cargo install bindgen-cli --vers 0.64.0
 ```
 
 ### Linux Kernel
@@ -17,48 +17,50 @@ repository on your machine:
 git clone https://github.com/torvalds/linux.git
 ```
 
-## Add a new architecture
+## Updating bindings / adding a new architecture
+
 When adding a new architecture, the bindings must be generated for all existing
 versions for consistency reasons.
 
-### Example for arm64 and version 5.13
+### Example for arm64 and kernel version 6.2
 
 For this example we assume that you have both linux and kvm-bindings
 repositories in your root.
 
 ```bash
-# Step 1: Create a new module using the name of the architecture in src/
-cd kvm-bindings
+# Step 1 (if adding a new architecture): Create a new module using the name of the architecture in src/
+pushd kvm-bindings
 mkdir src/arm64
-cd ~
+popd
 
 # linux is the repository that you cloned at the previous step.
-cd linux
+pushd linux
 # Step 2: Checkout the version you want to generate the bindings for.
-git checkout v5.13
+git checkout v6.2
 
 # Step 3: Generate the bindings.
 # This will generate the headers for the targeted architecture and place them
-# in the user specified directory. In this case, we generate them in the
-# arm64_v5_13_headers directory.
-make headers_install ARCH=arm64 INSTALL_HDR_PATH=arm64_v5_13_headers
-cd arm64_v5_13_headers
-bindgen include/linux/kvm.h -o bindings_v5_13_0.rs \
-  --with-derive-default \
-  --with-derive-partialeq \
-  -- -Iinclude
-cd ~
+# in the user specified directory
+
+export ARCH=arm64
+make headers_install ARCH=$ARCH INSTALL_HDR_PATH="$ARCH"_headers
+pushd "$ARCH"_headers
+bindgen include/linux/kvm.h -o bindings.rs  \
+     --impl-debug --with-derive-default  \
+     --with-derive-partialeq  --impl-partialeq \
+     -- -Iinclude
+popd
 
 # Step 4: Copy the generated file to the arm64 module.
-cp linux/arm64_v5_13_headers/bindings_v5_13_0.rs
+popd
+cp linux/"$ARCH"_headers/bindings.rs src/arm64
+
 ```
 
-Steps 2, 3 and 4 must be repeated for each of the existing KVM versions. Don't
-forget to change the name of the bindings file using the appropriate version.
+Steps 2, 3 and 4 must be repeated for all existing architectures.
 
-Now that we have the bindings generated, we can copy the module file from
-one of the existing modules as this is only changed when a new version is
-added.
+Now that we have the bindings generated, for a new architecture we can copy the
+module file from one of the existing modules.
 
 ```bash
 cp arm/mod.rs arm64/
