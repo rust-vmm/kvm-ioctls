@@ -53,7 +53,7 @@ popd
 
 # Step 4: Copy the generated file to the arm64 module.
 popd
-cp linux/"$ARCH"_headers/bindings.rs src/arm64
+cp linux/"$ARCH"_headers/bindings.rs kvm-bindings/src/arm64
 
 ```
 
