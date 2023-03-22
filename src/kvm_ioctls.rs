@@ -13,6 +13,8 @@ use kvm_bindings::*;
 
 ioctl_io_nr!(KVM_GET_API_VERSION, KVMIO, 0x00);
 ioctl_io_nr!(KVM_CREATE_VM, KVMIO, 0x01);
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+ioctl_iowr_nr!(KVM_GET_MSR_INDEX_LIST, KVMIO, 0x02, kvm_msr_list);
 ioctl_io_nr!(KVM_CHECK_EXTENSION, KVMIO, 0x03);
 ioctl_io_nr!(KVM_GET_VCPU_MMAP_SIZE, KVMIO, 0x04);
 /* Available with KVM_CAP_EXT_CPUID */
@@ -21,6 +23,9 @@ ioctl_iowr_nr!(KVM_GET_SUPPORTED_CPUID, KVMIO, 0x05, kvm_cpuid2);
 /* Available with KVM_CAP_EXT_EMUL_CPUID */
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 ioctl_iowr_nr!(KVM_GET_EMULATED_CPUID, KVMIO, 0x09, kvm_cpuid2);
+/* Available with KVM_CAP_GET_MSR_FEATURES */
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+ioctl_iowr_nr!(KVM_GET_MSR_FEATURE_INDEX_LIST, KVMIO, 0x0a, kvm_msr_list);
 
 // Ioctls for VM fds.
 
@@ -129,9 +134,6 @@ ioctl_ior_nr!(KVM_GET_SREGS, KVMIO, 0x83, kvm_sregs);
 ioctl_iow_nr!(KVM_SET_SREGS, KVMIO, 0x84, kvm_sregs);
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 ioctl_iowr_nr!(KVM_TRANSLATE, KVMIO, 0x85, kvm_translation);
-/* Available with KVM_CAP_GET_MSR_FEATURES */
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-ioctl_iowr_nr!(KVM_GET_MSR_INDEX_LIST, KVMIO, 0x02, kvm_msr_list);
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 ioctl_iowr_nr!(KVM_GET_MSRS, KVMIO, 0x88, kvm_msrs);
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]

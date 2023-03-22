@@ -17,7 +17,7 @@ use crate::kvm_ioctls::*;
 #[cfg(any(target_arch = "aarch64"))]
 use kvm_bindings::KVM_VM_TYPE_ARM_IPA_SIZE_MASK;
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-use kvm_bindings::{CpuId, MsrList, KVM_MAX_CPUID_ENTRIES, KVM_MAX_MSR_ENTRIES};
+use kvm_bindings::{CpuId, MsrList, Msrs, KVM_MAX_CPUID_ENTRIES, KVM_MAX_MSR_ENTRIES};
 use vmm_sys_util::errno;
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 use vmm_sys_util::ioctl::ioctl_with_mut_ptr;
@@ -425,7 +425,7 @@ impl Kvm {
 
         // SAFETY: The kernel is trusted not to write beyond the bounds of the memory
         // allocated for the struct. The limit is read from nmsrs, which is set to the allocated
-        // size (MAX_KVM_MSR_ENTRIES) above.
+        // size (KVM_MAX_MSR_ENTRIES) above.
         let ret = unsafe {
             ioctl_with_mut_ptr(
                 self,
@@ -439,6 +439,83 @@ impl Kvm {
 
         // The ioctl will also update the internal `nmsrs` with the actual count.
         Ok(msr_list)
+    }
+
+    /// X86 specific call to get a list of MSRs that can be passed to the KVM_GET_MSRS system ioctl.
+    ///
+    /// See the documentation for `KVM_GET_MSR_FEATURE_INDEX_LIST`.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use kvm_bindings::{kvm_msr_entry, Msrs};
+    /// use kvm_ioctls::Kvm;
+    ///
+    /// let kvm = Kvm::new().unwrap();
+    /// let msr_feature_index_list = kvm.get_msr_feature_index_list().unwrap();
+    /// ```
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    pub fn get_msr_feature_index_list(&self) -> Result<MsrList> {
+        let mut msr_list =
+            MsrList::new(KVM_MAX_MSR_ENTRIES).map_err(|_| errno::Error::new(libc::ENOMEM))?;
+
+        // SAFETY: The kernel is trusted not to write beyond the bounds of the memory
+        // allocated for the struct. The limit is read from nmsrs, which is set to the allocated
+        // size (KVM_MAX_MSR_ENTRIES) above.
+        let ret = unsafe {
+            ioctl_with_mut_ptr(
+                self,
+                KVM_GET_MSR_FEATURE_INDEX_LIST(),
+                msr_list.as_mut_fam_struct_ptr(),
+            )
+        };
+        if ret < 0 {
+            return Err(errno::Error::last());
+        }
+
+        Ok(msr_list)
+    }
+
+    /// X86 specific call to read the values of MSR-based features that are available for the VM.
+    /// As opposed to `VcpuFd::get_msrs()`, this call returns all the MSRs supported by the
+    /// system, similar to `get_supported_cpuid()` for CPUID.
+    ///
+    /// See the documentation for `KVM_GET_MSRS`.
+    ///
+    /// # Arguments
+    ///
+    /// * `msrs`  - MSRs (input/output). For details check the `kvm_msrs` structure in the
+    ///             [KVM API doc](https://www.kernel.org/doc/Documentation/virtual/kvm/api.txt).
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use kvm_bindings::{kvm_msr_entry, Msrs};
+    /// use kvm_ioctls::Kvm;
+    ///
+    /// let kvm = Kvm::new().unwrap();
+    /// let msr_feature_index_list = kvm.get_msr_feature_index_list().unwrap();
+    /// let mut msrs = Msrs::from_entries(
+    ///     &msr_feature_index_list
+    ///         .as_slice()
+    ///         .iter()
+    ///         .map(|&idx| kvm_msr_entry {
+    ///             index: idx,
+    ///             ..Default::default()
+    ///         })
+    ///         .collect::<Vec<_>>(),
+    /// )
+    /// .unwrap();
+    /// let ret = kvm.get_msrs(&mut msrs).unwrap();
+    /// ```
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    pub fn get_msrs(&self, msrs: &mut Msrs) -> Result<usize> {
+        // SAFETY: Here we trust the kernel not to read past the end of the kvm_msrs struct.
+        let ret = unsafe { ioctl_with_mut_ptr(self, KVM_GET_MSRS(), msrs.as_mut_fam_struct_ptr()) };
+        if ret < 0 {
+            return Err(errno::Error::last());
+        }
+        Ok(ret as usize)
     }
 
     /// Creates a VM fd using the KVM fd.
@@ -810,6 +887,36 @@ mod tests {
         let kvm = Kvm::new().unwrap();
         let msr_list = kvm.get_msr_index_list().unwrap();
         assert!(msr_list.as_slice().len() >= 2);
+    }
+
+    #[test]
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    fn get_msr_feature_index_list() {
+        let kvm = Kvm::new().unwrap();
+        let msr_feature_index_list = kvm.get_msr_feature_index_list().unwrap();
+        assert!(!msr_feature_index_list.as_slice().is_empty());
+    }
+
+    #[test]
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    fn get_msrs() {
+        use kvm_bindings::kvm_msr_entry;
+
+        let kvm = Kvm::new().unwrap();
+        let mut msrs = Msrs::from_entries(&[
+            kvm_msr_entry {
+                index: 0x0000010a, // MSR_IA32_ARCH_CAPABILITIES
+                ..Default::default()
+            },
+            kvm_msr_entry {
+                index: 0x00000345, // MSR_IA32_PERF_CAPABILITIES
+                ..Default::default()
+            },
+        ])
+        .unwrap();
+        let nmsrs = kvm.get_msrs(&mut msrs).unwrap();
+
+        assert_eq!(nmsrs, 2);
     }
 
     #[test]
