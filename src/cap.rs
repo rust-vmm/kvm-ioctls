@@ -146,4 +146,5 @@ pub enum Cap {
     HypervSynic2 = KVM_CAP_HYPERV_SYNIC2,
     DebugHwBps = KVM_CAP_GUEST_DEBUG_HW_BPS,
     DebugHwWps = KVM_CAP_GUEST_DEBUG_HW_WPS,
+    GetMsrFeatures = KVM_CAP_GET_MSR_FEATURES,
 }

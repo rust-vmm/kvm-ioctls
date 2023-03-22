@@ -1,3 +1,9 @@
+# Upcoming Release
+
+## Added
+- [[#219](https://github.com/rust-vmm/kvm-ioctls/pull/219)] Support for
+  `KVM_GET_MSR_FEATURE_INDEX_LIST` and `KVM_GET_MSRS` system ioctls.
+
 # v0.13.0
 
 ## Added
