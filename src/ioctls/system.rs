@@ -303,9 +303,12 @@ impl Kvm {
     /// assert!(kvm.get_max_vcpus() > 0);
     /// ```
     pub fn get_max_vcpus(&self) -> usize {
-        match self.check_extension_int(Cap::MaxVcpus) {
-            0 => self.get_nr_vcpus(),
-            x => x as usize,
+        let v = self.check_extension_int(Cap::MaxVcpus);
+
+        if v <= 0 {
+            self.get_nr_vcpus()
+        } else {
+            v as usize
         }
     }
 
@@ -323,9 +326,38 @@ impl Kvm {
     /// assert!(kvm.get_max_vcpu_id() > 0);
     /// ```
     pub fn get_max_vcpu_id(&self) -> usize {
-        match self.check_extension_int(Cap::MaxVcpuId) {
-            0 => self.get_max_vcpus(),
-            x => x as usize,
+        let v = self.check_extension_int(Cap::MaxVcpuId);
+
+        if v <= 0 {
+            self.get_max_vcpus()
+        } else {
+            v as usize
+        }
+    }
+
+    /// Returns the "disable idle exiting" capability.
+    ///
+    /// The `KVM_CAP_X86_DISABLE_EXITS` capability provides userspace with per-VM capability
+    /// to not intercept MWAIT/HLT/PAUSE/CSTATE, which means though instructions won't cause
+    /// vm-exits and helps to improve latency in some workloads.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # extern crate kvm_bindings;
+    /// # use kvm_bindings::{KVM_X86_DISABLE_EXITS_HLT, KVM_X86_DISABLE_EXITS_PAUSE};
+    /// # use kvm_ioctls::Kvm;
+    /// let kvm = Kvm::new().unwrap();
+    /// assert!(kvm.get_disable_exits() & KVM_X86_DISABLE_EXITS_HLT != 0);
+    /// assert!(kvm.get_disable_exits() & KVM_X86_DISABLE_EXITS_PAUSE != 0);
+    /// ```
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    pub fn get_disable_exits(&self) -> u32 {
+        let x = self.check_extension_int(Cap::DisableExits);
+        if x > 0 {
+            x as u32
+        } else {
+            0
         }
     }
 
@@ -707,7 +739,9 @@ mod tests {
     #![allow(clippy::undocumented_unsafe_blocks)]
     use super::*;
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-    use kvm_bindings::KVM_MAX_CPUID_ENTRIES;
+    use kvm_bindings::{
+        KVM_MAX_CPUID_ENTRIES, KVM_X86_DISABLE_EXITS_HLT, KVM_X86_DISABLE_EXITS_PAUSE,
+    };
     use libc::{fcntl, FD_CLOEXEC, F_GETFD};
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     use vmm_sys_util::fam::FamStruct;
@@ -789,6 +823,18 @@ mod tests {
         // Memory related getters
         assert!(kvm.get_vcpu_mmap_size().unwrap() > 0);
         assert!(kvm.get_nr_memslots() >= 32);
+    }
+
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[test]
+    fn test_kvm_get_disable_exits() {
+        let kvm = Kvm::new().unwrap();
+        let disable_exits = kvm.get_disable_exits();
+
+        if disable_exits != 0 {
+            assert!(disable_exits & KVM_X86_DISABLE_EXITS_HLT != 0);
+            assert!(disable_exits & KVM_X86_DISABLE_EXITS_PAUSE != 0);
+        }
     }
 
     #[test]
