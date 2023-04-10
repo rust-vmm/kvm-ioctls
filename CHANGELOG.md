@@ -3,6 +3,8 @@
 ## Added
 - [[#219](https://github.com/rust-vmm/kvm-ioctls/pull/219)] Support for
   `KVM_GET_MSR_FEATURE_INDEX_LIST` and `KVM_GET_MSRS` system ioctls.
+- [[#221](https://github.com/rust-vmm/kvm-ioctls/pull/221)] Add
+  `Cap::ArmPmuV3`.
 
 # v0.13.0
 
