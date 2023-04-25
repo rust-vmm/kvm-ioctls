@@ -1,4 +1,3 @@
-[![Build Status](https://travis-ci.org/rust-vmm/kvm-bindings.svg?branch=master)](https://travis-ci.org/rust-vmm/kvm-bindings)
 [![Crates.io](https://img.shields.io/crates/v/kvm-bindings.svg)](https://crates.io/crates/kvm-bindings)
 ![](https://img.shields.io/crates/l/kvm-bindings.svg)
 # kvm-bindings
