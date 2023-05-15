@@ -19,6 +19,12 @@ use vmm_sys_util::ioctl::{ioctl, ioctl_with_mut_ref, ioctl_with_ref};
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 use vmm_sys_util::ioctl::{ioctl_with_mut_ptr, ioctl_with_ptr, ioctl_with_val};
 
+/// Helper method to obtain the size of the register through its id
+#[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
+fn reg_size(reg_id: u64) -> usize {
+    2_usize.pow(((reg_id & KVM_REG_SIZE_MASK) >> KVM_REG_SIZE_SHIFT) as u32)
+}
+
 /// Reasons for vCPU exits.
 ///
 /// The exit reasons are mapped to the `KVM_EXIT_*` defines in the
@@ -1162,13 +1168,21 @@ impl VcpuFd {
     /// # Arguments
     ///
     /// * `reg_id` - ID of the register for which we are setting the value.
-    /// * `data` - value for the specified register.
+    /// * `data` - byte slice where the register value will be written to.
+    ///
+    /// # Note
+    ///
+    /// `data` should be equal or bigger then the register size
+    /// oterwise function will return EINVAL error
     #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
-    pub fn set_one_reg(&self, reg_id: u64, data: u128) -> Result<()> {
-        let data_ptr = &data as *const _;
+    pub fn set_one_reg(&self, reg_id: u64, data: &[u8]) -> Result<usize> {
+        let reg_size = reg_size(reg_id);
+        if data.len() < reg_size {
+            return Err(errno::Error::new(libc::EINVAL));
+        }
         let onereg = kvm_one_reg {
             id: reg_id,
-            addr: data_ptr as u64,
+            addr: data.as_ptr() as u64,
         };
         // SAFETY: This is safe because we allocated the struct and we know the kernel will read
         // exactly the size of the struct.
@@ -1176,10 +1190,10 @@ impl VcpuFd {
         if ret < 0 {
             return Err(errno::Error::last());
         }
-        Ok(())
+        Ok(reg_size)
     }
 
-    /// Returns the value of the specified vCPU register.
+    /// Writes the value of the specified vCPU register into provided buffer.
     ///
     /// The id of the register is encoded as specified in the kernel documentation
     /// for `KVM_GET_ONE_REG`.
@@ -1187,12 +1201,20 @@ impl VcpuFd {
     /// # Arguments
     ///
     /// * `reg_id` - ID of the register.
+    /// * `data` - byte slice where the register value will be written to.
+    /// # Note
+    ///
+    /// `data` should be equal or bigger then the register size
+    /// oterwise function will return EINVAL error
     #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
-    pub fn get_one_reg(&self, reg_id: u64) -> Result<u128> {
-        let mut reg_value = 0;
+    pub fn get_one_reg(&self, reg_id: u64, data: &mut [u8]) -> Result<usize> {
+        let reg_size = reg_size(reg_id);
+        if data.len() < reg_size {
+            return Err(errno::Error::new(libc::EINVAL));
+        }
         let mut onereg = kvm_one_reg {
             id: reg_id,
-            addr: &mut reg_value as *mut _ as u64,
+            addr: data.as_ptr() as u64,
         };
         // SAFETY: This is safe because we allocated the struct and we know the kernel will read
         // exactly the size of the struct.
@@ -1200,7 +1222,7 @@ impl VcpuFd {
         if ret < 0 {
             return Err(errno::Error::last());
         }
-        Ok(reg_value)
+        Ok(reg_size)
     }
 
     /// Notify the guest about the vCPU being paused.
@@ -2044,15 +2066,18 @@ mod tests {
 
         // Set the PC to the guest address where we loaded the code.
         vcpu_fd
-            .set_one_reg(core_reg_base + 2 * 32, guest_addr as u128)
+            .set_one_reg(core_reg_base + 2 * 32, &(guest_addr as u128).to_le_bytes())
             .unwrap();
 
         // Set x8 and x9 to the addresses the guest test code needs
         vcpu_fd
-            .set_one_reg(core_reg_base + 2 * 8, guest_addr as u128 + 0x10000)
+            .set_one_reg(
+                core_reg_base + 2 * 8,
+                &(guest_addr as u128 + 0x10000).to_le_bytes(),
+            )
             .unwrap();
         vcpu_fd
-            .set_one_reg(core_reg_base + 2 * 9, mmio_addr as u128)
+            .set_one_reg(core_reg_base + 2 * 9, &(mmio_addr as u128).to_le_bytes())
             .unwrap();
 
         loop {
@@ -2389,12 +2414,16 @@ mod tests {
         let data: u128 = 0;
         let reg_id: u64 = 0;
 
-        assert!(vcpu.set_one_reg(reg_id, data).is_err());
+        assert!(vcpu.set_one_reg(reg_id, &data.to_le_bytes()).is_err());
         // Exercising KVM_SET_ONE_REG by trying to alter the data inside the PSTATE register (which is a
         // specific aarch64 register).
+        // This regiseter is 64 bit wide (8 bytes).
         const PSTATE_REG_ID: u64 = 0x6030_0000_0010_0042;
-        vcpu.set_one_reg(PSTATE_REG_ID, data)
+        vcpu.set_one_reg(PSTATE_REG_ID, &data.to_le_bytes())
             .expect("Failed to set pstate register");
+
+        // Trying to set 8 byte register with 7 bytes must fail.
+        assert!(vcpu.set_one_reg(PSTATE_REG_ID, &[0_u8; 7]).is_err());
     }
 
     #[test]
@@ -2420,14 +2449,17 @@ mod tests {
             PSR_MODE_EL1H | PSR_A_BIT | PSR_F_BIT | PSR_I_BIT | PSR_D_BIT;
         let data: u128 = PSTATE_FAULT_BITS_64 as u128;
         const PSTATE_REG_ID: u64 = 0x6030_0000_0010_0042;
-        vcpu.set_one_reg(PSTATE_REG_ID, data)
+        vcpu.set_one_reg(PSTATE_REG_ID, &data.to_le_bytes())
             .expect("Failed to set pstate register");
 
-        assert_eq!(
-            vcpu.get_one_reg(PSTATE_REG_ID)
-                .expect("Failed to get pstate register"),
-            PSTATE_FAULT_BITS_64 as u128
-        );
+        let mut bytes = [0_u8; 16];
+        vcpu.get_one_reg(PSTATE_REG_ID, &mut bytes)
+            .expect("Failed to get pstate register");
+        let data = u128::from_le_bytes(bytes);
+        assert_eq!(data, PSTATE_FAULT_BITS_64 as u128);
+
+        // Trying to get 8 byte register with 7 bytes must fail.
+        assert!(vcpu.get_one_reg(PSTATE_REG_ID, &mut [0_u8; 7]).is_err());
     }
 
     #[test]
