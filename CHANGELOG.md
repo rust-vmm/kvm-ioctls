@@ -5,6 +5,9 @@
   `KVM_GET_MSR_FEATURE_INDEX_LIST` and `KVM_GET_MSRS` system ioctls.
 - [[#221](https://github.com/rust-vmm/kvm-ioctls/pull/221)] Add
   `Cap::ArmPmuV3`.
+- [[#223](https://github.com/rust-vmm/kvm-ioctls/pull/223)] aarch64:
+  Updated `get/set_one_reg` to support different registers sizes through
+  byte slices.
 
 # v0.13.0
 
