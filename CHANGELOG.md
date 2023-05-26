@@ -1,10 +1,16 @@
 # Upcoming Release
 
+# v0.14.0
+
 ## Added
+
 - [[#219](https://github.com/rust-vmm/kvm-ioctls/pull/219)] Support for
   `KVM_GET_MSR_FEATURE_INDEX_LIST` and `KVM_GET_MSRS` system ioctls.
 - [[#221](https://github.com/rust-vmm/kvm-ioctls/pull/221)] Add
   `Cap::ArmPmuV3`.
+  
+## Changed
+
 - [[#223](https://github.com/rust-vmm/kvm-ioctls/pull/223)] aarch64:
   Updated `get/set_one_reg` to support different registers sizes through
   byte slices.
