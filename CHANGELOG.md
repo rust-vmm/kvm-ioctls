@@ -6,6 +6,8 @@
   of `Cap` enum.
 - [[#228](https://github.com/rust-vmm/kvm-ioctls/pull/228)] arm64: add
 support for vCPU SVE feature.
+- [[#219](https://github.com/rust-vmm/kvm-ioctls/pull/226)] Add `Cap::ArmPtrAuthAddress`
+  and `Cap::ArmPtrAuthGeneric` capabilities.
 
 # v0.14.0
 
