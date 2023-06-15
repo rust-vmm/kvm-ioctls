@@ -20,6 +20,7 @@ use kvm_bindings::*;
 // We are allowing docs to be missing here because this enum is a wrapper
 // over auto-generated code.
 #[allow(missing_docs)]
+#[derive(PartialEq, Eq)]
 pub enum Cap {
     Irqchip = KVM_CAP_IRQCHIP,
     Hlt = KVM_CAP_HLT,
