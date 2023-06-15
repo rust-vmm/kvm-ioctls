@@ -2785,4 +2785,23 @@ mod tests {
         assert!(vcpu.has_device_attr(&dist_attr).is_ok());
         assert!(vcpu.set_device_attr(&dist_attr).is_ok());
     }
+
+    #[test]
+    #[cfg(target_arch = "aarch64")]
+    fn test_pointer_authentication() {
+        let kvm = Kvm::new().unwrap();
+        let vm = kvm.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+
+        let mut kvi: kvm_bindings::kvm_vcpu_init = kvm_bindings::kvm_vcpu_init::default();
+        vm.get_preferred_target(&mut kvi)
+            .expect("Cannot get preferred target");
+        if kvm.check_extension(Cap::ArmPtrAuthAddress) {
+            kvi.features[0] |= 1 << kvm_bindings::KVM_ARM_VCPU_PTRAUTH_ADDRESS;
+        }
+        if kvm.check_extension(Cap::ArmPtrAuthGeneric) {
+            kvi.features[0] |= 1 << kvm_bindings::KVM_ARM_VCPU_PTRAUTH_GENERIC;
+        }
+        assert!(vcpu.vcpu_init(&kvi).is_ok());
+    }
 }

@@ -150,4 +150,8 @@ pub enum Cap {
     GetMsrFeatures = KVM_CAP_GET_MSR_FEATURES,
     #[cfg(target_arch = "aarch64")]
     ArmSve = KVM_CAP_ARM_SVE,
+    #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
+    ArmPtrAuthAddress = KVM_CAP_ARM_PTRAUTH_ADDRESS,
+    #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
+    ArmPtrAuthGeneric = KVM_CAP_ARM_PTRAUTH_GENERIC,
 }
