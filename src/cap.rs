@@ -148,4 +148,6 @@ pub enum Cap {
     DebugHwBps = KVM_CAP_GUEST_DEBUG_HW_BPS,
     DebugHwWps = KVM_CAP_GUEST_DEBUG_HW_WPS,
     GetMsrFeatures = KVM_CAP_GET_MSR_FEATURES,
+    #[cfg(target_arch = "aarch64")]
+    ArmSve = KVM_CAP_ARM_SVE,
 }

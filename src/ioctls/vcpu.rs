@@ -1067,6 +1067,62 @@ impl VcpuFd {
         Ok(())
     }
 
+    /// Finalizes the configuration of the specified vcpu feature.
+    ///
+    /// The vcpu must already have been initialised, enabling the affected feature,
+    /// by means of a successful KVM_ARM_VCPU_INIT call with the appropriate flag set
+    /// in features[].
+    ///
+    /// For affected vcpu features, this is a mandatory step that must be performed before
+    /// the vcpu is fully usable.
+    ///
+    /// Between KVM_ARM_VCPU_INIT and KVM_ARM_VCPU_FINALIZE, the feature may be configured
+    /// by use of ioctls such as KVM_SET_ONE_REG. The exact configuration that should be
+    /// performaned and how to do it are feature-dependent.
+    ///
+    /// Other calls that depend on a particular feature being finalized, such as KVM_RUN,
+    /// KVM_GET_REG_LIST, KVM_GET_ONE_REG and KVM_SET_ONE_REG, will fail with -EPERM unless
+    /// the feature has already been finalized by means of a KVM_ARM_VCPU_FINALIZE call.
+    ///
+    /// See KVM_ARM_VCPU_INIT for details of vcpu features that require finalization using this ioctl.
+    /// [KVM_ARM_VCPU_FINALIZE](https://www.kernel.org/doc/html/latest/virt/kvm/api.html#kvm-arm-vcpu-finalize).
+    ///
+    /// # Arguments
+    ///
+    /// * `feature` - vCPU features that needs to be finalized.
+    ///
+    /// # Example
+    /// ```rust
+    /// # extern crate kvm_ioctls;
+    /// # extern crate kvm_bindings;
+    /// # use kvm_ioctls::Kvm;
+    /// use std::arch::is_aarch64_feature_detected;
+    ///
+    /// use kvm_bindings::{kvm_vcpu_init, KVM_ARM_VCPU_SVE};
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    /// let vcpu = vm.create_vcpu(0).unwrap();
+    ///
+    /// let mut kvi = kvm_vcpu_init::default();
+    /// vm.get_preferred_target(&mut kvi).unwrap();
+    /// kvi.features[0] |= 1 << KVM_ARM_VCPU_SVE;
+    /// if is_aarch64_feature_detected!("sve2") || is_aarch64_feature_detected!("sve") {
+    ///     vcpu.vcpu_init(&kvi).unwrap();
+    ///     let feature = KVM_ARM_VCPU_SVE as i32;
+    ///     vcpu.vcpu_finalize(&feature).unwrap();
+    /// }
+    /// ```
+    #[cfg(target_arch = "aarch64")]
+    pub fn vcpu_finalize(&self, feature: &std::os::raw::c_int) -> Result<()> {
+        // SAFETY: This is safe because we know the kernel will only read this
+        // parameter to select the correct finalization case in KVM.
+        let ret = unsafe { ioctl_with_ref(self, KVM_ARM_VCPU_FINALIZE(), feature) };
+        if ret < 0 {
+            return Err(errno::Error::last());
+        }
+        Ok(())
+    }
+
     /// Returns the guest registers that are supported for the
     /// KVM_GET_ONE_REG/KVM_SET_ONE_REG calls.
     ///
