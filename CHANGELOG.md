@@ -1,5 +1,12 @@
 # Upcoming Release
 
+# v0.15.0
+
+## Added
+
+- [[#228](https://github.com/rust-vmm/kvm-ioctls/pull/228)] arm64: add
+support for vCPU SVE feature
+
 # v0.14.0
 
 ## Added
