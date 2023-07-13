@@ -183,6 +183,31 @@ impl Kvm {
     ///
     /// # Arguments
     ///
+    /// * `c` - KVM capability to check in a form of a raw integer.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use kvm_ioctls::Kvm;
+    /// # use std::os::raw::c_ulong;
+    /// use kvm_ioctls::Cap;
+    ///
+    /// let kvm = Kvm::new().unwrap();
+    /// assert!(kvm.check_extension_raw(Cap::MaxVcpuId as c_ulong) > 0);
+    /// ```
+    pub fn check_extension_raw(&self, c: c_ulong) -> i32 {
+        // SAFETY: Safe because we know that our file is a KVM fd.
+        // If `c` is not a known kernel extension, kernel will return 0.
+        unsafe { ioctl_with_val(self, KVM_CHECK_EXTENSION(), c) }
+    }
+
+    /// Wrapper over `KVM_CHECK_EXTENSION`.
+    ///
+    /// Returns 0 if the capability is not available and a positive integer otherwise.
+    /// See the documentation for `KVM_CHECK_EXTENSION`.
+    ///
+    /// # Arguments
+    ///
     /// * `c` - KVM capability to check.
     ///
     /// # Example
@@ -195,9 +220,7 @@ impl Kvm {
     /// assert!(kvm.check_extension_int(Cap::MaxVcpuId) > 0);
     /// ```
     pub fn check_extension_int(&self, c: Cap) -> i32 {
-        // SAFETY: Safe because we know that our file is a KVM fd and that the extension is one of
-        // the ones defined by kernel.
-        unsafe { ioctl_with_val(self, KVM_CHECK_EXTENSION(), c as c_ulong) }
+        self.check_extension_raw(c as c_ulong)
     }
 
     /// Checks if a particular `Cap` is available.
@@ -749,6 +772,13 @@ mod tests {
         let kvm = Kvm::new().unwrap();
         assert_eq!(kvm.get_api_version(), 12);
         assert!(kvm.check_extension(Cap::UserMemory));
+    }
+
+    #[test]
+    fn test_kvm_check_extension() {
+        let kvm = Kvm::new().unwrap();
+        // unsupported extension will return 0
+        assert_eq!(kvm.check_extension_raw(696969), 0);
     }
 
     #[test]
