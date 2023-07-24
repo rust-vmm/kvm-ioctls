@@ -1944,6 +1944,7 @@ mod tests {
 
     #[test]
     #[cfg(target_arch = "aarch64")]
+    #[allow(clippy::unusual_byte_groupings)]
     fn test_set_irq_line() {
         let kvm = Kvm::new().unwrap();
         let vm_fd = kvm.create_vm().unwrap();
