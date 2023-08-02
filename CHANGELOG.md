@@ -4,6 +4,8 @@
 - [[#230](https://github.com/rust-vmm/kvm-ioctls/pull/230)] Added
   `check_extension_raw` method to use raw integer values instead
   of `Cap` enum.
+- [[#228](https://github.com/rust-vmm/kvm-ioctls/pull/228)] arm64: add
+support for vCPU SVE feature.
 
 # v0.14.0
 
