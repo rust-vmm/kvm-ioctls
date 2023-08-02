@@ -1,6 +1,12 @@
 # Upcoming Release
 
 ## Added
+
+## Changed
+
+# v0.15.0
+
+## Added
 - [[#230](https://github.com/rust-vmm/kvm-ioctls/pull/230)] Added
   `check_extension_raw` method to use raw integer values instead
   of `Cap` enum.
