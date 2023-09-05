@@ -21,7 +21,7 @@ use vmm_sys_util::ioctl::{ioctl_with_mut_ptr, ioctl_with_ptr, ioctl_with_val};
 
 /// Helper method to obtain the size of the register through its id
 #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
-fn reg_size(reg_id: u64) -> usize {
+pub fn reg_size(reg_id: u64) -> usize {
     2_usize.pow(((reg_id & KVM_REG_SIZE_MASK) >> KVM_REG_SIZE_SHIFT) as u32)
 }
 

@@ -217,6 +217,8 @@ mod ioctls;
 pub use cap::Cap;
 pub use ioctls::device::DeviceFd;
 pub use ioctls::system::Kvm;
+#[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
+pub use ioctls::vcpu::reg_size;
 pub use ioctls::vcpu::{VcpuExit, VcpuFd};
 
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]

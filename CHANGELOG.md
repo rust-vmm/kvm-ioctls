@@ -3,6 +3,8 @@
 ## Added
 
 ## Changed
+- [[#234](https://github.com/rust-vmm/kvm-ioctls/issues/234)] vcpu: export
+reg_size as a public method.
 
 # v0.15.0
 
