@@ -1391,11 +1391,10 @@ impl VcpuFd {
                     // SAFETY: The data_offset is defined by the kernel to be some number of bytes
                     // into the kvm_run stucture, which we have fully mmap'd.
                     let data_ptr = unsafe { run_start.offset(io.data_offset as isize) };
-                    // SAFETY: The slice's lifetime is limited to the lifetime of this vCPU, which is equal
-                    // to the mmap of the `kvm_run` struct that this is slicing from.
-                    let data_slice = unsafe {
-                        std::slice::from_raw_parts_mut::<u8>(data_ptr as *mut u8, data_size)
-                    };
+                    let data_slice =
+                        // SAFETY: The slice's lifetime is limited to the lifetime of this vCPU, which is equal
+                        // to the mmap of the `kvm_run` struct that this is slicing from.
+                        unsafe { std::slice::from_raw_parts_mut::<u8>(data_ptr, data_size) };
                     match u32::from(io.direction) {
                         KVM_EXIT_IO_IN => Ok(VcpuExit::IoIn(port, data_slice)),
                         KVM_EXIT_IO_OUT => Ok(VcpuExit::IoOut(port, data_slice)),
@@ -1597,7 +1596,7 @@ impl VcpuFd {
     /// ```
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn set_sync_valid_reg(&mut self, reg: SyncReg) {
-        let mut kvm_run: &mut kvm_run = self.kvm_run_ptr.as_mut_ref();
+        let kvm_run: &mut kvm_run = self.kvm_run_ptr.as_mut_ref();
         kvm_run.kvm_valid_regs |= reg as u64;
     }
 
@@ -1619,7 +1618,7 @@ impl VcpuFd {
     /// ```
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn set_sync_dirty_reg(&mut self, reg: SyncReg) {
-        let mut kvm_run: &mut kvm_run = self.kvm_run_ptr.as_mut_ref();
+        let kvm_run: &mut kvm_run = self.kvm_run_ptr.as_mut_ref();
         kvm_run.kvm_dirty_regs |= reg as u64;
     }
 
@@ -1641,7 +1640,7 @@ impl VcpuFd {
     /// ```
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn clear_sync_valid_reg(&mut self, reg: SyncReg) {
-        let mut kvm_run: &mut kvm_run = self.kvm_run_ptr.as_mut_ref();
+        let kvm_run: &mut kvm_run = self.kvm_run_ptr.as_mut_ref();
         kvm_run.kvm_valid_regs &= !(reg as u64);
     }
 
@@ -1663,7 +1662,7 @@ impl VcpuFd {
     /// ```
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn clear_sync_dirty_reg(&mut self, reg: SyncReg) {
-        let mut kvm_run: &mut kvm_run = self.kvm_run_ptr.as_mut_ref();
+        let kvm_run: &mut kvm_run = self.kvm_run_ptr.as_mut_ref();
         kvm_run.kvm_dirty_regs &= !(reg as u64);
     }
 
@@ -2714,7 +2713,7 @@ mod tests {
 
             let orig_sregs = vcpu.get_sregs().unwrap();
 
-            let mut sync_regs = vcpu.sync_regs_mut();
+            let sync_regs = vcpu.sync_regs_mut();
 
             // Initialize the sregs in sync_regs to be the original sregs
             sync_regs.sregs = orig_sregs;
