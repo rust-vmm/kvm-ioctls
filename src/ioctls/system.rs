@@ -14,7 +14,7 @@ use crate::cap::Cap;
 use crate::ioctls::vm::{new_vmfd, VmFd};
 use crate::ioctls::Result;
 use crate::kvm_ioctls::*;
-#[cfg(any(target_arch = "aarch64"))]
+#[cfg(target_arch = "aarch64")]
 use kvm_bindings::KVM_VM_TYPE_ARM_IPA_SIZE_MASK;
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 use kvm_bindings::{CpuId, MsrList, Msrs, KVM_MAX_CPUID_ENTRIES, KVM_MAX_MSR_ENTRIES};
@@ -576,7 +576,7 @@ impl Kvm {
     /// // Check that the VM mmap size is the same reported by `KVM_GET_VCPU_MMAP_SIZE`.
     /// assert!(vm.run_size() == kvm.get_vcpu_mmap_size().unwrap());
     /// ```
-    #[cfg(any(target_arch = "aarch64"))]
+    #[cfg(target_arch = "aarch64")]
     pub fn create_vm(&self) -> Result<VmFd> {
         let mut ipa_size = 0; // Create using default VM type
         if self.check_extension(Cap::ArmVmIPASize) {
@@ -615,7 +615,7 @@ impl Kvm {
     ///     assert!(vm.run_size() == kvm.get_vcpu_mmap_size().unwrap());
     /// }
     /// ```
-    #[cfg(any(target_arch = "aarch64"))]
+    #[cfg(target_arch = "aarch64")]
     pub fn create_vm_with_ipa_size(&self, ipa_size: u32) -> Result<VmFd> {
         self.create_vm_with_type((ipa_size & KVM_VM_TYPE_ARM_IPA_SIZE_MASK).into())
     }
@@ -848,7 +848,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(any(target_arch = "aarch64"))]
+    #[cfg(target_arch = "aarch64")]
     fn test_create_vm_with_ipa_size() {
         let kvm = Kvm::new().unwrap();
         if kvm.check_extension(Cap::ArmVmIPASize) {
