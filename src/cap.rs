@@ -162,4 +162,6 @@ pub enum Cap {
     ArmPtrAuthAddress = KVM_CAP_ARM_PTRAUTH_ADDRESS,
     #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
     ArmPtrAuthGeneric = KVM_CAP_ARM_PTRAUTH_GENERIC,
+    #[cfg(any(target_arch = "aarch64", target_arch = "x86_64"))]
+    KvmCapStealTime = KVM_CAP_STEAL_TIME,
 }

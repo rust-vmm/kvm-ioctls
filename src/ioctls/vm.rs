@@ -2251,4 +2251,48 @@ mod tests {
         assert!(vm.register_enc_memory_region(&memory_region).is_ok());
         assert!(vm.unregister_enc_memory_region(&memory_region).is_ok());
     }
+
+    #[test]
+    #[cfg(target_arch = "aarch64")]
+    fn test_kvm_steal_time_capability() {
+        let kvm = Kvm::new().unwrap();
+        let vm = kvm.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+        create_gic_device(&vm, 0);
+
+        if kvm.check_extension(Cap::KvmCapStealTime) {
+            const PVTIME_REGION_SIZE: u64 = 0x10000;
+            const TEST_KVM_MEM_SLOT: u32 = 0;
+            const TEST_IPA: u64 = 0x20000000;
+            let hva = unsafe {
+                libc::mmap(
+                    std::ptr::null_mut(),
+                    PVTIME_REGION_SIZE as usize,
+                    libc::PROT_READ | libc::PROT_WRITE,
+                    libc::MAP_PRIVATE | libc::MAP_ANONYMOUS,
+                    0,
+                    0,
+                )
+            } as *const u8 as u64;
+
+            let mem_region = kvm_bindings::kvm_userspace_memory_region {
+                slot: TEST_KVM_MEM_SLOT,
+                guest_phys_addr: TEST_IPA,
+                memory_size: PVTIME_REGION_SIZE,
+                userspace_addr: hva,
+                flags: 0,
+            };
+            unsafe {
+                vm.set_user_memory_region(mem_region).unwrap();
+            }
+
+            let device_attribute = kvm_device_attr {
+                group: KVM_ARM_VCPU_PVTIME_CTRL,
+                attr: KVM_ARM_VCPU_PVTIME_IPA as u64,
+                addr: &TEST_IPA as *const _ as u64,
+                ..Default::default()
+            };
+            assert!(vcpu.set_device_attr(&device_attribute).is_ok())
+        }
+    }
 }
