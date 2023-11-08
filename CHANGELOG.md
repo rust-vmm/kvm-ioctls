@@ -6,6 +6,7 @@
 - The x86 module has been renamed to x86_64 for consistency (matches the kernel
   architecture directory name)
 - Dropped "x86" (32-bit) x86 support
+- Added all features to the generated docs.rs documentation.
 
 ## [0.6.0]
 
