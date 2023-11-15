@@ -2906,4 +2906,147 @@ mod tests {
         }
         assert!(vcpu.vcpu_init(&kvi).is_ok());
     }
+
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[test]
+    fn test_userspace_rdmsr_exit() {
+        use std::io::Write;
+
+        let kvm = Kvm::new().unwrap();
+        let vm = kvm.create_vm().unwrap();
+        #[rustfmt::skip]
+        let code = [
+            0x0F, 0x32, /* rdmsr */
+            0xF4        /* hlt */
+        ];
+
+        if !vm.check_extension(Cap::X86UserSpaceMsr) {
+            return;
+        }
+        let cap = kvm_enable_cap {
+            cap: Cap::X86UserSpaceMsr as u32,
+            args: [MsrExitReason::Unknown.bits() as u64, 0, 0, 0],
+            ..Default::default()
+        };
+        vm.enable_cap(&cap).unwrap();
+
+        let mem_size = 0x4000;
+        let load_addr = mmap_anonymous(mem_size);
+        let guest_addr: u64 = 0x1000;
+        let slot: u32 = 0;
+        let mem_region = kvm_userspace_memory_region {
+            slot,
+            guest_phys_addr: guest_addr,
+            memory_size: mem_size as u64,
+            userspace_addr: load_addr as u64,
+            flags: 0,
+        };
+        unsafe {
+            vm.set_user_memory_region(mem_region).unwrap();
+
+            // Get a mutable slice of `mem_size` from `load_addr`.
+            // This is safe because we mapped it before.
+            let mut slice = std::slice::from_raw_parts_mut(load_addr, mem_size);
+            slice.write_all(&code).unwrap();
+        }
+
+        let vcpu = vm.create_vcpu(0).unwrap();
+
+        // Set up special registers
+        let mut vcpu_sregs = vcpu.get_sregs().unwrap();
+        assert_ne!(vcpu_sregs.cs.base, 0);
+        assert_ne!(vcpu_sregs.cs.selector, 0);
+        vcpu_sregs.cs.base = 0;
+        vcpu_sregs.cs.selector = 0;
+        vcpu.set_sregs(&vcpu_sregs).unwrap();
+
+        // Set the Instruction Pointer to the guest address where we loaded
+        // the code, and RCX to the MSR to be read.
+        let mut vcpu_regs = vcpu.get_regs().unwrap();
+        vcpu_regs.rip = guest_addr;
+        vcpu_regs.rcx = 0x474f4f00;
+        vcpu.set_regs(&vcpu_regs).unwrap();
+
+        match vcpu.run().unwrap() {
+            VcpuExit::X86Rdmsr(exit) => {
+                assert_eq!(exit.reason, MsrExitReason::Unknown);
+                assert_eq!(exit.index, 0x474f4f00);
+            }
+            e => panic!("Unexpected exit: {:?}", e),
+        }
+    }
+
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[test]
+    fn test_userspace_wrmsr_exit() {
+        use std::io::Write;
+
+        let kvm = Kvm::new().unwrap();
+        let vm = kvm.create_vm().unwrap();
+        #[rustfmt::skip]
+        let code = [
+            0x0F, 0x30, /* wrmsr */
+            0xF4        /* hlt */
+        ];
+
+        if !vm.check_extension(Cap::X86UserSpaceMsr) {
+            return;
+        }
+        let cap = kvm_enable_cap {
+            cap: Cap::X86UserSpaceMsr as u32,
+            args: [MsrExitReason::Unknown.bits() as u64, 0, 0, 0],
+            ..Default::default()
+        };
+        vm.enable_cap(&cap).unwrap();
+
+        let mem_size = 0x4000;
+        let load_addr = mmap_anonymous(mem_size);
+        let guest_addr: u64 = 0x1000;
+        let slot: u32 = 0;
+        let mem_region = kvm_userspace_memory_region {
+            slot,
+            guest_phys_addr: guest_addr,
+            memory_size: mem_size as u64,
+            userspace_addr: load_addr as u64,
+            flags: 0,
+        };
+        unsafe {
+            vm.set_user_memory_region(mem_region).unwrap();
+
+            // Get a mutable slice of `mem_size` from `load_addr`.
+            // This is safe because we mapped it before.
+            let mut slice = std::slice::from_raw_parts_mut(load_addr, mem_size);
+            slice.write_all(&code).unwrap();
+        }
+
+        let vcpu = vm.create_vcpu(0).unwrap();
+
+        // Set up special registers
+        let mut vcpu_sregs = vcpu.get_sregs().unwrap();
+        assert_ne!(vcpu_sregs.cs.base, 0);
+        assert_ne!(vcpu_sregs.cs.selector, 0);
+        vcpu_sregs.cs.base = 0;
+        vcpu_sregs.cs.selector = 0;
+        vcpu.set_sregs(&vcpu_sregs).unwrap();
+
+        // Set the Instruction Pointer to the guest address where we loaded
+        // the code, RCX to the MSR to be written, and EDX:EAX to the data to
+        // be written.
+        let mut vcpu_regs = vcpu.get_regs().unwrap();
+        vcpu_regs.rip = guest_addr;
+        vcpu_regs.rcx = 0x474f4f00;
+        vcpu_regs.rax = 0xdeadbeef;
+        vcpu_regs.rdx = 0xd0c0ffee;
+        vcpu.set_regs(&vcpu_regs).unwrap();
+
+        match vcpu.run().unwrap() {
+            VcpuExit::X86Wrmsr(exit) => {
+                assert_eq!(exit.reason, MsrExitReason::Unknown);
+                assert_eq!(exit.index, 0x474f4f00);
+                assert_eq!(exit.data & 0xffffffff, 0xdeadbeef);
+                assert_eq!((exit.data >> 32) & 0xffffffff, 0xd0c0ffee);
+            }
+            e => panic!("Unexpected exit: {:?}", e),
+        }
+    }
 }
