@@ -240,6 +240,10 @@ ioctl_ior_nr!(KVM_ARM_PREFERRED_TARGET, KVMIO, 0xaf, kvm_vcpu_init);
 #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
 ioctl_iowr_nr!(KVM_GET_REG_LIST, KVMIO, 0xb0, kvm_reg_list);
 
+/* Available with KVM_CAP_X86_SMM */
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+ioctl_io_nr!(KVM_SMI, KVMIO, 0xb7);
+
 /* Available with KVM_CAP_ARM_SVE */
 #[cfg(target_arch = "aarch64")]
 ioctl_iow_nr!(KVM_ARM_VCPU_FINALIZE, KVMIO, 0xc2, std::os::raw::c_int);

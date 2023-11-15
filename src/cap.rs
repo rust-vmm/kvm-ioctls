@@ -146,6 +146,8 @@ pub enum Cap {
     CheckExtensionVm = KVM_CAP_CHECK_EXTENSION_VM,
     S390UserSigp = KVM_CAP_S390_USER_SIGP,
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    X86Smm = KVM_CAP_X86_SMM,
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     SplitIrqchip = KVM_CAP_SPLIT_IRQCHIP,
     ArmPmuV3 = KVM_CAP_ARM_PMU_V3,
     ImmediateExit = KVM_CAP_IMMEDIATE_EXIT,
