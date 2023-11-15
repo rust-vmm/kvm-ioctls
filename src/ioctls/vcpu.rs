@@ -1720,6 +1720,29 @@ impl VcpuFd {
         // `get_vcpu_map_size`, so this region is in bounds
         unsafe { &mut kvm_run.s.regs }
     }
+
+    /// Triggers an SMI on the virtual CPU.
+    ///
+    /// See documentation for `KVM_SMI`.
+    ///
+    /// ```rust
+    /// # use kvm_ioctls::{Kvm, Cap};
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    /// let vcpu = vm.create_vcpu(0).unwrap();
+    /// if kvm.check_extension(Cap::X86Smm) {
+    ///     vcpu.smi().unwrap();
+    /// }
+    /// ```
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    pub fn smi(&self) -> Result<()> {
+        // SAFETY: Safe because we call this with a Vcpu fd and we trust the kernel.
+        let ret = unsafe { ioctl(self, KVM_SMI()) };
+        match ret {
+            0 => Ok(()),
+            _ => Err(errno::Error::last()),
+        }
+    }
 }
 
 /// Helper function to create a new `VcpuFd`.

@@ -5,8 +5,10 @@
 ## Changed
 - [[#234](https://github.com/rust-vmm/kvm-ioctls/issues/234)] vcpu: export
 reg_size as a public method.
--[[#243](https://github.com/rust-vmm/kvm-ioctls/pull/243)] derived the `Copy`
- trait for `IoEventAddress` and `NoDatamatch`.
+- [[#243](https://github.com/rust-vmm/kvm-ioctls/pull/243)] derived the `Copy`
+  trait for `IoEventAddress` and `NoDatamatch`.
+- [[#242](https://github.com/rust-vmm/kvm-ioctls/pull/242)] x86: add support
+  for SMI injection via `Vcpu::smi()` (`KVM_SMI` ioctl).
 
 # v0.15.0
 
