@@ -9,6 +9,8 @@ reg_size as a public method.
   trait for `IoEventAddress` and `NoDatamatch`.
 - [[#242](https://github.com/rust-vmm/kvm-ioctls/pull/242)] x86: add support
   for SMI injection via `Vcpu::smi()` (`KVM_SMI` ioctl).
+- [[#241](https://github.com/rust-vmm/kvm-ioctls/pull/241)] Add support for
+  userspace MSR handling.
 
 # v0.15.0
 

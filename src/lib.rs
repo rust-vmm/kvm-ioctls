@@ -224,7 +224,7 @@ pub use ioctls::vcpu::reg_size;
 pub use ioctls::vcpu::{VcpuExit, VcpuFd};
 
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-pub use ioctls::vcpu::SyncReg;
+pub use ioctls::vcpu::{MsrExitReason, ReadMsrExit, SyncReg, WriteMsrExit};
 
 pub use ioctls::vm::{IoEventAddress, NoDatamatch, VmFd};
 // The following example is used to verify that our public

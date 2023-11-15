@@ -13,7 +13,10 @@ use std::os::unix::io::{AsRawFd, RawFd};
 use crate::ioctls::{KvmRunWrapper, Result};
 use crate::kvm_ioctls::*;
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-use kvm_bindings::{CpuId, Msrs, KVM_MAX_CPUID_ENTRIES};
+use kvm_bindings::{
+    CpuId, Msrs, KVM_MAX_CPUID_ENTRIES, KVM_MSR_EXIT_REASON_FILTER, KVM_MSR_EXIT_REASON_INVAL,
+    KVM_MSR_EXIT_REASON_UNKNOWN,
+};
 use vmm_sys_util::errno;
 use vmm_sys_util::ioctl::{ioctl, ioctl_with_mut_ref, ioctl_with_ref};
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
@@ -23,6 +26,55 @@ use vmm_sys_util::ioctl::{ioctl_with_mut_ptr, ioctl_with_ptr, ioctl_with_val};
 #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
 pub fn reg_size(reg_id: u64) -> usize {
     2_usize.pow(((reg_id & KVM_REG_SIZE_MASK) >> KVM_REG_SIZE_SHIFT) as u32)
+}
+
+/// Information about a [`VcpuExit`] triggered by an MSR read (`KVM_EXIT_X86_RDMSR`).
+#[derive(Debug)]
+pub struct ReadMsrExit<'a> {
+    /// Must be set to 1 by the the user if the read access should fail. This
+    /// will inject a #GP fault into the guest when the VCPU is executed
+    /// again.
+    pub error: &'a mut u8,
+    /// The reason for this exit.
+    pub reason: MsrExitReason,
+    /// The MSR the guest wants to read.
+    pub index: u32,
+    /// The data to be supplied by the user as the MSR Contents to the guest.
+    pub data: &'a mut u64,
+}
+
+/// Information about a [`VcpuExit`] triggered by an MSR write (`KVM_EXIT_X86_WRMSR`).
+#[derive(Debug)]
+pub struct WriteMsrExit<'a> {
+    /// Must be set to 1 by the the user if the write access should fail. This
+    /// will inject a #GP fault into the guest when the VCPU is executed
+    /// again.
+    pub error: &'a mut u8,
+    /// The reason for this exit.
+    pub reason: MsrExitReason,
+    /// The MSR the guest wants to write.
+    pub index: u32,
+    /// The data the guest wants to write into the MSR.
+    pub data: u64,
+}
+
+bitflags::bitflags! {
+    /// The reason for a [`VcpuExit::X86Rdmsr`] or[`VcpuExit::X86Wrmsr`]. This
+    /// is also used when enabling
+    /// [`Cap::X86UserSpaceMsr`](crate::Cap::X86UserSpaceMsr) to specify which
+    /// reasons should be forwarded to the user via those exits.
+    #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+    pub struct MsrExitReason: u32 {
+        /// Corresponds to [`KVM_MSR_EXIT_REASON_UNKNOWN`]. The exit was
+        /// triggered by an access to an MSR that is unknown to KVM.
+        const Unknown = KVM_MSR_EXIT_REASON_UNKNOWN;
+        /// Corresponds to [`KVM_MSR_EXIT_REASON_INVAL`]. The exit was
+        /// triggered by an access to an invalid MSR or to reserved bits.
+        const Inval = KVM_MSR_EXIT_REASON_INVAL;
+        /// Corresponds to [`KVM_MSR_EXIT_REASON_FILTER`]. The exit was
+        /// triggered by an access to a filtered MSR.
+        const Filter = KVM_MSR_EXIT_REASON_FILTER;
+    }
 }
 
 /// Reasons for vCPU exits.
@@ -102,6 +154,10 @@ pub enum VcpuExit<'a> {
     IoapicEoi(u8 /* vector */),
     /// Corresponds to KVM_EXIT_HYPERV.
     Hyperv,
+    /// Corresponds to KVM_EXIT_X86_RDMSR.
+    X86Rdmsr(ReadMsrExit<'a>),
+    /// Corresponds to KVM_EXIT_X86_WRMSR.
+    X86Wrmsr(WriteMsrExit<'a>),
     /// Corresponds to an exit reason that is unknown from the current version
     /// of the kvm-ioctls crate. Let the consumer decide about what to do with
     /// it.
@@ -1421,6 +1477,30 @@ impl VcpuFd {
                     } else {
                         Ok(VcpuExit::MmioRead(addr, data_slice))
                     }
+                }
+                KVM_EXIT_X86_RDMSR => {
+                    // SAFETY: Safe because the exit_reason (which comes from the kernel) told us
+                    // which union field to use.
+                    let msr = unsafe { &mut run.__bindgen_anon_1.msr };
+                    let exit = ReadMsrExit {
+                        error: &mut msr.error,
+                        reason: MsrExitReason::from_bits_truncate(msr.reason),
+                        index: msr.index,
+                        data: &mut msr.data,
+                    };
+                    Ok(VcpuExit::X86Rdmsr(exit))
+                }
+                KVM_EXIT_X86_WRMSR => {
+                    // SAFETY: Safe because the exit_reason (which comes from the kernel) told us
+                    // which union field to use.
+                    let msr = unsafe { &mut run.__bindgen_anon_1.msr };
+                    let exit = WriteMsrExit {
+                        error: &mut msr.error,
+                        reason: MsrExitReason::from_bits_truncate(msr.reason),
+                        index: msr.index,
+                        data: msr.data,
+                    };
+                    Ok(VcpuExit::X86Wrmsr(exit))
                 }
                 KVM_EXIT_IRQ_WINDOW_OPEN => Ok(VcpuExit::IrqWindowOpen),
                 KVM_EXIT_SHUTDOWN => Ok(VcpuExit::Shutdown),
