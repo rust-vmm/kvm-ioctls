@@ -5,6 +5,8 @@
 ## Changed
 - [[#234](https://github.com/rust-vmm/kvm-ioctls/issues/234)] vcpu: export
 reg_size as a public method.
+-[[#243](https://github.com/rust-vmm/kvm-ioctls/pull/243)] derived the `Copy`
+ trait for `IoEventAddress` and `NoDatamatch`.
 
 # v0.15.0
 
