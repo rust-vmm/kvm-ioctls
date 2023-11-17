@@ -6,6 +6,7 @@
 // found in the THIRD-PARTY file.
 #![deny(missing_docs)]
 #![deny(missing_copy_implementations)]
+#![deny(missing_debug_implementations)]
 
 //! A safe wrapper around the kernel's KVM interface.
 //!
