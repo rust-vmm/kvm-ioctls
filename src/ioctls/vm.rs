@@ -28,7 +28,7 @@ use vmm_sys_util::ioctl::{ioctl, ioctl_with_mut_ref, ioctl_with_ref, ioctl_with_
 ///
 /// The `IoEventAddress` is used for specifying the type when registering an event
 /// in [register_ioevent](struct.VmFd.html#method.register_ioevent).
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub enum IoEventAddress {
     /// Representation of an programmable I/O address.
     Pio(u64),
@@ -42,7 +42,7 @@ pub enum IoEventAddress {
 /// [`register_ioevent`](struct.VmFd.html#method.register_ioevent)
 /// to disable filtering of events based on the datamatch flag. For details check the
 /// [KVM API documentation](https://www.kernel.org/doc/Documentation/virtual/kvm/api.txt).
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct NoDatamatch;
 impl From<NoDatamatch> for u64 {
     fn from(_: NoDatamatch) -> u64 {
