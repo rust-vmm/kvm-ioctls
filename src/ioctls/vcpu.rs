@@ -10,7 +10,7 @@ use libc::EINVAL;
 use std::fs::File;
 use std::os::unix::io::{AsRawFd, RawFd};
 
-use crate::ioctls::{KvmRunWrapper, Result};
+use crate::ioctls::{KvmCoalescedIoRing, KvmRunWrapper, Result};
 use crate::kvm_ioctls::*;
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 use kvm_bindings::{
@@ -169,6 +169,8 @@ pub enum VcpuExit<'a> {
 pub struct VcpuFd {
     vcpu: File,
     kvm_run_ptr: KvmRunWrapper,
+    /// A pointer to the coalesced MMIO page
+    coalesced_mmio_ring: Option<KvmCoalescedIoRing>,
 }
 
 /// KVM Sync Registers used to tell KVM which registers to sync
@@ -1849,6 +1851,55 @@ impl VcpuFd {
             _ => Err(errno::Error::last()),
         }
     }
+
+    /// Maps the coalesced MMIO ring page. This allows reading entries from
+    /// the ring via [`coalesced_mmio_read()`](VcpuFd::coalesced_mmio_read).
+    ///
+    /// # Returns
+    ///
+    /// Returns an error if the buffer could not be mapped, usually because
+    /// `KVM_CAP_COALESCED_MMIO` ([`Cap::CoalescedMmio`](crate::Cap::CoalescedMmio))
+    /// is not available.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use kvm_ioctls::{Kvm, Cap};
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    /// let mut vcpu = vm.create_vcpu(0).unwrap();
+    /// if kvm.check_extension(Cap::CoalescedMmio) {
+    ///     vcpu.map_coalesced_mmio_ring().unwrap();
+    /// }
+    /// ```
+    pub fn map_coalesced_mmio_ring(&mut self) -> Result<()> {
+        if self.coalesced_mmio_ring.is_none() {
+            let ring = KvmCoalescedIoRing::mmap_from_fd(&self.vcpu)?;
+            self.coalesced_mmio_ring = Some(ring);
+        }
+        Ok(())
+    }
+
+    /// Read a single entry from the coalesced MMIO ring.
+    /// For entries to be appended to the ring by the kernel, addresses must be registered
+    /// via [`VmFd::register_coalesced_mmio()`](crate::VmFd::register_coalesced_mmio()).
+    ///
+    /// [`map_coalesced_mmio_ring()`](VcpuFd::map_coalesced_mmio_ring) must have been called beforehand.
+    ///
+    /// See the documentation for `KVM_(UN)REGISTER_COALESCED_MMIO`.
+    ///
+    /// # Returns
+    ///
+    /// * An error if [`map_coalesced_mmio_ring()`](VcpuFd::map_coalesced_mmio_ring)
+    ///   was not called beforehand.
+    /// * [`Ok<None>`] if the ring is empty.
+    /// * [`Ok<Some<kvm_coalesced_mmio>>`] if an entry was successfully read.
+    pub fn coalesced_mmio_read(&mut self) -> Result<Option<kvm_coalesced_mmio>> {
+        self.coalesced_mmio_ring
+            .as_mut()
+            .ok_or(errno::Error::new(libc::EIO))
+            .map(|ring| ring.read_entry())
+    }
 }
 
 /// Helper function to create a new `VcpuFd`.
@@ -1857,7 +1908,11 @@ impl VcpuFd {
 /// `create_vcpu` from `VmFd`. The function cannot be part of the `VcpuFd` implementation because
 /// then it would be exported with the public `VcpuFd` interface.
 pub fn new_vcpu(vcpu: File, kvm_run_ptr: KvmRunWrapper) -> VcpuFd {
-    VcpuFd { vcpu, kvm_run_ptr }
+    VcpuFd {
+        vcpu,
+        kvm_run_ptr,
+        coalesced_mmio_ring: None,
+    }
 }
 
 impl AsRawFd for VcpuFd {
@@ -2440,6 +2495,7 @@ mod tests {
                 kvm_run_ptr: mmap_anonymous(10),
                 mmap_size: 10,
             },
+            coalesced_mmio_ring: None,
         };
 
         assert_eq!(faulty_vcpu_fd.get_regs().unwrap_err().errno(), badf_errno);

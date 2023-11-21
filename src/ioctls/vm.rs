@@ -1562,6 +1562,68 @@ impl VmFd {
             Err(errno::Error::last())
         }
     }
+
+    /// Registers an address for coalesced MMIO. Write accesses to the address
+    /// will not cause a corresponding [`VcpuExit`](crate::VcpuExit), but
+    /// instead will be appended to the MMIO ring buffer. The [`VcpuFd`] can
+    /// read entries in the ring buffer via [`VcpuFd::coalesced_mmio_read()`].
+    /// If entries are not read the buffer will eventually be full,
+    /// preventing further elements from being appended by the kernel.
+    ///
+    /// Needs `KVM_CAP_COALESCED_MMIO` ([`Cap::CoalescedMmio`](crate::Cap::CoalescedMmio))
+    /// and/or `KVM_CAP_COALESCED_PIO` ([`Cap::CoalescedMmio`](crate::Cap::CoalescedPio)).
+    ///
+    /// See the documentation for `KVM_REGISTER_COALESCED_MMIO`.
+    ///
+    /// # Arguments
+    ///
+    /// * `addr` - Address being written to.
+    /// * `size` - The size of the write for the mechanism to trigger.
+    pub fn register_coalesced_mmio(&self, addr: IoEventAddress, size: u32) -> Result<()> {
+        let (addr, pio) = match addr {
+            IoEventAddress::Pio(addr) => (addr, 1),
+            IoEventAddress::Mmio(addr) => (addr, 0),
+        };
+        let mut zone = kvm_coalesced_mmio_zone {
+            addr,
+            size,
+            ..Default::default()
+        };
+        zone.__bindgen_anon_1.pio = pio;
+
+        // SAFETY: Safe because we know that our file is a VM fd, we know the kernel will only read
+        // the correct amount of memory from our pointer, and we verify the return result.
+        let ret = unsafe { ioctl_with_ref(self, KVM_REGISTER_COALESCED_MMIO(), &zone) };
+        if ret != 0 {
+            return Err(errno::Error::last());
+        }
+        Ok(())
+    }
+
+    /// Unregister an address that was previously registered via
+    /// [`register_coalesced_mmio()`](VmFd::register_coalesced_mmio).
+    ///
+    /// See the documentation for `KVM_UNREGISTER_COALESCED_MMIO`.
+    pub fn unregister_coalesced_mmio(&self, addr: IoEventAddress, size: u32) -> Result<()> {
+        let (addr, pio) = match addr {
+            IoEventAddress::Pio(addr) => (addr, 1),
+            IoEventAddress::Mmio(addr) => (addr, 0),
+        };
+        let mut zone = kvm_coalesced_mmio_zone {
+            addr,
+            size,
+            ..Default::default()
+        };
+        zone.__bindgen_anon_1.pio = pio;
+
+        // SAFETY: Safe because we know that our file is a VM fd, we know the kernel will only read
+        // the correct amount of memory from our pointer, and we verify the return result.
+        let ret = unsafe { ioctl_with_ref(self, KVM_UNREGISTER_COALESCED_MMIO(), &zone) };
+        if ret != 0 {
+            return Err(errno::Error::last());
+        }
+        Ok(())
+    }
 }
 
 /// Helper function to create a new `VmFd`.

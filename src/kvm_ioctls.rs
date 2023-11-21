@@ -61,6 +61,20 @@ ioctl_io_nr!(KVM_CREATE_IRQCHIP, KVMIO, 0x60);
     target_arch = "aarch64"
 ))]
 ioctl_iow_nr!(KVM_IRQ_LINE, KVMIO, 0x61, kvm_irq_level);
+/* Available with KVM_CAP_COALESCED_MMIO / KVM_CAP_COALESCED_PIO */
+ioctl_iow_nr!(
+    KVM_REGISTER_COALESCED_MMIO,
+    KVMIO,
+    0x67,
+    kvm_coalesced_mmio_zone
+);
+/* Available with KVM_CAP_COALESCED_MMIO / KVM_CAP_COALESCED_PIO */
+ioctl_iow_nr!(
+    KVM_UNREGISTER_COALESCED_MMIO,
+    KVMIO,
+    0x68,
+    kvm_coalesced_mmio_zone
+);
 /* Available with KVM_CAP_IRQ_ROUTING */
 #[cfg(any(
     target_arch = "x86",

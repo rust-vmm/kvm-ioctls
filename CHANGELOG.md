@@ -13,6 +13,8 @@ reg_size as a public method.
   userspace MSR handling.
 - [[#246](https://github.com/rust-vmm/kvm-ioctls/pull/246)] Add support for
   userspace NMI injection (`KVM_NMI` ioctl).
+- [[#244](https://github.com/rust-vmm/kvm-ioctls/pull/244)] add support for
+  coalesced MMIO (`KVM_CAP_COALESCED_MMIO` / `KVM_CAP_COALESCED_PIO`)
 
 # v0.15.0
 
