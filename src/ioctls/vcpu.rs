@@ -3131,4 +3131,195 @@ mod tests {
             e => panic!("Unexpected exit: {:?}", e),
         }
     }
+
+    #[test]
+    #[cfg(target_arch = "x86_64")]
+    fn test_coalesced_pio() {
+        use crate::IoEventAddress;
+        use std::io::Write;
+
+        const PORT: u64 = 0x2c;
+        const DATA: u64 = 0x39;
+        const SIZE: u32 = 1;
+
+        #[rustfmt::skip]
+        let code = [
+            0xe6, 0x2c,   // out 0x2c, al
+            0xf4,         // hlt
+            0xe6, 0x2c,   // out 0x2c, al
+            0xf4,         // hlt
+        ];
+
+        let kvm = Kvm::new().unwrap();
+        let vm = kvm.create_vm().unwrap();
+        assert!(vm.check_extension(Cap::CoalescedPio));
+
+        // Prepare guest memory
+        let mem_size = 0x4000;
+        let load_addr = mmap_anonymous(mem_size);
+        let guest_addr: u64 = 0x1000;
+        let slot = 0;
+        let mem_region = kvm_userspace_memory_region {
+            slot,
+            guest_phys_addr: guest_addr,
+            memory_size: mem_size as u64,
+            userspace_addr: load_addr as u64,
+            flags: 0,
+        };
+
+        unsafe {
+            vm.set_user_memory_region(mem_region).unwrap();
+
+            // Get a mutable slice of `mem_size` from `load_addr`.
+            // This is safe because we mapped it before.
+            let mut slice = std::slice::from_raw_parts_mut(load_addr, mem_size);
+            slice.write_all(&code).unwrap();
+        }
+
+        let addr = IoEventAddress::Pio(PORT);
+        vm.register_coalesced_mmio(addr, SIZE).unwrap();
+
+        let mut vcpu = vm.create_vcpu(0).unwrap();
+
+        // Map the MMIO ring
+        vcpu.map_coalesced_mmio_ring().unwrap();
+
+        // Set regs
+        let mut regs = vcpu.get_regs().unwrap();
+        regs.rip = guest_addr;
+        regs.rax = DATA;
+        regs.rflags = 2;
+        vcpu.set_regs(&regs).unwrap();
+
+        // Set sregs
+        let mut sregs = vcpu.get_sregs().unwrap();
+        sregs.cs.base = 0;
+        sregs.cs.selector = 0;
+        vcpu.set_sregs(&sregs).unwrap();
+
+        // Run and check that the exit was caused by the hlt and not the port
+        // I/O
+        let exit = vcpu.run().unwrap();
+        assert!(matches!(exit, VcpuExit::Hlt));
+
+        // Check that the ring buffer entry is what we expect
+        let entry = vcpu.coalesced_mmio_read().unwrap().unwrap();
+        assert_eq!(entry.phys_addr, PORT);
+        assert_eq!(entry.len, 1);
+        assert_eq!(entry.data[0] as u64, DATA);
+        // SAFETY: this field is a u32 in all variants of the union,
+        // so access is always safe.
+        let pio = unsafe { entry.__bindgen_anon_1.pio };
+        assert_eq!(pio, 1);
+
+        // The ring buffer should be empty now
+        assert!(vcpu.coalesced_mmio_read().unwrap().is_none());
+
+        // Unregister and check that the next PIO write triggers an exit
+        vm.unregister_coalesced_mmio(addr, SIZE).unwrap();
+        let exit = vcpu.run().unwrap();
+        let VcpuExit::IoOut(port, data) = exit else {
+            panic!("Unexpected VM exit: {:?}", exit);
+        };
+        assert_eq!(port, PORT as u16);
+        assert_eq!(data, (DATA as u8).to_le_bytes());
+    }
+
+    #[test]
+    #[cfg(target_arch = "x86_64")]
+    fn test_coalesced_mmio() {
+        use crate::IoEventAddress;
+        use std::io::Write;
+
+        const ADDR: u64 = 0x124;
+        const DATA: u64 = 0x39;
+        const SIZE: u32 = 2;
+
+        #[rustfmt::skip]
+        let code = [
+            0x66, 0x31, 0xFF,        // xor di,di
+            0x66, 0xBF, 0x24, 0x01,  // mov di, 0x124
+            0x67, 0x66, 0x89, 0x05,  // mov WORD PTR [di], ax
+            0xF4,                    // hlt
+            0x66, 0x31, 0xFF,        // xor di,di
+            0x66, 0xBF, 0x24, 0x01,  // mov di, 0x124
+            0x67, 0x66, 0x89, 0x05,  // mov WORD PTR [di], ax
+            0xF4,                    // hlt
+        ];
+
+        let kvm = Kvm::new().unwrap();
+        let vm = kvm.create_vm().unwrap();
+        assert!(vm.check_extension(Cap::CoalescedMmio));
+
+        // Prepare guest memory
+        let mem_size = 0x4000;
+        let load_addr = mmap_anonymous(mem_size);
+        let guest_addr: u64 = 0x1000;
+        let slot: u32 = 0;
+        let mem_region = kvm_userspace_memory_region {
+            slot,
+            guest_phys_addr: guest_addr,
+            memory_size: mem_size as u64,
+            userspace_addr: load_addr as u64,
+            flags: 0,
+        };
+
+        unsafe {
+            vm.set_user_memory_region(mem_region).unwrap();
+
+            // Get a mutable slice of `mem_size` from `load_addr`.
+            // This is safe because we mapped it before.
+            let mut slice = std::slice::from_raw_parts_mut(load_addr, mem_size);
+            slice.write_all(&code).unwrap();
+        }
+
+        let addr = IoEventAddress::Mmio(ADDR);
+        vm.register_coalesced_mmio(addr, SIZE).unwrap();
+
+        let mut vcpu = vm.create_vcpu(0).unwrap();
+
+        // Map the MMIO ring
+        vcpu.map_coalesced_mmio_ring().unwrap();
+
+        // Set regs
+        let mut regs = vcpu.get_regs().unwrap();
+        regs.rip = guest_addr;
+        regs.rax = DATA;
+        regs.rdx = ADDR;
+        regs.rflags = 2;
+        vcpu.set_regs(&regs).unwrap();
+
+        // Set sregs
+        let mut sregs = vcpu.get_sregs().unwrap();
+        sregs.cs.base = 0;
+        sregs.cs.selector = 0;
+        vcpu.set_sregs(&sregs).unwrap();
+
+        // Run and check that the exit was caused by the hlt and not the MMIO
+        // access
+        let exit = vcpu.run().unwrap();
+        assert!(matches!(exit, VcpuExit::Hlt));
+
+        // Check that the ring buffer entry is what we expect
+        let entry = vcpu.coalesced_mmio_read().unwrap().unwrap();
+        assert_eq!(entry.phys_addr, ADDR);
+        assert_eq!(entry.len, SIZE);
+        assert_eq!(entry.data[0] as u64, DATA);
+        // SAFETY: this field is a u32 in all variants of the union,
+        // so access is always safe.
+        let pio = unsafe { entry.__bindgen_anon_1.pio };
+        assert_eq!(pio, 0);
+
+        // The ring buffer should be empty now
+        assert!(vcpu.coalesced_mmio_read().unwrap().is_none());
+
+        // Unregister and check that the next MMIO write triggers an exit
+        vm.unregister_coalesced_mmio(addr, SIZE).unwrap();
+        let exit = vcpu.run().unwrap();
+        let VcpuExit::MmioWrite(addr, data) = exit else {
+            panic!("Unexpected VM exit: {:?}", exit);
+        };
+        assert_eq!(addr, ADDR);
+        assert_eq!(data, (DATA as u16).to_le_bytes());
+    }
 }
