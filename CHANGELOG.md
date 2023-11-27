@@ -11,6 +11,8 @@ reg_size as a public method.
   for SMI injection via `Vcpu::smi()` (`KVM_SMI` ioctl).
 - [[#241](https://github.com/rust-vmm/kvm-ioctls/pull/241)] Add support for
   userspace MSR handling.
+- [[#246](https://github.com/rust-vmm/kvm-ioctls/pull/246)] Add support for
+  userspace NMI injection (`KVM_NMI` ioctl).
 
 # v0.15.0
 

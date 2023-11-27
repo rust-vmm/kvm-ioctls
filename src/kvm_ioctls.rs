@@ -172,6 +172,9 @@ ioctl_ior_nr!(KVM_GET_MP_STATE, KVMIO, 0x98, kvm_mp_state);
     target_arch = "s390"
 ))]
 ioctl_iow_nr!(KVM_SET_MP_STATE, KVMIO, 0x99, kvm_mp_state);
+/* Available with KVM_CAP_USER_NMI */
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+ioctl_io_nr!(KVM_NMI, KVMIO, 0x9a);
 /* Available with KVM_CAP_VCPU_EVENTS */
 #[cfg(any(
     target_arch = "x86",
