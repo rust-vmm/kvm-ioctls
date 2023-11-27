@@ -1823,6 +1823,32 @@ impl VcpuFd {
             _ => Err(errno::Error::last()),
         }
     }
+
+    /// Queues an NMI on the thread's vcpu. Only usable if `KVM_CAP_USER_NMI`
+    /// is available.
+    ///
+    /// See the documentation for `KVM_NMI`.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use kvm_ioctls::{Kvm, Cap};
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    /// let vcpu = vm.create_vcpu(0).unwrap();
+    /// if kvm.check_extension(Cap::UserNmi) {
+    ///     vcpu.nmi().unwrap();
+    /// }
+    /// ```
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    pub fn nmi(&self) -> Result<()> {
+        // SAFETY: Safe because we call this with a Vcpu fd and we trust the kernel.
+        let ret = unsafe { ioctl(self, KVM_NMI()) };
+        match ret {
+            0 => Ok(()),
+            _ => Err(errno::Error::last()),
+        }
+    }
 }
 
 /// Helper function to create a new `VcpuFd`.
