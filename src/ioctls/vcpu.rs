@@ -158,6 +158,8 @@ pub enum VcpuExit<'a> {
     X86Rdmsr(ReadMsrExit<'a>),
     /// Corresponds to KVM_EXIT_X86_WRMSR.
     X86Wrmsr(WriteMsrExit<'a>),
+    /// Corresponds to KVM_EXIT_X86_BUS_LOCK.
+    X86BusLock,
     /// Corresponds to an exit reason that is unknown from the current version
     /// of the kvm-ioctls crate. Let the consumer decide about what to do with
     /// it.
@@ -1544,6 +1546,7 @@ impl VcpuFd {
                     Ok(VcpuExit::IoapicEoi(eoi.vector))
                 }
                 KVM_EXIT_HYPERV => Ok(VcpuExit::Hyperv),
+                KVM_EXIT_X86_BUS_LOCK => Ok(VcpuExit::X86BusLock),
                 r => Ok(VcpuExit::Unsupported(r)),
             }
         } else {
@@ -1764,7 +1767,7 @@ impl VcpuFd {
     /// ```
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn sync_regs(&self) -> kvm_sync_regs {
-        let kvm_run: &mut kvm_run = self.kvm_run_ptr.as_mut_ref();
+        let kvm_run = self.kvm_run_ptr.as_ref();
 
         // SAFETY: Accessing this union field could be out of bounds if the `kvm_run`
         // allocation isn't large enough. The `kvm_run` region is set using
@@ -1848,6 +1851,19 @@ impl VcpuFd {
             0 => Ok(()),
             _ => Err(errno::Error::last()),
         }
+    }
+
+    /// If [`Cap::X86BusLockExit`](crate::Cap::X86BusLockExit) was enabled,
+    /// checks whether a bus lock was detected on the last VM exit. This may
+    /// return `true` even if the corresponding exit was not
+    /// [`VcpuExit::X86BusLock`], as a different VM exit may have preempted
+    /// it.
+    ///
+    /// See the API documentation for `KVM_CAP_X86_BUS_LOCK_EXIT`.
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    pub fn bus_lock_detected(&self) -> bool {
+        let kvm_run = self.kvm_run_ptr.as_ref();
+        kvm_run.flags as u32 & KVM_RUN_X86_BUS_LOCK != 0
     }
 }
 
@@ -2689,9 +2705,9 @@ mod tests {
         let kvm = Kvm::new().unwrap();
         let vm = kvm.create_vm().unwrap();
         let vcpu = vm.create_vcpu(0).unwrap();
-        assert_eq!(vcpu.kvm_run_ptr.as_mut_ref().immediate_exit, 0);
+        assert_eq!(vcpu.kvm_run_ptr.as_ref().immediate_exit, 0);
         vcpu.set_kvm_immediate_exit(1);
-        assert_eq!(vcpu.kvm_run_ptr.as_mut_ref().immediate_exit, 1);
+        assert_eq!(vcpu.kvm_run_ptr.as_ref().immediate_exit, 1);
     }
 
     #[test]
@@ -2763,9 +2779,9 @@ mod tests {
         ];
         for reg in &sync_regs {
             vcpu.set_sync_valid_reg(*reg);
-            assert_eq!(vcpu.kvm_run_ptr.as_mut_ref().kvm_valid_regs, *reg as u64);
+            assert_eq!(vcpu.kvm_run_ptr.as_ref().kvm_valid_regs, *reg as u64);
             vcpu.clear_sync_valid_reg(*reg);
-            assert_eq!(vcpu.kvm_run_ptr.as_mut_ref().kvm_valid_regs, 0);
+            assert_eq!(vcpu.kvm_run_ptr.as_ref().kvm_valid_regs, 0);
         }
 
         // Test that multiple valid SyncRegs can be set at the same time
@@ -2773,7 +2789,7 @@ mod tests {
         vcpu.set_sync_valid_reg(SyncReg::SystemRegister);
         vcpu.set_sync_valid_reg(SyncReg::VcpuEvents);
         assert_eq!(
-            vcpu.kvm_run_ptr.as_mut_ref().kvm_valid_regs,
+            vcpu.kvm_run_ptr.as_ref().kvm_valid_regs,
             SyncReg::Register as u64 | SyncReg::SystemRegister as u64 | SyncReg::VcpuEvents as u64
         );
 
@@ -2786,9 +2802,9 @@ mod tests {
 
         for reg in &sync_regs {
             vcpu.set_sync_dirty_reg(*reg);
-            assert_eq!(vcpu.kvm_run_ptr.as_mut_ref().kvm_dirty_regs, *reg as u64);
+            assert_eq!(vcpu.kvm_run_ptr.as_ref().kvm_dirty_regs, *reg as u64);
             vcpu.clear_sync_dirty_reg(*reg);
-            assert_eq!(vcpu.kvm_run_ptr.as_mut_ref().kvm_dirty_regs, 0);
+            assert_eq!(vcpu.kvm_run_ptr.as_ref().kvm_dirty_regs, 0);
         }
 
         // Test that multiple dirty SyncRegs can be set at the same time
@@ -2796,7 +2812,7 @@ mod tests {
         vcpu.set_sync_dirty_reg(SyncReg::SystemRegister);
         vcpu.set_sync_dirty_reg(SyncReg::VcpuEvents);
         assert_eq!(
-            vcpu.kvm_run_ptr.as_mut_ref().kvm_dirty_regs,
+            vcpu.kvm_run_ptr.as_ref().kvm_dirty_regs,
             SyncReg::Register as u64 | SyncReg::SystemRegister as u64 | SyncReg::VcpuEvents as u64
         );
     }
@@ -3074,5 +3090,40 @@ mod tests {
             }
             e => panic!("Unexpected exit: {:?}", e),
         }
+    }
+
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[test]
+    fn test_enable_bus_lock_detection() {
+        let kvm = Kvm::new().unwrap();
+        let vm = kvm.create_vm().unwrap();
+        if !vm.check_extension(Cap::X86BusLockExit) {
+            return;
+        }
+        let args = KVM_BUS_LOCK_DETECTION_EXIT;
+        let cap = kvm_enable_cap {
+            cap: Cap::X86BusLockExit as u32,
+            args: [args as u64, 0, 0, 0],
+            ..Default::default()
+        };
+        vm.enable_cap(&cap).unwrap();
+    }
+
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[test]
+    fn test_enable_bus_lock_detection_invalid() {
+        let kvm = Kvm::new().unwrap();
+        let vm = kvm.create_vm().unwrap();
+        if !vm.check_extension(Cap::X86BusLockExit) {
+            return;
+        }
+        // These flags should be mutually exclusive
+        let args = KVM_BUS_LOCK_DETECTION_OFF | KVM_BUS_LOCK_DETECTION_EXIT;
+        let cap = kvm_enable_cap {
+            cap: Cap::X86BusLockExit as u32,
+            args: [args as u64, 0, 0, 0],
+            ..Default::default()
+        };
+        vm.enable_cap(&cap).unwrap_err();
     }
 }

@@ -13,6 +13,8 @@ reg_size as a public method.
   userspace MSR handling.
 - [[#246](https://github.com/rust-vmm/kvm-ioctls/pull/246)] Add support for
   userspace NMI injection (`KVM_NMI` ioctl).
+- [[#245](https://github.com/rust-vmm/kvm-ioctls/pull/245)] x86: add support
+  for bus lock detection (`KVM_CAP_X86_BUS_LOCK_EXIT` capability).
 
 # v0.15.0
 
