@@ -3,10 +3,10 @@
 ## Added
 
 ## Changed
-- [[#234](https://github.com/rust-vmm/kvm-ioctls/issues/234)] vcpu: export
-reg_size as a public method.
-- [[#243](https://github.com/rust-vmm/kvm-ioctls/pull/243)] derived the `Copy`
-  trait for `IoEventAddress` and `NoDatamatch`.
+
+# v0.16.0
+
+## Added
 - [[#242](https://github.com/rust-vmm/kvm-ioctls/pull/242)] x86: add support
   for SMI injection via `Vcpu::smi()` (`KVM_SMI` ioctl).
 - [[#241](https://github.com/rust-vmm/kvm-ioctls/pull/241)] Add support for
@@ -15,6 +15,12 @@ reg_size as a public method.
   userspace NMI injection (`KVM_NMI` ioctl).
 - [[#244](https://github.com/rust-vmm/kvm-ioctls/pull/244)] add support for
   coalesced MMIO (`KVM_CAP_COALESCED_MMIO` / `KVM_CAP_COALESCED_PIO`)
+
+## Changed
+- [[#234](https://github.com/rust-vmm/kvm-ioctls/issues/234)] vcpu: export
+reg_size as a public method.
+- [[#243](https://github.com/rust-vmm/kvm-ioctls/pull/243)] derived the `Copy`
+  trait for `IoEventAddress` and `NoDatamatch`.
 
 # v0.15.0
 
