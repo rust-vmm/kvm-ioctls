@@ -120,10 +120,15 @@ mod tests {
 
         let mut wrapper2 = wrapper.clone();
         assert!(wrapper == wrapper2);
-
-        wrapper.as_mut_fam_struct().pad = 1;
+        // SAFETY: We are not modifying the `nmsrs` field
+        unsafe {
+            wrapper.as_mut_fam_struct().pad = 1;
+        }
         assert!(wrapper != wrapper2);
-        wrapper2.as_mut_fam_struct().pad = 1;
+        // SAFETY: We are not modifying the `nmsrs` field
+        unsafe {
+            wrapper2.as_mut_fam_struct().pad = 1;
+        }
         assert!(wrapper == wrapper2);
 
         wrapper.as_mut_slice()[1].data = 1;
