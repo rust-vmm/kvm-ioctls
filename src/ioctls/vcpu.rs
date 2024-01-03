@@ -147,7 +147,7 @@ pub enum VcpuExit<'a> {
     /// Corresponds to KVM_EXIT_EPR.
     Epr,
     /// Corresponds to KVM_EXIT_SYSTEM_EVENT.
-    SystemEvent(u32 /* type */, u64 /* flags */),
+    SystemEvent(u32 /* type */, &'a [u64] /* data */),
     /// Corresponds to KVM_EXIT_S390_STSI.
     S390Stsi,
     /// Corresponds to KVM_EXIT_IOAPIC_EOI.
@@ -1533,10 +1533,10 @@ impl VcpuFd {
                     // SAFETY: Safe because the exit_reason (which comes from the kernel) told us
                     // which union field to use.
                     let system_event = unsafe { &mut run.__bindgen_anon_1.system_event };
-                    Ok(VcpuExit::SystemEvent(
-                        system_event.type_,
-                        system_event.flags,
-                    ))
+                    let ndata = system_event.ndata;
+                    // SAFETY: Safe because we only populate with valid data (based on ndata)
+                    let data = unsafe { &system_event.__bindgen_anon_1.data[0..ndata as usize] };
+                    Ok(VcpuExit::SystemEvent(system_event.type_, data))
                 }
                 KVM_EXIT_S390_STSI => Ok(VcpuExit::S390Stsi),
                 KVM_EXIT_IOAPIC_EOI => {
@@ -2345,9 +2345,9 @@ mod tests {
                         .sum();
                     assert_eq!(dirty_pages, 1);
                 }
-                VcpuExit::SystemEvent(type_, flags) => {
+                VcpuExit::SystemEvent(type_, data) => {
                     assert_eq!(type_, KVM_SYSTEM_EVENT_SHUTDOWN);
-                    assert_eq!(flags, 0);
+                    assert_eq!(data[0], 0);
                     break;
                 }
                 r => panic!("unexpected exit reason: {:?}", r),
@@ -2723,11 +2723,14 @@ mod tests {
         // not allocated memory, so the first time it fails.
         let err = vcpu.get_reg_list(&mut reg_list).unwrap_err();
         assert!(err.errno() == libc::E2BIG);
-        assert!(reg_list.as_mut_fam_struct().n > 0);
+        // SAFETY: This structure is a result from a specific vCPU ioctl
+        assert!(unsafe { reg_list.as_mut_fam_struct() }.n > 0);
 
         // We make use of the number of registers returned to allocate memory and
         // try one more time.
-        let mut reg_list = RegList::new(reg_list.as_mut_fam_struct().n as usize).unwrap();
+        // SAFETY: This structure is a result from a specific vCPU ioctl
+        let mut reg_list =
+            RegList::new(unsafe { reg_list.as_mut_fam_struct() }.n as usize).unwrap();
         assert!(vcpu.get_reg_list(&mut reg_list).is_ok());
     }
 
