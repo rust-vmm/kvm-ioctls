@@ -3,8 +3,6 @@
 
 #[allow(clippy::all)]
 #[allow(clippy::undocumented_unsafe_blocks)]
-// Keep this until https://github.com/rust-lang/rust-bindgen/issues/1651 is fixed.
-#[cfg_attr(test, allow(deref_nullptr))]
 pub mod bindings;
 #[cfg(feature = "fam-wrappers")]
 pub mod fam_wrappers;

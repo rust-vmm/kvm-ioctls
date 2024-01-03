@@ -2,8 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 #[allow(clippy::undocumented_unsafe_blocks)]
 #[allow(clippy::all)]
-// Keep this until https://github.com/rust-lang/rust-bindgen/issues/1651 is fixed.
-#[cfg_attr(test, allow(deref_nullptr))]
 pub mod bindings;
 #[cfg(feature = "fam-wrappers")]
 pub mod fam_wrappers;
