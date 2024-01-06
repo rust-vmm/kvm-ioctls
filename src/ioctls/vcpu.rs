@@ -2483,8 +2483,54 @@ mod tests {
     }
 
     #[test]
-    #[cfg(target_arch = "x86_64")]
+    #[cfg(any(
+        target_arch = "x86",
+        target_arch = "x86_64",
+        target_arch = "arm",
+        target_arch = "aarch64"
+    ))]
     fn test_faulty_vcpu_fd() {
+        use std::os::unix::io::FromRawFd;
+
+        let badf_errno = libc::EBADF;
+
+        let faulty_vcpu_fd = VcpuFd {
+            vcpu: unsafe { File::from_raw_fd(-2) },
+            kvm_run_ptr: KvmRunWrapper {
+                kvm_run_ptr: mmap_anonymous(10),
+                mmap_size: 10,
+            },
+            coalesced_mmio_ring: None,
+        };
+
+        assert_eq!(
+            faulty_vcpu_fd.get_mp_state().unwrap_err().errno(),
+            badf_errno
+        );
+        assert_eq!(
+            faulty_vcpu_fd
+                .set_mp_state(kvm_mp_state::default())
+                .unwrap_err()
+                .errno(),
+            badf_errno
+        );
+        assert_eq!(
+            faulty_vcpu_fd.get_vcpu_events().unwrap_err().errno(),
+            badf_errno
+        );
+        assert_eq!(
+            faulty_vcpu_fd
+                .set_vcpu_events(&kvm_vcpu_events::default())
+                .unwrap_err()
+                .errno(),
+            badf_errno
+        );
+        assert_eq!(faulty_vcpu_fd.run().unwrap_err().errno(), badf_errno);
+    }
+
+    #[test]
+    #[cfg(target_arch = "x86_64")]
+    fn test_faulty_vcpu_fd_x86_64() {
         use std::os::unix::io::FromRawFd;
 
         let badf_errno = libc::EBADF;
@@ -2563,17 +2609,6 @@ mod tests {
             badf_errno
         );
         assert_eq!(
-            faulty_vcpu_fd.get_mp_state().unwrap_err().errno(),
-            badf_errno
-        );
-        assert_eq!(
-            faulty_vcpu_fd
-                .set_mp_state(kvm_mp_state::default())
-                .unwrap_err()
-                .errno(),
-            badf_errno
-        );
-        assert_eq!(
             faulty_vcpu_fd.get_xsave().err().unwrap().errno(),
             badf_errno
         );
@@ -2605,24 +2640,89 @@ mod tests {
             badf_errno
         );
         assert_eq!(
-            faulty_vcpu_fd.get_vcpu_events().unwrap_err().errno(),
-            badf_errno
-        );
-        assert_eq!(
-            faulty_vcpu_fd
-                .set_vcpu_events(&kvm_vcpu_events::default())
-                .unwrap_err()
-                .errno(),
-            badf_errno
-        );
-        assert_eq!(faulty_vcpu_fd.run().unwrap_err().errno(), badf_errno);
-        assert_eq!(
             faulty_vcpu_fd.kvmclock_ctrl().unwrap_err().errno(),
             badf_errno
         );
         assert!(faulty_vcpu_fd.get_tsc_khz().is_err());
         assert!(faulty_vcpu_fd.set_tsc_khz(1000000).is_err());
         assert!(faulty_vcpu_fd.translate_gva(u64::MAX).is_err());
+    }
+
+    #[test]
+    #[cfg(target_arch = "aarch64")]
+    fn test_faulty_vcpu_fd_aarch64() {
+        use std::os::unix::io::FromRawFd;
+
+        let badf_errno = libc::EBADF;
+
+        let faulty_vcpu_fd = VcpuFd {
+            vcpu: unsafe { File::from_raw_fd(-2) },
+            kvm_run_ptr: KvmRunWrapper {
+                kvm_run_ptr: mmap_anonymous(10),
+                mmap_size: 10,
+            },
+            coalesced_mmio_ring: None,
+        };
+
+        let device_attr = kvm_bindings::kvm_device_attr {
+            group: KVM_ARM_VCPU_PMU_V3_CTRL,
+            attr: u64::from(KVM_ARM_VCPU_PMU_V3_INIT),
+            addr: 0x0,
+            flags: 0,
+        };
+
+        let reg_id = 0x6030_0000_0010_0042;
+        let mut reg_data = 0u128.to_le_bytes();
+
+        assert_eq!(
+            faulty_vcpu_fd
+                .set_device_attr(&device_attr)
+                .unwrap_err()
+                .errno(),
+            badf_errno
+        );
+        assert_eq!(
+            faulty_vcpu_fd
+                .has_device_attr(&device_attr)
+                .unwrap_err()
+                .errno(),
+            badf_errno
+        );
+        assert_eq!(
+            faulty_vcpu_fd
+                .vcpu_init(&kvm_vcpu_init::default())
+                .unwrap_err()
+                .errno(),
+            badf_errno
+        );
+        assert_eq!(
+            faulty_vcpu_fd
+                .vcpu_finalize(&(KVM_ARM_VCPU_SVE as i32))
+                .unwrap_err()
+                .errno(),
+            badf_errno
+        );
+        assert_eq!(
+            faulty_vcpu_fd
+                .get_reg_list(&mut RegList::new(500).unwrap())
+                .unwrap_err()
+                .errno(),
+            badf_errno
+        );
+        assert_eq!(
+            faulty_vcpu_fd
+                .set_one_reg(reg_id, &reg_data)
+                .unwrap_err()
+                .errno(),
+            badf_errno
+        );
+        assert_eq!(
+            faulty_vcpu_fd
+                .get_one_reg(reg_id, &mut reg_data)
+                .unwrap_err()
+                .errno(),
+            badf_errno
+        );
     }
 
     #[test]
