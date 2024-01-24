@@ -192,7 +192,7 @@ impl VmFd {
     ///         fd: 0,
     ///         flags: KVM_CREATE_DEVICE_TEST,
     ///     };
-    ///     if vm.create_device(&mut gic_device).is_ok() {
+    ///     if vm.create_device(&gic_device).is_ok() {
     ///         vm.create_irq_chip().unwrap();
     ///     }
     /// }
@@ -1177,13 +1177,13 @@ impl VmFd {
     /// };
     /// // On ARM, creating VGICv3 may fail due to hardware dependency.
     /// // Retry to create VGICv2 in that case.
-    /// let device_fd = vm.create_device(&mut device).unwrap_or_else(|_| {
+    /// let device_fd = vm.create_device(&device).unwrap_or_else(|_| {
     ///     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     ///     panic!("Cannot create VFIO device.");
     ///     #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
     ///     {
     ///         device.type_ = kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V2;
-    ///         vm.create_device(&mut device)
+    ///         vm.create_device(&device)
     ///             .expect("Cannot create vGIC device")
     ///     }
     /// });

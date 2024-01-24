@@ -59,7 +59,7 @@ impl DeviceFd {
     /// };
     ///
     /// let device_fd = vm
-    ///     .create_device(&mut device)
+    ///     .create_device(&device)
     ///     .expect("Cannot create KVM device");
     ///
     /// let dist_attr = kvm_bindings::kvm_device_attr {
@@ -126,11 +126,11 @@ impl DeviceFd {
     ///         fd: 0,
     ///         flags: 0,
     ///     };
-    ///     let device_fd = match vm.create_device(&mut gic_device) {
+    ///     let device_fd = match vm.create_device(&gic_device) {
     ///         Ok(fd) => fd,
     ///         Err(_) => {
     ///             gic_device.type_ = kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V2;
-    ///             vm.create_device(&mut gic_device)
+    ///             vm.create_device(&gic_device)
     ///                 .expect("Cannot create KVM vGIC device")
     ///         }
     ///     };
