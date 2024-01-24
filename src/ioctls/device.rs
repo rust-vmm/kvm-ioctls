@@ -208,12 +208,12 @@ mod tests {
             flags: KVM_CREATE_DEVICE_TEST,
         };
         // This fails on x86_64 because there is no VGIC there.
-        assert!(vm.create_device(&mut gic_device).is_err());
+        assert!(vm.create_device(&gic_device).is_err());
 
         gic_device.type_ = kvm_device_type_KVM_DEV_TYPE_VFIO;
 
         let device_fd = vm
-            .create_device(&mut gic_device)
+            .create_device(&gic_device)
             .expect("Cannot create KVM device");
 
         // Following lines to re-construct device_fd are used to test
@@ -258,7 +258,7 @@ mod tests {
         };
         // This fails on aarch64 as it does not use MPIC (MultiProcessor Interrupt Controller),
         // it uses the VGIC.
-        assert!(vm.create_device(&mut gic_device).is_err());
+        assert!(vm.create_device(&gic_device).is_err());
 
         let device_fd = create_gic_device(&vm, 0);
 

@@ -1188,7 +1188,7 @@ impl VmFd {
     ///     }
     /// });
     /// ```
-    pub fn create_device(&self, device: &mut kvm_create_device) -> Result<DeviceFd> {
+    pub fn create_device(&self, device: &kvm_create_device) -> Result<DeviceFd> {
         // SAFETY: Safe because we are calling this with the VM fd and we trust the kernel.
         let ret = unsafe { ioctl_with_ref(self, KVM_CREATE_DEVICE(), device) };
         if ret == 0 {
@@ -1655,11 +1655,11 @@ pub(crate) fn create_gic_device(vm: &VmFd, flags: u32) -> DeviceFd {
         fd: 0,
         flags,
     };
-    match vm.create_device(&mut gic_device) {
+    match vm.create_device(&gic_device) {
         Ok(fd) => fd,
         Err(_) => {
             gic_device.type_ = kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V2;
-            vm.create_device(&mut gic_device)
+            vm.create_device(&gic_device)
                 .expect("Cannot create KVM vGIC device")
         }
     }
@@ -1794,7 +1794,7 @@ mod tests {
             flags: KVM_CREATE_DEVICE_TEST,
         };
 
-        let vgic_v2_supported = vm.create_device(&mut gic_device).is_ok();
+        let vgic_v2_supported = vm.create_device(&gic_device).is_ok();
         assert_eq!(vm.create_irq_chip().is_ok(), vgic_v2_supported);
     }
 
