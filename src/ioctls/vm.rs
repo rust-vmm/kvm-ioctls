@@ -1788,7 +1788,7 @@ mod tests {
 
         // On ARM/arm64, a GICv2 is created. It's better to check ahead whether GICv2
         // can be emulated or not.
-        let mut gic_device = kvm_bindings::kvm_create_device {
+        let gic_device = kvm_bindings::kvm_create_device {
             type_: kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V2,
             fd: 0,
             flags: KVM_CREATE_DEVICE_TEST,

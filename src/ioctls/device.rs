@@ -251,7 +251,7 @@ mod tests {
         let kvm = Kvm::new().unwrap();
         let vm = kvm.create_vm().unwrap();
 
-        let mut gic_device = kvm_bindings::kvm_create_device {
+        let gic_device = kvm_bindings::kvm_create_device {
             type_: kvm_device_type_KVM_DEV_TYPE_FSL_MPIC_20,
             fd: 0,
             flags: KVM_CREATE_DEVICE_TEST,
