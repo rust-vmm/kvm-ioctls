@@ -1930,10 +1930,11 @@ mod tests {
     ))]
     use crate::cap::Cap;
     use crate::ioctls::system::Kvm;
+    use std::ptr::NonNull;
 
     // Helper function for memory mapping `size` bytes of anonymous memory.
     // Panics if the mmap fails.
-    fn mmap_anonymous(size: usize) -> *mut u8 {
+    fn mmap_anonymous(size: usize) -> NonNull<u8> {
         use std::ptr::null_mut;
 
         let addr = unsafe {
@@ -1950,7 +1951,7 @@ mod tests {
             panic!("mmap failed.");
         }
 
-        addr as *mut u8
+        NonNull::new(addr).unwrap().cast()
     }
 
     #[test]
@@ -2268,7 +2269,7 @@ mod tests {
         ];
 
         let mem_size = 0x20000;
-        let load_addr = mmap_anonymous(mem_size);
+        let load_addr = mmap_anonymous(mem_size).as_ptr();
         let guest_addr: u64 = 0x10000;
         let slot: u32 = 0;
         let mem_region = kvm_userspace_memory_region {
@@ -2373,7 +2374,7 @@ mod tests {
         let expected_rips: [u64; 3] = [0x1003, 0x1005, 0x1007];
 
         let mem_size = 0x4000;
-        let load_addr = mmap_anonymous(mem_size);
+        let load_addr = mmap_anonymous(mem_size).as_ptr();
         let guest_addr: u64 = 0x1000;
         let slot: u32 = 0;
         let mem_region = kvm_userspace_memory_region {
@@ -2492,7 +2493,7 @@ mod tests {
         let mut faulty_vcpu_fd = VcpuFd {
             vcpu: unsafe { File::from_raw_fd(-2) },
             kvm_run_ptr: KvmRunWrapper {
-                kvm_run_ptr: mmap_anonymous(10),
+                kvm_run_ptr: mmap_anonymous(10).cast(),
                 mmap_size: 10,
             },
             coalesced_mmio_ring: None,
@@ -2533,7 +2534,7 @@ mod tests {
         let faulty_vcpu_fd = VcpuFd {
             vcpu: unsafe { File::from_raw_fd(-2) },
             kvm_run_ptr: KvmRunWrapper {
-                kvm_run_ptr: mmap_anonymous(10),
+                kvm_run_ptr: mmap_anonymous(10).cast(),
                 mmap_size: 10,
             },
             coalesced_mmio_ring: None,
@@ -2653,7 +2654,7 @@ mod tests {
         let faulty_vcpu_fd = VcpuFd {
             vcpu: unsafe { File::from_raw_fd(-2) },
             kvm_run_ptr: KvmRunWrapper {
-                kvm_run_ptr: mmap_anonymous(10),
+                kvm_run_ptr: mmap_anonymous(10).cast(),
                 mmap_size: 10,
             },
             coalesced_mmio_ring: None,
@@ -2971,7 +2972,7 @@ mod tests {
             ];
 
             let mem_size = 0x4000;
-            let load_addr = mmap_anonymous(mem_size);
+            let load_addr = mmap_anonymous(mem_size).as_ptr();
             let guest_addr: u64 = 0x1000;
             let slot: u32 = 0;
             let mem_region = kvm_userspace_memory_region {
@@ -3111,7 +3112,7 @@ mod tests {
         vm.enable_cap(&cap).unwrap();
 
         let mem_size = 0x4000;
-        let load_addr = mmap_anonymous(mem_size);
+        let load_addr = mmap_anonymous(mem_size).as_ptr();
         let guest_addr: u64 = 0x1000;
         let slot: u32 = 0;
         let mem_region = kvm_userspace_memory_region {
@@ -3180,7 +3181,7 @@ mod tests {
         vm.enable_cap(&cap).unwrap();
 
         let mem_size = 0x4000;
-        let load_addr = mmap_anonymous(mem_size);
+        let load_addr = mmap_anonymous(mem_size).as_ptr();
         let guest_addr: u64 = 0x1000;
         let slot: u32 = 0;
         let mem_region = kvm_userspace_memory_region {
@@ -3254,7 +3255,7 @@ mod tests {
 
         // Prepare guest memory
         let mem_size = 0x4000;
-        let load_addr = mmap_anonymous(mem_size);
+        let load_addr = mmap_anonymous(mem_size).as_ptr();
         let guest_addr: u64 = 0x1000;
         let slot = 0;
         let mem_region = kvm_userspace_memory_region {
@@ -3351,7 +3352,7 @@ mod tests {
 
         // Prepare guest memory
         let mem_size = 0x4000;
-        let load_addr = mmap_anonymous(mem_size);
+        let load_addr = mmap_anonymous(mem_size).as_ptr();
         let guest_addr: u64 = 0x1000;
         let slot: u32 = 0;
         let mem_region = kvm_userspace_memory_region {

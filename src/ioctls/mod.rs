@@ -7,7 +7,7 @@
 
 use std::mem::size_of;
 use std::os::unix::io::AsRawFd;
-use std::ptr::null_mut;
+use std::ptr::{null_mut, NonNull};
 
 use kvm_bindings::{
     kvm_coalesced_mmio, kvm_coalesced_mmio_ring, kvm_run, KVM_COALESCED_MMIO_PAGE_OFFSET,
@@ -129,7 +129,7 @@ unsafe impl Sync for KvmCoalescedIoRing {}
 /// threads as raw pointers do not implement `Send` and `Sync`.
 #[derive(Debug)]
 pub struct KvmRunWrapper {
-    kvm_run_ptr: *mut u8,
+    kvm_run_ptr: NonNull<kvm_run>,
     // This field is need so we can `munmap` the memory mapped to hold `kvm_run`.
     mmap_size: usize,
 }
@@ -161,24 +161,22 @@ impl KvmRunWrapper {
                 0,
             )
         };
-        if addr == libc::MAP_FAILED {
-            return Err(errno::Error::last());
-        }
+        let addr = NonNull::new(addr)
+            .filter(|addr| addr.as_ptr() != libc::MAP_FAILED)
+            .ok_or_else(errno::Error::last)?;
 
         Ok(KvmRunWrapper {
-            kvm_run_ptr: addr as *mut u8,
+            kvm_run_ptr: addr.cast(),
             mmap_size: size,
         })
     }
 
     /// Returns a mutable reference to `kvm_run`.
     pub fn as_mut_ref(&mut self) -> &mut kvm_run {
-        #[allow(clippy::cast_ptr_alignment)]
         // SAFETY: Safe because we know we mapped enough memory to hold the kvm_run struct because
-        // the kernel told us how large it was.
-        unsafe {
-            &mut *(self.kvm_run_ptr as *mut kvm_run)
-        }
+        // the kernel told us how large it was. Nobody else has access to this pointer so it cannot
+        // be aliased.
+        unsafe { self.kvm_run_ptr.as_mut() }
     }
 }
 
@@ -186,7 +184,7 @@ impl AsRef<kvm_run> for KvmRunWrapper {
     fn as_ref(&self) -> &kvm_run {
         // SAFETY: Safe because we know we mapped enough memory to hold the kvm_run struct because
         // the kernel told us how large it was.
-        unsafe { &*(self.kvm_run_ptr as *const kvm_run) }
+        unsafe { self.kvm_run_ptr.as_ref() }
     }
 }
 
@@ -195,7 +193,7 @@ impl Drop for KvmRunWrapper {
         // SAFETY: This is safe because we mmap the area at kvm_run_ptr ourselves,
         // and nobody else is holding a reference to it.
         unsafe {
-            libc::munmap(self.kvm_run_ptr as *mut libc::c_void, self.mmap_size);
+            libc::munmap(self.kvm_run_ptr.as_ptr().cast(), self.mmap_size);
         }
     }
 }
