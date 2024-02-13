@@ -183,6 +183,14 @@ impl KvmRunWrapper {
     }
 }
 
+impl AsRef<kvm_run> for KvmRunWrapper {
+    fn as_ref(&self) -> &kvm_run {
+        // SAFETY: Safe because we know we mapped enough memory to hold the kvm_run struct because
+        // the kernel told us how large it was.
+        unsafe { &*(self.kvm_run_ptr as *const kvm_run) }
+    }
+}
+
 impl Drop for KvmRunWrapper {
     fn drop(&mut self) {
         // SAFETY: This is safe because we mmap the area at kvm_run_ptr ourselves,
