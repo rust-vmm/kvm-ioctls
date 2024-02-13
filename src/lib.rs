@@ -130,7 +130,7 @@
 //!     }
 //!
 //!     // 4. Create one vCPU.
-//!     let vcpu_fd = vm.create_vcpu(0).unwrap();
+//!     let mut vcpu_fd = vm.create_vcpu(0).unwrap();
 //!
 //!     // 5. Initialize general purpose and special registers.
 //!     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
