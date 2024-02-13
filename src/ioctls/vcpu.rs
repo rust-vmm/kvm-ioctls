@@ -1404,7 +1404,7 @@ impl VcpuFd {
     ///         slice.write(&x86_code).unwrap();
     ///     }
     ///
-    ///     let vcpu_fd = vm.create_vcpu(0).unwrap();
+    ///     let mut vcpu_fd = vm.create_vcpu(0).unwrap();
     ///
     ///     let mut vcpu_sregs = vcpu_fd.get_sregs().unwrap();
     ///     vcpu_sregs.cs.base = 0;
@@ -1429,7 +1429,7 @@ impl VcpuFd {
     ///     }
     /// }
     /// ```
-    pub fn run(&self) -> Result<VcpuExit> {
+    pub fn run(&mut self) -> Result<VcpuExit> {
         // SAFETY: Safe because we know that our file is a vCPU fd and we verify the return result.
         let ret = unsafe { ioctl(self, KVM_RUN()) };
         if ret == 0 {
@@ -1559,7 +1559,7 @@ impl VcpuFd {
     }
 
     /// Sets the `immediate_exit` flag on the `kvm_run` struct associated with this vCPU to `val`.
-    pub fn set_kvm_immediate_exit(&self, val: u8) {
+    pub fn set_kvm_immediate_exit(&mut self, val: u8) {
         let kvm_run = self.kvm_run_ptr.as_mut_ref();
         kvm_run.immediate_exit = val;
     }
@@ -2294,7 +2294,7 @@ mod tests {
             slice.write_all(&code).unwrap();
         }
 
-        let vcpu_fd = vm.create_vcpu(0).unwrap();
+        let mut vcpu_fd = vm.create_vcpu(0).unwrap();
         let mut kvi = kvm_bindings::kvm_vcpu_init::default();
         vm.get_preferred_target(&mut kvi).unwrap();
         kvi.features[0] |= 1 << KVM_ARM_VCPU_PSCI_0_2;
@@ -2399,7 +2399,7 @@ mod tests {
             slice.write_all(&code).unwrap();
         }
 
-        let vcpu_fd = vm.create_vcpu(0).unwrap();
+        let mut vcpu_fd = vm.create_vcpu(0).unwrap();
 
         let mut vcpu_sregs = vcpu_fd.get_sregs().unwrap();
         assert_ne!(vcpu_sregs.cs.base, 0);
@@ -2494,7 +2494,7 @@ mod tests {
 
         let badf_errno = libc::EBADF;
 
-        let faulty_vcpu_fd = VcpuFd {
+        let mut faulty_vcpu_fd = VcpuFd {
             vcpu: unsafe { File::from_raw_fd(-2) },
             kvm_run_ptr: KvmRunWrapper {
                 kvm_run_ptr: mmap_anonymous(10),
@@ -2847,7 +2847,7 @@ mod tests {
     fn test_set_kvm_immediate_exit() {
         let kvm = Kvm::new().unwrap();
         let vm = kvm.create_vm().unwrap();
-        let vcpu = vm.create_vcpu(0).unwrap();
+        let mut vcpu = vm.create_vcpu(0).unwrap();
         assert_eq!(vcpu.kvm_run_ptr.as_ref().immediate_exit, 0);
         vcpu.set_kvm_immediate_exit(1);
         assert_eq!(vcpu.kvm_run_ptr.as_ref().immediate_exit, 1);
@@ -3135,7 +3135,7 @@ mod tests {
             slice.write_all(&code).unwrap();
         }
 
-        let vcpu = vm.create_vcpu(0).unwrap();
+        let mut vcpu = vm.create_vcpu(0).unwrap();
 
         // Set up special registers
         let mut vcpu_sregs = vcpu.get_sregs().unwrap();
@@ -3204,7 +3204,7 @@ mod tests {
             slice.write_all(&code).unwrap();
         }
 
-        let vcpu = vm.create_vcpu(0).unwrap();
+        let mut vcpu = vm.create_vcpu(0).unwrap();
 
         // Set up special registers
         let mut vcpu_sregs = vcpu.get_sregs().unwrap();

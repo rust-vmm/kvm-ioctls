@@ -756,7 +756,7 @@ impl VmFd {
     ///     slice.write(&asm_code).unwrap();
     /// }
     ///
-    /// let vcpu_fd = vm.create_vcpu(0).unwrap();
+    /// let mut vcpu_fd = vm.create_vcpu(0).unwrap();
     ///
     /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     /// {
