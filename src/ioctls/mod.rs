@@ -148,7 +148,7 @@ impl KvmRunWrapper {
     /// # Arguments
     /// * `fd` - File descriptor to mmap from.
     /// * `size` - Size of memory region in bytes.
-    pub fn mmap_from_fd(fd: &dyn AsRawFd, size: usize) -> Result<KvmRunWrapper> {
+    pub fn mmap_from_fd<F: AsRawFd>(fd: &F, size: usize) -> Result<KvmRunWrapper> {
         // SAFETY: This is safe because we are creating a mapping in a place not already used by
         // any other area in this process.
         let addr = unsafe {
