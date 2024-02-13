@@ -1766,7 +1766,7 @@ impl VcpuFd {
     /// ```
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn sync_regs(&self) -> kvm_sync_regs {
-        let kvm_run: &mut kvm_run = self.kvm_run_ptr.as_mut_ref();
+        let kvm_run = self.kvm_run_ptr.as_ref();
 
         // SAFETY: Accessing this union field could be out of bounds if the `kvm_run`
         // allocation isn't large enough. The `kvm_run` region is set using
@@ -2848,9 +2848,9 @@ mod tests {
         let kvm = Kvm::new().unwrap();
         let vm = kvm.create_vm().unwrap();
         let vcpu = vm.create_vcpu(0).unwrap();
-        assert_eq!(vcpu.kvm_run_ptr.as_mut_ref().immediate_exit, 0);
+        assert_eq!(vcpu.kvm_run_ptr.as_ref().immediate_exit, 0);
         vcpu.set_kvm_immediate_exit(1);
-        assert_eq!(vcpu.kvm_run_ptr.as_mut_ref().immediate_exit, 1);
+        assert_eq!(vcpu.kvm_run_ptr.as_ref().immediate_exit, 1);
     }
 
     #[test]
@@ -2922,9 +2922,9 @@ mod tests {
         ];
         for reg in &sync_regs {
             vcpu.set_sync_valid_reg(*reg);
-            assert_eq!(vcpu.kvm_run_ptr.as_mut_ref().kvm_valid_regs, *reg as u64);
+            assert_eq!(vcpu.kvm_run_ptr.as_ref().kvm_valid_regs, *reg as u64);
             vcpu.clear_sync_valid_reg(*reg);
-            assert_eq!(vcpu.kvm_run_ptr.as_mut_ref().kvm_valid_regs, 0);
+            assert_eq!(vcpu.kvm_run_ptr.as_ref().kvm_valid_regs, 0);
         }
 
         // Test that multiple valid SyncRegs can be set at the same time
@@ -2932,7 +2932,7 @@ mod tests {
         vcpu.set_sync_valid_reg(SyncReg::SystemRegister);
         vcpu.set_sync_valid_reg(SyncReg::VcpuEvents);
         assert_eq!(
-            vcpu.kvm_run_ptr.as_mut_ref().kvm_valid_regs,
+            vcpu.kvm_run_ptr.as_ref().kvm_valid_regs,
             SyncReg::Register as u64 | SyncReg::SystemRegister as u64 | SyncReg::VcpuEvents as u64
         );
 
@@ -2945,9 +2945,9 @@ mod tests {
 
         for reg in &sync_regs {
             vcpu.set_sync_dirty_reg(*reg);
-            assert_eq!(vcpu.kvm_run_ptr.as_mut_ref().kvm_dirty_regs, *reg as u64);
+            assert_eq!(vcpu.kvm_run_ptr.as_ref().kvm_dirty_regs, *reg as u64);
             vcpu.clear_sync_dirty_reg(*reg);
-            assert_eq!(vcpu.kvm_run_ptr.as_mut_ref().kvm_dirty_regs, 0);
+            assert_eq!(vcpu.kvm_run_ptr.as_ref().kvm_dirty_regs, 0);
         }
 
         // Test that multiple dirty SyncRegs can be set at the same time
@@ -2955,7 +2955,7 @@ mod tests {
         vcpu.set_sync_dirty_reg(SyncReg::SystemRegister);
         vcpu.set_sync_dirty_reg(SyncReg::VcpuEvents);
         assert_eq!(
-            vcpu.kvm_run_ptr.as_mut_ref().kvm_dirty_regs,
+            vcpu.kvm_run_ptr.as_ref().kvm_dirty_regs,
             SyncReg::Register as u64 | SyncReg::SystemRegister as u64 | SyncReg::VcpuEvents as u64
         );
     }
