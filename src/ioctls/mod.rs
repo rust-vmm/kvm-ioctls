@@ -32,7 +32,7 @@ pub type Result<T> = std::result::Result<T, errno::Error>;
 /// A wrapper around the coalesced MMIO ring page.
 #[derive(Debug)]
 pub(crate) struct KvmCoalescedIoRing {
-    addr: *mut kvm_coalesced_mmio_ring,
+    addr: NonNull<kvm_coalesced_mmio_ring>,
     page_size: usize,
 }
 
@@ -61,9 +61,10 @@ impl KvmCoalescedIoRing {
                 offset.into(),
             )
         };
-        if addr == libc::MAP_FAILED {
-            return Err(errno::Error::last());
-        }
+        let addr = NonNull::new(addr)
+            .filter(|addr| addr.as_ptr() != libc::MAP_FAILED)
+            .ok_or_else(errno::Error::last)?;
+
         Ok(Self {
             addr: addr.cast(),
             page_size,
@@ -80,7 +81,7 @@ impl KvmCoalescedIoRing {
     fn ring_mut(&mut self) -> &mut kvm_coalesced_mmio_ring {
         // SAFETY: We have a `&mut self` and the pointer is private, so this
         // access is exclusive.
-        unsafe { &mut *self.addr }
+        unsafe { self.addr.as_mut() }
     }
 
     /// Reads a single entry from the MMIO ring.
@@ -113,7 +114,7 @@ impl Drop for KvmCoalescedIoRing {
         // SAFETY: This is safe because we mmap the page ourselves, and nobody
         // else is holding a reference to it.
         unsafe {
-            libc::munmap(self.addr.cast(), self.page_size);
+            libc::munmap(self.addr.as_ptr().cast(), self.page_size);
         }
     }
 }
