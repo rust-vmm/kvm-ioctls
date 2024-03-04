@@ -729,8 +729,6 @@ impl FromRawFd for Kvm {
 mod tests {
     #![allow(clippy::undocumented_unsafe_blocks)]
     use super::*;
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-    use kvm_bindings::KVM_MAX_CPUID_ENTRIES;
     use libc::{fcntl, FD_CLOEXEC, F_GETFD};
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     use vmm_sys_util::fam::FamStruct;
