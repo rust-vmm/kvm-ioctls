@@ -955,6 +955,10 @@ pub type __wsum = __u32;
 pub type __poll_t = ::std::os::raw::c_uint;
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialEq)]
+#[cfg_attr(
+    feature = "serde",
+    derive(zerocopy::AsBytes, zerocopy::FromBytes, zerocopy::FromZeroes)
+)]
 pub struct user_pt_regs {
     pub regs: [__u64; 31usize],
     pub sp: __u64,
@@ -1019,6 +1023,10 @@ fn bindgen_test_layout_user_pt_regs() {
 #[repr(C)]
 #[repr(align(16))]
 #[derive(Debug, Default, Copy, Clone, PartialEq)]
+#[cfg_attr(
+    feature = "serde",
+    derive(zerocopy::AsBytes, zerocopy::FromBytes, zerocopy::FromZeroes)
+)]
 pub struct user_fpsimd_state {
     pub vregs: [__uint128_t; 32usize],
     pub fpsr: __u32,
@@ -1499,6 +1507,10 @@ fn bindgen_test_layout_user_za_header() {
 #[repr(C)]
 #[repr(align(16))]
 #[derive(Debug, Default, Copy, Clone, PartialEq)]
+#[cfg_attr(
+    feature = "serde",
+    derive(zerocopy::AsBytes, zerocopy::FromBytes, zerocopy::FromZeroes)
+)]
 pub struct kvm_regs {
     pub regs: user_pt_regs,
     pub sp_el1: __u64,
@@ -1574,6 +1586,10 @@ fn bindgen_test_layout_kvm_regs() {
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialEq)]
+#[cfg_attr(
+    feature = "serde",
+    derive(zerocopy::AsBytes, zerocopy::FromBytes, zerocopy::FromZeroes)
+)]
 pub struct kvm_vcpu_init {
     pub target: __u32,
     pub features: [__u32; 7usize],
@@ -6511,6 +6527,10 @@ fn bindgen_test_layout_kvm_vapic_addr() {
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialEq)]
+#[cfg_attr(
+    feature = "serde",
+    derive(zerocopy::AsBytes, zerocopy::FromBytes, zerocopy::FromZeroes)
+)]
 pub struct kvm_mp_state {
     pub mp_state: __u32,
 }
@@ -8786,6 +8806,10 @@ fn bindgen_test_layout_kvm_reg_list() {
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialEq)]
+#[cfg_attr(
+    feature = "serde",
+    derive(zerocopy::AsBytes, zerocopy::FromBytes, zerocopy::FromZeroes)
+)]
 pub struct kvm_one_reg {
     pub id: __u64,
     pub addr: __u64,

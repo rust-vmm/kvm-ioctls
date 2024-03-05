@@ -12,6 +12,16 @@
 #[cfg(feature = "fam-wrappers")]
 extern crate vmm_sys_util;
 
+#[cfg(feature = "serde")]
+extern crate serde;
+
+#[cfg(feature = "serde")]
+extern crate zerocopy;
+
+#[cfg(feature = "serde")]
+#[macro_use]
+mod serialize;
+
 #[cfg(target_arch = "x86_64")]
 mod x86_64;
 #[cfg(target_arch = "x86_64")]
