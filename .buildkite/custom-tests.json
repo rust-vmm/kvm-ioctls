@@ -17,8 +17,24 @@
             ]
         },
         {
-            "test_name": "check-warnings-fam",
-            "command": "RUSTFLAGS=\"-D warnings\" cargo check --features=fam-wrappers",
+            "test_name": "build-serde-gnu",
+            "command": "cargo build --release --features=serde",
+            "platform": [
+                "x86_64",
+                "aarch64"
+            ]
+        },
+        {
+            "test_name": "build-serde-musl",
+            "command": "cargo build --release --features=serde --target {target_platform}-unknown-linux-musl",
+            "platform": [
+                "x86_64",
+                "aarch64"
+            ]
+        },
+        {
+            "test_name": "check-warnings-all-features",
+            "command": "RUSTFLAGS=\"-D warnings\" cargo check --all-features",
             "platform": [
                 "x86_64",
                 "aarch64"

@@ -18,7 +18,14 @@ mod tests {
     use bindings::*;
     use serde::{Deserialize, Serialize};
 
-    fn is_serde<T: Serialize + for<'de> Deserialize<'de>>() {}
+    fn is_serde<T: Serialize + for<'de> Deserialize<'de> + Default>() {
+        let serialized = bincode::serialize(&T::default()).unwrap();
+        let deserialized = bincode::deserialize::<T>(serialized.as_ref()).unwrap();
+        let serialized_again = bincode::serialize(&deserialized).unwrap();
+        // Compare the serialized state after a roundtrip, to work around issues with
+        // bindings not implementing `PartialEq`.
+        assert_eq!(serialized, serialized_again);
+    }
 
     #[test]
     fn static_assert_serde_implementations() {
