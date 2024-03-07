@@ -94,6 +94,64 @@ impl PartialEq for kvm_msr_list {
 /// [FamStructWrapper](../vmm_sys_util/fam/struct.FamStructWrapper.html).
 pub type MsrList = FamStructWrapper<kvm_msr_list>;
 
+/// Helper structure to treat post-5.17 [`kvm_xsave`] as a FamStruct.
+///
+/// See also: [`Xsave`].
+#[repr(C)]
+pub struct kvm_xsave2 {
+    pub len: usize,
+    pub xsave: kvm_xsave,
+}
+
+// SAFETY:
+// - `kvm_xsave2` is a POD
+// - `kvm_xsave2` contains a flexible array member as its final field, due to `kvm_xsave` containing
+//    one, and being `repr(C)`
+// - `Entry` is a POD
+unsafe impl FamStruct for kvm_xsave2 {
+    type Entry = __u32;
+
+    fn len(&self) -> usize {
+        self.len
+    }
+
+    unsafe fn set_len(&mut self, len: usize) {
+        self.len = len;
+    }
+
+    fn max_len() -> usize {
+        __u32::MAX as usize
+    }
+
+    fn as_slice(&self) -> &[<Self as FamStruct>::Entry] {
+        let len = self.len();
+        // SAFETY: By the invariants that the caller of `set_len` has to uphold, `len` matches
+        // the actual in-memory length of the FAM
+        unsafe { self.xsave.extra.as_slice(len) }
+    }
+
+    fn as_mut_slice(&mut self) -> &mut [<Self as FamStruct>::Entry] {
+        let len = self.len();
+        // SAFETY: By the invariants that the caller of `set_len` has to uphold, `len` matches
+        // the actual in-memory length of the FAM
+        unsafe { self.xsave.extra.as_mut_slice(len) }
+    }
+}
+
+/// Wrapper over the post-5.17 [`kvm_xsave`] structure.
+///
+/// In linux 5.17, kvm_xsave got turned into a FamStruct by adding the flexible "extra" member
+/// to its definition. However, unlike all other such structs, it does not contain a "length"
+/// field. Instead, the length of the flexible array member has to be determined by querying
+/// the [`KVM_CAP_XSAVE2`] capability. This requires access to a VM file descriptor, and thus
+/// cannot happen in the [`FamStruct::len`] trait method. To work around this, we define a wrapper
+/// struct that caches the length of a previous `KVM_CHECK_EXTENSION(KVM_CAP_XSAVE2)` call,
+/// and implement [`FamStruct`] for this wrapper. Then in kvm-ioctls, we can expose a function
+/// that first queries `KVM_CAP_XSAVE2`, then invokes [`KVM_GET_XSAVE2`] to retrives the `kvm_xsave`
+/// structure, and finally combine them into the [`kvm_xsave2`] helper structure to be managed as a
+/// `FamStruct`.
+pub type Xsave = FamStructWrapper<kvm_xsave2>;
+
 #[cfg(test)]
 mod tests {
     use super::{CpuId, MsrList, Msrs};
