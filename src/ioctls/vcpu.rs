@@ -12,11 +12,6 @@ use std::os::unix::io::{AsRawFd, RawFd};
 
 use crate::ioctls::{KvmCoalescedIoRing, KvmRunWrapper, Result};
 use crate::kvm_ioctls::*;
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-use kvm_bindings::{
-    CpuId, Msrs, KVM_MAX_CPUID_ENTRIES, KVM_MSR_EXIT_REASON_FILTER, KVM_MSR_EXIT_REASON_INVAL,
-    KVM_MSR_EXIT_REASON_UNKNOWN,
-};
 use vmm_sys_util::errno;
 use vmm_sys_util::ioctl::{ioctl, ioctl_with_mut_ref, ioctl_with_ref};
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
