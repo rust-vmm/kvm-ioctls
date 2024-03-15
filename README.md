@@ -45,3 +45,4 @@ bindings happens as opaque binary blobs via [`zerocopy`](https://google.github.i
 Due to the kernel's ABI compatibility, this means that bindings serialized
 in version `x` of `kvm-bindings` can be deserialized in version `y` of the
 crate, even if the bindings have had been regenerated in the meantime.
+

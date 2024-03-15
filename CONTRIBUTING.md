@@ -68,6 +68,32 @@ cp arm/mod.rs arm64/
 
 Also, you will need to add the new architecture to `kvm-bindings/lib.rs`.
 
+When regenerating bindings, care must be taken to re-add various `zerocopy`
+derives under the `serde` feature. All items that require derives are
+listed in the `x86_64/serialize.rs` and `arm64/serialize.rs` inside the
+`serde_impls!` macro invocation, and missing derives will cause these
+modules to fail compilation. For all items listed here, the following
+derive should be present:
+
+```rs
+#[cfg_attr(
+    feature = "serde",
+    derive(zerocopy::AsBytes, zerocopy::FromBytes, zerocopy::FromZeroes)
+)]
+```
+
+Any types whose name contains a suffix akin to `__bindgen_ty_<number>` and
+which is contained in any struct listed in `serialize.rs` will also need
+to have this derive added (otherwise compilation will fail). Note that
+these types are not explicitly listed in `serialize.rs`, as their names
+can change across `bindgen.rs` versions.
+
+Lastly, in `x86_64/bindings.rs`, the derives also need to be added to
+`struct __BindgenBitfieldUnit<Storage>` and `struct __IncompleteArrayField<T>`.
+Additionally, these structs need to have their layout changed from `#[repr(C)]`
+to `#[repr(transparent)]`. This is needed because `zerocopy` traits can only be
+derived on generic structures that are `repr(transparent)` or `repr(packed)`.
+
 ### Future Improvements
 All the above steps are scriptable, so in the next iteration I will add a
 script to generate the bindings.
