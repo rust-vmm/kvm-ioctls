@@ -7,6 +7,8 @@
 - [[#255](https://github.com/rust-vmm/kvm-ioctls/issues/255)]: Fixed a
   soundness issue when accessing the `kvm_run` struct. `VcpuFd::run()` and
   `VcpuFd::set_kvm_immediate_exit()` now take `&mut self` as a consequence.
+- Changed `encrypt_op` and `encrypt_op_sev` to system ioctls to be in line 
+  with the KVM API
 
 # v0.16.0
 
