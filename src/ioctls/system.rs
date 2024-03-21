@@ -682,6 +682,97 @@ impl Kvm {
         let run_mmap_size = self.get_vcpu_mmap_size()?;
         Ok(new_vmfd(File::from_raw_fd(fd), run_mmap_size))
     }
+
+    /// Issues platform-specific memory encryption commands to manage encrypted VMs if
+    /// the platform supports creating those encrypted VMs.
+    ///
+    /// Currently, this ioctl is used for issuing Secure Encrypted Virtualization
+    /// (SEV) commands on AMD Processors.
+    ///
+    /// See the documentation for `KVM_MEMORY_ENCRYPT_OP` in the
+    /// [KVM API doc](https://www.kernel.org/doc/Documentation/virtual/kvm/api.txt).
+    ///
+    /// For SEV-specific functionality, prefer safe wrapper:
+    /// - [`encrypt_op_sev`](Self::encrypt_op_sev)
+    ///
+    /// # Safety
+    ///
+    /// This function is unsafe because there is no guarantee `T` is valid in this context, how
+    /// much data kernel will read from memory and where it will write data on error.
+    ///
+    /// # Arguments
+    ///
+    /// * `fd` - the RawFd to be operated on. (`VmFd`, `VcpuFd`, etc.)
+    /// * `op` - an opaque platform specific structure.
+    ///
+    /// # Example
+    #[cfg_attr(has_sev, doc = "```rust")]
+    #[cfg_attr(not(has_sev), doc = "```rust,no_run")]
+    /// # extern crate kvm_ioctls;
+    /// # extern crate kvm_bindings;
+    /// use kvm_bindings::bindings::kvm_sev_cmd;
+    /// # use kvm_ioctls::Kvm;
+    ///
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    ///
+    /// // Initialize the SEV platform context.
+    /// let mut init: kvm_sev_cmd = Default::default();
+    /// unsafe { kvm.encrypt_op(&vm, &mut init).unwrap() };
+    /// ```
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    pub unsafe fn encrypt_op<T>(&self, fd: &impl AsRawFd, op: *mut T) -> Result<()> {
+        let ret = ioctl_with_mut_ptr(fd, KVM_MEMORY_ENCRYPT_OP(), op);
+        if ret == 0 {
+            Ok(())
+        } else {
+            Err(errno::Error::last())
+        }
+    }
+
+    /// Issue common lifecycle events of SEV guests, such as launching, running, snapshotting,
+    /// migrating and decommissioning via `KVM_MEMORY_ENCRYPT_OP` ioctl.
+    ///
+    /// Kernel documentation states that this ioctl can be used for testing whether SEV is enabled
+    /// by sending `NULL`. To do that, pass [`std::ptr::null_mut`](std::ptr::null_mut) to [`encrypt_op`](Self::encrypt_op).
+    ///
+    /// See the documentation for Secure Encrypted Virtualization (SEV).
+    ///
+    /// # Arguments
+    ///
+    /// * `fd` - the RawFd to be operated on. (`VmFd`, `VcpuFd`, etc.)
+    /// * `op` - SEV-specific structure. For details check the
+    ///         [Secure Encrypted Virtualization (SEV) doc](https://www.kernel.org/doc/Documentation/virtual/kvm/amd-memory-encryption.rst).
+    ///
+    /// # Example
+    #[cfg_attr(has_sev, doc = "```rust")]
+    #[cfg_attr(not(has_sev), doc = "```rust,no_run")]
+    /// # extern crate kvm_ioctls;
+    /// # extern crate kvm_bindings;
+    /// # use std::{os::raw::c_void, ptr::null_mut};
+    /// use kvm_bindings::bindings::kvm_sev_cmd;
+    /// # use kvm_ioctls::Kvm;
+    ///
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    ///
+    /// // Check whether SEV is enabled, optional.
+    /// assert!(unsafe { kvm.encrypt_op(&vm, null_mut() as *mut c_void) }.is_ok());
+    ///
+    /// // Initialize the SEV platform context.
+    /// let mut init: kvm_sev_cmd = Default::default();
+    /// kvm.encrypt_op_sev(&vm, &mut init).unwrap();
+    /// ```
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    pub fn encrypt_op_sev(
+        &self,
+        fd: &impl AsRawFd,
+        op: &mut kvm_bindings::kvm_sev_cmd,
+    ) -> Result<()> {
+        // SAFETY: Safe because we know that kernel will only read the correct amount of memory
+        // from our pointer and we know where it will write it (op.error).
+        unsafe { self.encrypt_op(fd, op) }
+    }
 }
 
 impl AsRawFd for Kvm {
@@ -978,5 +1069,16 @@ mod tests {
             );
         }
         assert_eq!(faulty_kvm.create_vm().err().unwrap().errno(), badf_errno);
+    }
+
+    #[test]
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg_attr(not(has_sev), ignore)]
+    fn test_encrypt_op_sev() {
+        let kvm = Kvm::new().unwrap();
+        let vm = kvm.create_vm().unwrap();
+
+        let mut init: kvm_bindings::kvm_sev_cmd = Default::default();
+        assert!(kvm.encrypt_op_sev(&vm, &mut init).is_ok());
     }
 }
