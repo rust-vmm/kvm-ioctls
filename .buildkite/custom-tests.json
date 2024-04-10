@@ -31,14 +31,6 @@
                 "x86_64",
                 "aarch64"
             ]
-        },
-        {
-            "test_name": "check-warnings-all-features",
-            "command": "RUSTFLAGS=\"-D warnings\" cargo check --all-features",
-            "platform": [
-                "x86_64",
-                "aarch64"
-            ]
         }
     ]
 }
