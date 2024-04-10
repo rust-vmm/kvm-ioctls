@@ -46,3 +46,7 @@ Due to the kernel's ABI compatibility, this means that bindings serialized
 in version `x` of `kvm-bindings` can be deserialized in version `y` of the
 crate, even if the bindings have had been regenerated in the meantime.
 
+## Regenerating Bindings
+
+Please see [`CONTRIBUTING.md`](CONTRIBUTING.md) for details on how to generate the bindings
+or add support for new architectures.
