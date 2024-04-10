@@ -1,6 +1,11 @@
 # Changelog
 ## [Unreleased]
 
+### Added
+
+- An opt-in feature `serde` that enables [`serde`](https://serde.rs)-based
+  (de)serialization of various bindings. 
+
 ## [0.7.0]
 
 ### Changed
