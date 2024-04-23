@@ -3,6 +3,14 @@
 
 ### Added
 
+### Changed
+
+### Removed
+
+## [0.8.0]
+
+### Added
+
 - An opt-in feature `serde` that enables [`serde`](https://serde.rs)-based
   (de)serialization of various bindings. 
 
