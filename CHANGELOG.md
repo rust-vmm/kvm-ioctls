@@ -9,6 +9,7 @@
 - [[#255](https://github.com/rust-vmm/kvm-ioctls/issues/255)]: Fixed a
   soundness issue when accessing the `kvm_run` struct. `VcpuFd::run()` and
   `VcpuFd::set_kvm_immediate_exit()` now take `&mut self` as a consequence.
+- [[#260](https://github.com/rust-vmm/kvm-ioctls/pull/260)]: Updated kvm-bindings to 0.8.0.
 
 ## v0.16.0
 
