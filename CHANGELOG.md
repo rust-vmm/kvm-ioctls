@@ -1,16 +1,18 @@
-# Upcoming Release
+# Changelog
 
-## Added
+## Upcoming Release
 
-## Changed
+### Added
+
+### Changed
 
 - [[#255](https://github.com/rust-vmm/kvm-ioctls/issues/255)]: Fixed a
   soundness issue when accessing the `kvm_run` struct. `VcpuFd::run()` and
   `VcpuFd::set_kvm_immediate_exit()` now take `&mut self` as a consequence.
 
-# v0.16.0
+## v0.16.0
 
-## Added
+### Added
 - [[#242](https://github.com/rust-vmm/kvm-ioctls/pull/242)] x86: add support
   for SMI injection via `Vcpu::smi()` (`KVM_SMI` ioctl).
 - [[#241](https://github.com/rust-vmm/kvm-ioctls/pull/241)] Add support for
@@ -20,15 +22,15 @@
 - [[#244](https://github.com/rust-vmm/kvm-ioctls/pull/244)] add support for
   coalesced MMIO (`KVM_CAP_COALESCED_MMIO` / `KVM_CAP_COALESCED_PIO`)
 
-## Changed
+### Changed
 - [[#234](https://github.com/rust-vmm/kvm-ioctls/issues/234)] vcpu: export
 reg_size as a public method.
 - [[#243](https://github.com/rust-vmm/kvm-ioctls/pull/243)] derived the `Copy`
   trait for `IoEventAddress` and `NoDatamatch`.
 
-# v0.15.0
+## v0.15.0
 
-## Added
+### Added
 - [[#230](https://github.com/rust-vmm/kvm-ioctls/pull/230)] Added
   `check_extension_raw` method to use raw integer values instead
   of `Cap` enum.
@@ -37,31 +39,31 @@ support for vCPU SVE feature.
 - [[#219](https://github.com/rust-vmm/kvm-ioctls/pull/226)] Add `Cap::ArmPtrAuthAddress`
   and `Cap::ArmPtrAuthGeneric` capabilities.
 
-# v0.14.0
+## v0.14.0
 
-## Added
+### Added
 
 - [[#219](https://github.com/rust-vmm/kvm-ioctls/pull/219)] Support for
   `KVM_GET_MSR_FEATURE_INDEX_LIST` and `KVM_GET_MSRS` system ioctls.
 - [[#221](https://github.com/rust-vmm/kvm-ioctls/pull/221)] Add
   `Cap::ArmPmuV3`.
   
-## Changed
+### Changed
 
 - [[#223](https://github.com/rust-vmm/kvm-ioctls/pull/223)] aarch64:
   Updated `get/set_one_reg` to support different registers sizes through
   byte slices.
 
-# v0.13.0
+## v0.13.0
 
-## Added
+### Added
 - [[#213](https://github.com/rust-vmm/kvm-ioctls/pull/213)] Add `Kvm::new_with_path()`
   and `Kvm::open_with_cloexec_at()` to allow using kvm device files other than
   `/dev/kvm`.
 
-# v0.12.0
+## v0.12.0
 
-## Added
+### Added
 
 - [[#187](https://github.com/rust-vmm/kvm-ioctls/pull/187)] Support for 
   `KVM_SET_IDENTITY_MAP_ADDR`
@@ -81,7 +83,7 @@ support for vCPU SVE feature.
 - [[#202](https://github.com/rust-vmm/kvm-ioctls/pull/202)] Added `check_extension_int`
   which allows checking the capabilities that return numbers instead of booleans
 
-## Changed
+### Changed
 
 - Updated vmm-sys-util to 0.11.0
 - Updated kvm-bindings to 0.6.0
@@ -96,9 +98,9 @@ support for vCPU SVE feature.
   preventing `set_guest_debug` from being exported on ARM
 - [[#206](https://github.com/rust-vmm/kvm-ioctls/pull/206)] use `u128` in `get/set_on_reg`
 
-# v0.11.0
+## v0.11.0
 
-## Added
+### Added
 - [[#178](https://github.com/rust-vmm/kvm-ioctls/pull/178)] Support for the AMD
   Security Encrypted Virtualization (SEV) through the following VM ioctls:
   `encrypt_op`, `encrypt_op_sev`, `register_enc_memory_region` and
@@ -106,54 +108,54 @@ support for vCPU SVE feature.
 - [[#184](https://github.com/rust-vmm/kvm-ioctls/pull/184)] `DeviceFd` now
   derives `Debug`.
 
-# v0.10.0
+## v0.10.0
 
-## Changed
+### Changed
 - Now depends on kvm-bindings >=0.5.0 which replaced the v4.20 KVM bindings
   with the v5.13 ones.
 - Updated `VcpuExit::Debug` to return architecture specific information for the
   debug event.
 
-# v0.9.0
+## v0.9.0
 
-## Added
+### Added
 - Support for accessing and controlling the Time Stamp Counter on x86 platforms
   through the `get_tsc_khz` and `set_tsc_khz` functions.
 
-## Changed
+### Changed
 - Updated `create_vm` on `aarch64` to create a VM fd from the KVM fd using the
   host's maximum IPA size.
 
-# v0.8.0
+## v0.8.0
 
-## Added
+### Added
 - Support for specifying VM type (an opaque platform and architecture specific
   constant) when creating a VM (`KVM_CREATE_VM` ioctl) via the
 `Kvm::create_vm_with_type` function.
 
-## Changed
+### Changed
 - Now depends on kvm-bindings >=0.4.0 to support use of a newer vmm-sys-utils
   dependency.
 
-# v0.7.0
+## v0.7.0
 
-## Added
+### Added
 - Support for the system API that returns the maximum allowed vCPU ID
   (`KVM_CAP_MAX_VCPU_ID`).
 - Support for `KVM_MEMORY_ENCRYPT_OP`.
 
-## Fixed
+### Fixed
 - [[#119](https://github.com/rust-vmm/kvm-ioctls/issues/119)]: Disallow invalid
   number of cpuid entries to be passed to `get_supported_cpuid` and
   `get_emulated_cpuid`.
 
-## Changed
+### Changed
 - [[#123](https://github.com/rust-vmm/kvm-ioctls/issues/123)]: Updated
   `create_vcpu` to use `u64` as the parameter for the number of vCPUs.
 
-# v0.6.0
+## v0.6.0
 
-## Added
+### Added
 - Support for the vcpu ioctls: `KVM_SET_GUEST_DEBUG`, `KVM_KVMCLOCK_CTRL`, and
   `KVM_GET_REG_LIST`.
 - Support for the vm ioctl `KVM_GET_DEVICE_ATTR`.
@@ -166,31 +168,31 @@ support for vCPU SVE feature.
 - Support for checking the VM capabilities via `Vm::check_extension`.
 - Create a VM with flexible IPA size using `Kvm::create_vm_with_ipa_size`.
 
-## Removed
+### Removed
 - Removed `Kvm::new_with_fd_number`. The same functionality is offered by the
   `Kvm` [FromRawFd](https://doc.rust-lang.org/std/os/unix/io/trait.FromRawFd.html)
   trait implementation.
 
-## Changed
+### Changed
 - The VM ioctl `unregister_ioevent` now correctly unregisters the events that
   correspond to the data match passed as a parameter.
 - The `SystemEvent` Vcpu Exit now also contains the relevant type and flags.
 - Updated `get_dirty_log` such that it does not assume the page size is 4K,
   but instead reads it using `libc::sysconf`.
 
-# v0.5.0
+## v0.5.0
 
-## Added
+### Added
 - Support for the vcpu ioctls `KVM_GET/SET_VCPU_EVENTS` and `KVM_GET_DIRTY_LOG`
   on `aarch64`.
 - Support for the vcpu ioctl `KVM_IRQ_LINE`.
 
-# v0.4.0
+## v0.4.0
 
-## Added
+### Added
 - Support for unregistering ioeventfds through `KVM_IOEVENTFD`.
 
-## Changed
+### Changed
 - Functions working with event FDs now require
   vmm_sys_util::eventfd::EventFd in their interface instead of
   RawFd.
@@ -204,15 +206,15 @@ support for vCPU SVE feature.
   not have to use kvm_ioctls::Result outside the crate.
 - kvm_ioctls::Error now works with errno::Error instead of io::Error.
 
-## Removed
+### Removed
 - CpuId safe wrapper over FAM struct kvm_cpuid2. The safe wrapper is
   now provided by the kvm_bindings crate starting with v0.2.0.
 - KVM_MAX_MSR_ENTRIES and MAX_KVM_CPUID_ENTRIES. Equivalent constants
   are provided by the kvm_bindings crate starting with v0.2.0.
 
-# v0.3.0
+## v0.3.0
 
-## Added
+### Added
 - Support for setting vcpu `kvm_immediate_exit` flag
 - Support for the vcpu ioctl `KVM_GET_CPUID2`
 - Support for the vcpu ioctl `KVM_GET_MP_STATE`
@@ -233,23 +235,23 @@ support for vCPU SVE feature.
 - Support for the vm ioctl `KVM_SET_PIT2`
 - Support for the vcpu ioctl `KVM_GET_ONE_REG`
 
-## Changed
+### Changed
 - Function offering support for `KVM_SET_MSRS` also returns the number
   of MSR entries successfully written.
 
-# v0.2.0
+## v0.2.0
 
-## Added
+### Added
 - Add support for `KVM_ENABLE_CAP`.
 - Add support for `KVM_SIGNAL_MSI`.
 
-## Fixed
+### Fixed
 - Fix bug in KvmRunWrapper. The memory for kvm_run struct was not unmapped
   after the KvmRunWrapper object got out of scope.
 - Return proper value when receiving the EOI KVM exit.
 - Mark set_user_memory_region as unsafe.
 
-# v0.1.0
+## v0.1.0
 
 First release of the kvm-ioctls crate.
 
