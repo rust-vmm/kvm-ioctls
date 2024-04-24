@@ -160,8 +160,10 @@ pub type Xsave = FamStructWrapper<kvm_xsave2>;
 
 #[cfg(test)]
 mod tests {
-    use super::{CpuId, MsrList, Msrs};
+    use super::{CpuId, MsrList, Msrs, Xsave};
     use x86_64::bindings::kvm_cpuid_entry2;
+
+    use vmm_sys_util::fam::FamStruct;
 
     #[test]
     fn test_cpuid_eq() {
@@ -214,5 +216,12 @@ mod tests {
         assert!(wrapper != wrapper2);
         wrapper2.as_mut_slice()[0] = 1;
         assert!(wrapper == wrapper2);
+    }
+    #[test]
+    fn test_xsave() {
+        let wrapper = Xsave::new(1).unwrap();
+        assert_eq!(wrapper.as_slice().len(), 1);
+        assert_eq!(wrapper.as_fam_struct_ref().len(), 1);
+        assert_eq!(wrapper.as_fam_struct_ref().len, 1);
     }
 }
