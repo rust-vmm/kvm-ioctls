@@ -853,6 +853,41 @@ impl VcpuFd {
         Ok(xsave)
     }
 
+    /// X86 specific call that returns the vcpu's current "xsave struct" via `KVM_GET_XSAVE2`.
+    ///
+    /// See the documentation for `KVM_GET_XSAVE2` in the
+    /// [KVM API doc](https://www.kernel.org/doc/Documentation/virtual/kvm/api.txt).
+    ///
+    /// # Arguments
+    ///
+    /// * `vm_fd` - the file descriptor of the VM this [`Vcpu`] belongs to.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # extern crate kvm_ioctls;
+    /// # use kvm_ioctls::Kvm;
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    /// let vcpu = vm.create_vcpu(0).unwrap();
+    /// let xsave = vcpu.get_xsave2(&vm).unwrap();
+    /// ```
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    pub fn get_xsave2(&self, vm_fd: &crate::VmFd) -> Result<Xsave> {
+        let xsave_size = vm_fd.xsave_size();
+        let fam_size = xsave_size - std::mem::size_of::<kvm_xsave>();
+        let mut xsave = Xsave::new(fam_size).map_err(|_| errno::Error::new(libc::EINVAL))?;
+
+        // SAFETY: Here we trust the kernel not to read past the end of the kvm_xsave struct.
+        let ret = unsafe {
+            ioctl_with_mut_ref(self, KVM_GET_XSAVE2(), &mut xsave.as_mut_fam_struct().xsave)
+        };
+        if ret != 0 {
+            return Err(errno::Error::last());
+        }
+        Ok(xsave)
+    }
+
     /// X86 specific call that sets the vcpu's current "xsave struct".
     ///
     /// See the documentation for `KVM_SET_XSAVE` in the
@@ -882,6 +917,13 @@ impl VcpuFd {
             return Err(errno::Error::last());
         }
         Ok(())
+    }
+
+    /// Convenience function for doing `KVM_SET_XSAVE` with the FAM-enabled [`Xsave`]
+    /// instead of the pre-5.17 plain [`kvm_xsave`].
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    pub fn set_xsave2(&self, xsave: &Xsave) -> Result<()> {
+        self.set_xsave(&xsave.as_fam_struct_ref().xsave)
     }
 
     /// X86 specific call that returns the vcpu's current "xcrs".
@@ -2200,6 +2242,12 @@ mod tests {
         vcpu.set_xsave(&xsave).unwrap();
         let other_xsave = vcpu.get_xsave().unwrap();
         assert_eq!(&xsave.region[..], &other_xsave.region[..]);
+        let xsave2 = vcpu.get_xsave2(&vm).unwrap();
+        assert_eq!(
+            &xsave.region[..],
+            &xsave2.as_fam_struct_ref().xsave.region[..]
+        );
+        vcpu.set_xsave2(&xsave2).unwrap();
     }
 
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]

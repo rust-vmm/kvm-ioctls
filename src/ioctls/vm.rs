@@ -1293,6 +1293,20 @@ impl VmFd {
         self.run_size
     }
 
+    /// Get the `kvm_xsave` size
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    pub fn xsave_size(&self) -> usize {
+        match self.check_extension_int(Cap::Xsave2) {
+            // If KVM does not support KVM_CAP_XSAVE2, then kvm_xsave will not
+            // have a FAM field, meaning the size of the struct is just the 4096 byte header array.
+            // Otherwise, KVM_CHECK_EXTENSION(KVM_CAP_XSAVE2) will always return at least 4096,
+            // and describe the size of the header plus the FAM.
+            // See https://docs.kernel.org/virt/kvm/api.html#kvm-get-xsave2
+            ..=0 => std::mem::size_of::<kvm_xsave>(),
+            size => size as usize,
+        }
+    }
+
     /// Wrapper over `KVM_CHECK_EXTENSION`.
     ///
     /// Returns 0 if the capability is not available and a positive integer otherwise.
