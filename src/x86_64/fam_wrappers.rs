@@ -98,6 +98,7 @@ pub type MsrList = FamStructWrapper<kvm_msr_list>;
 ///
 /// See also: [`Xsave`].
 #[repr(C)]
+#[derive(Debug, Default)]
 pub struct kvm_xsave2 {
     pub len: usize,
     pub xsave: kvm_xsave,
