@@ -7,6 +7,13 @@
 
 ### Removed
 
+## [0.8.1]
+
+### Fixed
+
+- Implement `Default` for `kvm_xsave2`, which fixes usage of `Xsave`
+  unconditionally causing compile errors in downstream crates.
+
 ## [0.8.0]
 
 ### Added
