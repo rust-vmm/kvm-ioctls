@@ -111,6 +111,98 @@ impl VmFd {
         }
     }
 
+    /// Creates/modifies a guest physical memory slot.
+    ///
+    /// See the documentation for `KVM_SET_USER_MEMORY_REGION2`.
+    ///
+    /// # Arguments
+    ///
+    /// * `user_memory_region2` - Guest physical memory slot. For details check the
+    ///             `kvm_userspace_memory_region2` structure in the
+    ///             [KVM API doc](https://www.kernel.org/doc/Documentation/virtual/kvm/api.txt).
+    ///
+    /// # Safety
+    ///
+    /// This function is unsafe because there is no guarantee `userspace_addr` points to a valid
+    /// memory region, nor the memory region lives as long as the kernel needs it to.
+    ///
+    /// The caller of this method must make sure that:
+    /// - the raw pointer (`userspace_addr`) points to valid memory
+    /// - the regions provided to KVM are not overlapping other memory regions.
+    /// - the guest_memfd points at a file created via KVM_CREATE_GUEST_MEMFD on
+    ///   the current VM, and the target range must not be bound to any other memory region
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # extern crate kvm_ioctls;
+    /// extern crate kvm_bindings;
+    ///
+    /// use kvm_bindings::{
+    ///     kvm_create_guest_memfd, kvm_enable_cap, kvm_userspace_memory_region2, KVM_CAP_GUEST_MEMFD,
+    ///     KVM_CAP_USER_MEMORY2, KVM_MEM_GUEST_MEMFD,
+    /// };
+    /// use kvm_ioctls::Kvm;
+    /// use std::os::fd::RawFd;
+    ///
+    /// # #[cfg(target_arch = "x86_64")]
+    /// {
+    ///     let kvm = Kvm::new().unwrap();
+    ///     let vm = kvm.create_vm().unwrap();
+    ///
+    ///     let address_space = unsafe { libc::mmap(0 as _, 10000, 3, 34, -1, 0) };
+    ///     let userspace_addr = address_space as *const u8 as u64;
+    ///
+    ///     let mut config = kvm_enable_cap {
+    ///         cap: KVM_CAP_GUEST_MEMFD,
+    ///         ..Default::default()
+    ///     };
+    ///
+    ///     if vm.enable_cap(&config).is_err() {
+    ///         return;
+    ///     }
+    ///     let gmem = kvm_create_guest_memfd {
+    ///         size: 0x10000,
+    ///         flags: 0,
+    ///         reserved: [0; 6],
+    ///     };
+    ///
+    ///     let fd: RawFd = unsafe { vm.create_guest_memfd(gmem).unwrap() };
+    ///
+    ///     config.cap = KVM_CAP_USER_MEMORY2;
+    ///
+    ///     if vm.enable_cap(&config).is_err() {
+    ///         return;
+    ///     }
+    ///
+    ///     let mem_region = kvm_userspace_memory_region2 {
+    ///         slot: 0,
+    ///         flags: KVM_MEM_GUEST_MEMFD,
+    ///         guest_phys_addr: 0x10000 as u64,
+    ///         memory_size: 0x10000 as u64,
+    ///         userspace_addr,
+    ///         guest_memfd_offset: 0,
+    ///         guest_memfd: fd as u32,
+    ///         pad1: 0,
+    ///         pad2: [0; 14],
+    ///     };
+    ///     unsafe {
+    ///         vm.set_user_memory_region2(mem_region).unwrap();
+    ///     };
+    /// }
+    /// ```
+    pub unsafe fn set_user_memory_region2(
+        &self,
+        user_memory_region2: kvm_userspace_memory_region2,
+    ) -> Result<()> {
+        let ret = ioctl_with_ref(self, KVM_SET_USER_MEMORY_REGION2(), &user_memory_region2);
+        if ret == 0 {
+            Ok(())
+        } else {
+            Err(errno::Error::last())
+        }
+    }
+
     /// Sets the address of the three-page region in the VM's address space.
     ///
     /// See the documentation for `KVM_SET_TSS_ADDR`.
@@ -1723,6 +1815,24 @@ mod tests {
             flags: 0,
         };
         assert!(unsafe { vm.set_user_memory_region(invalid_mem_region) }.is_err());
+    }
+
+    #[test]
+    fn test_set_invalid_memory2() {
+        let kvm = Kvm::new().unwrap();
+        let vm = kvm.create_vm().unwrap();
+        let invalid_mem_region = kvm_userspace_memory_region2 {
+            slot: 0,
+            flags: 0,
+            guest_phys_addr: 0,
+            memory_size: 0,
+            userspace_addr: 0,
+            guest_memfd_offset: 0,
+            guest_memfd: 0,
+            pad1: 0,
+            pad2: [0; 14],
+        };
+        assert!(unsafe { vm.set_user_memory_region2(invalid_mem_region) }.is_err());
     }
 
     #[test]
