@@ -27,13 +27,24 @@ macro_rules! serde_impls {
                 where
                     D: Deserializer<'de>
                 {
-                    let bytes = Vec::<u8>::deserialize(deserializer)?;
+                    struct BytesVisitor;
 
-                    let mut backing = [0u8; std::mem::size_of::<$typ>()];
+                    impl<'a> serde::de::Visitor<'a> for BytesVisitor {
+                        type Value = [u8; std::mem::size_of::<$typ>()];
 
-                    let limit = bytes.len().min(backing.len());
+                        fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+                            formatter.write_str("a byte array")
+                        }
 
-                    backing[..limit].copy_from_slice(&bytes[..limit]);
+                        fn visit_bytes<E>(self, bytes: &[u8]) -> Result<Self::Value, E> {
+                            let mut backing = [0u8; std::mem::size_of::<$typ>()];
+                            let limit = bytes.len().min(backing.len());
+                            backing[..limit].copy_from_slice(&bytes[..limit]);
+                            Ok(backing)
+                        }
+                    }
+
+                    let backing = deserializer.deserialize_bytes(BytesVisitor)?;
 
                     Ok(transmute!(backing))
                 }
