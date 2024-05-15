@@ -38,6 +38,12 @@ ioctl_iow_nr!(
     0x46,
     kvm_userspace_memory_region
 );
+ioctl_iow_nr!(
+    KVM_SET_USER_MEMORY_REGION2,
+    KVMIO,
+    0x49,
+    kvm_userspace_memory_region2
+);
 /* Available with KVM_CAP_SET_TSS_ADDR */
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 ioctl_io_nr!(KVM_SET_TSS_ADDR, KVMIO, 0x47);
