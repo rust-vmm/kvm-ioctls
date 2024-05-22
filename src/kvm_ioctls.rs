@@ -50,6 +50,8 @@ ioctl_io_nr!(KVM_SET_TSS_ADDR, KVMIO, 0x47);
 /* Available with KVM_CAP_SET_IDENTITY_MAP_ADDR */
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 ioctl_iow_nr!(KVM_SET_IDENTITY_MAP_ADDR, KVMIO, 0x48, u64);
+#[cfg(any(target_arch = "x86_64", target_arch = "aarch64"))]
+ioctl_iowr_nr!(KVM_CREATE_GUEST_MEMFD, KVMIO, 0xd4, kvm_create_guest_memfd);
 /* Available with KVM_CAP_IRQCHIP */
 #[cfg(any(
     target_arch = "x86",
