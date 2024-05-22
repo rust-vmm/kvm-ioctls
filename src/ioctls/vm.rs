@@ -1394,6 +1394,50 @@ impl VmFd {
         self.check_extension_int(c) > 0
     }
 
+    /// Creates an anonymous file and returns a file descriptor that refers to it.
+    ///
+    /// See the documentation for `KVM_CREATE_GUEST_MEMFD`.
+    ///
+    /// Returns an io::Error when the file could not be created.
+    ///
+    /// # Arguments
+    ///
+    /// * kvm_create_guest_memfd - KVM create guest memfd structure. For details check the
+    ///                    `kvm_create_guest_memfd` structure in the
+    ///                    [KVM API doc](https://www.kernel.org/doc/Documentation/virtual/kvm/api.txt).
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # extern crate kvm_ioctls;
+    /// extern crate kvm_bindings;
+    ///
+    /// # use kvm_ioctls::Kvm;
+    /// use kvm_bindings::kvm_create_guest_memfd;
+    ///
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    /// let gmem = kvm_create_guest_memfd {
+    ///     size: 0x1000,
+    ///     flags: 0,
+    ///     reserved: [0; 6],
+    /// };
+    ///
+    /// let id: RawFd = vm_fd.create_guest_memfd(gmem).unwrap();
+    /// ```
+    pub fn create_guest_memfd(
+        &self,
+        gmem: kvm_create_guest_memfd,
+        ) -> Result<RawFd> {
+            // SAFETY: Safe because we know that our file is a VM fd, we know the kernel will only
+            // read the correct amount of memory from our pointer, and we verify the return result.
+            let ret = unsafe { ioctl_with_ref(self, KVM_CREATE_GUEST_MEMFD(), &gmem) };
+            if ret < 0 {
+                return Err(errno::Error::last())
+            }
+            Ok(ret.try_into().unwrap())
+    }
+
     /// Issues platform-specific memory encryption commands to manage encrypted VMs if
     /// the platform supports creating those encrypted VMs.
     ///
