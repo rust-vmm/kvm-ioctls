@@ -7,6 +7,13 @@
 
 ### Removed
 
+## [0.8.2]
+
+### Changed 
+
+- Improve performance of bindings deserialization by \~5% by avoiding
+  a temporary allocation.
+
 ## [0.8.1]
 
 ### Fixed
