@@ -2646,6 +2646,23 @@ mod tests {
 
     #[test]
     #[cfg(target_arch = "aarch64")]
+    fn test_faulty_vcpu_target_aarch64() {
+        let kvm = Kvm::new().unwrap();
+        let vm = kvm.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+
+        // KVM defines valid targets as 0 to KVM_ARM_NUM_TARGETS-1, so pick a big raw number
+        // greater than that as target to be invalid
+        let kvi: kvm_bindings::kvm_vcpu_init = kvm_bindings::kvm_vcpu_init {
+            target: 300,
+            ..Default::default()
+        };
+
+        assert!(vcpu.vcpu_init(&kvi).is_err());
+    }
+
+    #[test]
+    #[cfg(target_arch = "aarch64")]
     fn test_faulty_vcpu_fd_aarch64() {
         use std::os::unix::io::FromRawFd;
 
@@ -2729,7 +2746,6 @@ mod tests {
         let vcpu = vm.create_vcpu(0).unwrap();
 
         let mut kvi: kvm_bindings::kvm_vcpu_init = kvm_bindings::kvm_vcpu_init::default();
-        assert!(vcpu.vcpu_init(&kvi).is_err());
 
         vm.get_preferred_target(&mut kvi)
             .expect("Cannot get preferred target");
