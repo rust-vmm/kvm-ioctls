@@ -1438,6 +1438,72 @@ impl VmFd {
             Ok(ret.try_into().unwrap())
     }
 
+    /// Allows userspace to set memory attributes for a range of guest physical memory.
+    ///
+    /// See the documentation for `KVM_SET_MEMORY_ATTRIBUTES`.
+    ///
+    /// Returns an io::Error when the attributes could not be set.
+    ///
+    /// # Arguments
+    ///
+    /// * kvm_memory_attributes - KVM set memory attributes structure. For details check the
+    ///                    `kvm_memory_attributes` structure in the
+    ///                    [KVM API doc](https://www.kernel.org/doc/Documentation/virtual/kvm/api.txt).
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # extern crate kvm_ioctls;
+    /// extern crate kvm_bindings;
+    ///
+    /// # use kvm_ioctls::Kvm;
+    /// use kvm_bindings::{kvm_userspace_memory_region2, kvm_create_guest_memfd, kvm_memory_attributes}
+    ///
+    /// let kvm = Kvm::new().unwrap();
+    /// let vm = kvm.create_vm().unwrap();
+    /// let gmem = kvm_create_guest_memfd {
+    ///     size: 0x10000,
+    ///     flags: 0,
+    ///     reserved: [0; 6],
+    ///     };
+    ///
+    /// let fd: RawFd = unsafe {
+    ///     vm.create_guest_memfd(gmem).unwrap()
+    /// };
+    /// let mem_region = kvm_userspace_memory_region2 {
+    ///     slot: 0,
+    ///     flags: 0,
+    ///     guest_phys_addr: 0x10000 as u64,
+    ///     memory_size: 0x10000 as u64,
+    ///     userspace_addr: 0x0 as u64,
+    ///     guest_memfd_offset: 0,
+    ///     guest_memfd: fd as u32,
+    ///     pad1: 0,
+    ///     pad2: [0; 14],
+    /// };
+    /// unsafe {
+    ///     vm.set_user_memory_region2(mem_region).unwrap();
+    /// };
+    ///
+    /// let attr = kvm_memory_attributes {
+    ///     address: 0,
+    ///     size: 0x10000,
+    ///     attributes: KVM_MEMORY_ATTRIBUTE_PRIVATE,
+    ///     flags: 0,
+    /// }
+    /// vm_fd.set_memory_attributes(attr).unwrap();
+    /// ```
+    pub fn set_memory_attributes(&self, attr: kvm_memory_attributes) -> Result<()> {
+        // SAFETY: Safe because we know that our file is a VM fd, we know the kernel will only read
+        // the correct amount of memory from our pointer, and we verify the return result.
+        let ret = unsafe { ioctl_with_ref(self, KVM_SET_MEMORY_ATTRIBUTES(), &attr) };
+        if ret == 0 {
+            Ok(())
+        } else {
+            Err(errno::Error::last())
+        }
+    }
+
     /// Issues platform-specific memory encryption commands to manage encrypted VMs if
     /// the platform supports creating those encrypted VMs.
     ///
