@@ -1474,6 +1474,100 @@ impl VmFd {
         Ok(ret)
     }
 
+    /// Allows userspace to set memory attributes for a range of guest physical memory.
+    ///
+    /// See the documentation for `KVM_SET_MEMORY_ATTRIBUTES`.
+    ///
+    /// Returns an io::Error when the attributes could not be set.
+    ///
+    /// # Arguments
+    ///
+    /// * kvm_memory_attributes - KVM set memory attributes structure. For details check the
+    ///                    `kvm_memory_attributes` structure in the
+    ///                    [KVM API doc](https://www.kernel.org/doc/Documentation/virtual/kvm/api.txt).
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # extern crate kvm_ioctls;
+    /// extern crate kvm_bindings;
+    ///
+    /// # use kvm_ioctls::Kvm;
+    /// use kvm_bindings::{
+    ///     kvm_create_guest_memfd, kvm_enable_cap, kvm_memory_attributes,
+    ///     kvm_userspace_memory_region2, KVM_CAP_GUEST_MEMFD, KVM_CAP_MEMORY_ATTRIBUTES,
+    ///     KVM_CAP_USER_MEMORY2, KVM_MEMORY_ATTRIBUTE_PRIVATE, KVM_MEM_GUEST_MEMFD,
+    /// };
+    /// use std::os::fd::RawFd;
+    ///
+    /// # #[cfg(target_arch = "x86_64")]
+    /// {
+    ///     let kvm = Kvm::new().unwrap();
+    ///     let vm = kvm.create_vm().unwrap();
+    ///     let gmem = kvm_create_guest_memfd {
+    ///         size: 0x10000,
+    ///         flags: 0,
+    ///         reserved: [0; 6],
+    ///     };
+    ///
+    ///     let address_space = unsafe { libc::mmap(0 as _, 10000, 3, 34, -1, 0) };
+    ///     let userspace_addr = address_space as *const u8 as u64;
+    ///     let mut config = kvm_enable_cap {
+    ///         cap: KVM_CAP_GUEST_MEMFD,
+    ///         ..Default::default()
+    ///     };
+    ///
+    ///     if vm.enable_cap(&config).is_err() {
+    ///         return;
+    ///     }
+    ///
+    ///     config.cap = KVM_CAP_USER_MEMORY2;
+    ///
+    ///     if vm.enable_cap(&config).is_err() {
+    ///         return;
+    ///     }
+    ///     config.cap = KVM_CAP_MEMORY_ATTRIBUTES;
+    ///
+    ///     if vm.enable_cap(&config).is_err() {
+    ///         return;
+    ///     }
+    ///     let fd: RawFd = unsafe { vm.create_guest_memfd(gmem).unwrap() };
+    ///     let mem_region = kvm_userspace_memory_region2 {
+    ///         slot: 0,
+    ///         flags: KVM_MEM_GUEST_MEMFD,
+    ///         guest_phys_addr: 0x10000 as u64,
+    ///         memory_size: 0x10000 as u64,
+    ///         userspace_addr,
+    ///         guest_memfd_offset: 0,
+    ///         guest_memfd: fd as u32,
+    ///         pad1: 0,
+    ///         pad2: [0; 14],
+    ///     };
+    ///     unsafe {
+    ///         vm.set_user_memory_region2(mem_region).unwrap();
+    ///     };
+    ///
+    ///     let attr = kvm_memory_attributes {
+    ///         address: 0x10000,
+    ///         size: 0x10000,
+    ///         attributes: KVM_MEMORY_ATTRIBUTE_PRIVATE as u64,
+    ///         flags: 0,
+    ///     };
+    ///     vm.set_memory_attributes(attr).unwrap();
+    /// }
+    /// ```
+    #[cfg(any(target_arch = "x86_64", target_arch = "aarch64"))]
+    pub fn set_memory_attributes(&self, attr: kvm_memory_attributes) -> Result<()> {
+        // SAFETY: Safe because we know that our file is a VM fd, we know the kernel will only read
+        // the correct amount of memory from our pointer, and we verify the return result.
+        let ret = unsafe { ioctl_with_ref(self, KVM_SET_MEMORY_ATTRIBUTES(), &attr) };
+        if ret == 0 {
+            Ok(())
+        } else {
+            Err(errno::Error::last())
+        }
+    }
+
     /// Issues platform-specific memory encryption commands to manage encrypted VMs if
     /// the platform supports creating those encrypted VMs.
     ///

@@ -276,6 +276,14 @@ ioctl_iow_nr!(KVM_ARM_VCPU_FINALIZE, KVMIO, 0xc2, std::os::raw::c_int);
 /* Available with KVM_CAP_SET_GUEST_DEBUG */
 ioctl_iow_nr!(KVM_SET_GUEST_DEBUG, KVMIO, 0x9b, kvm_guest_debug);
 
+#[cfg(any(target_arch = "x86_64", target_arch = "aarch64"))]
+ioctl_iow_nr!(
+    KVM_SET_MEMORY_ATTRIBUTES,
+    KVMIO,
+    0xd2,
+    kvm_memory_attributes
+);
+
 // Device ioctls.
 
 /* Available with KVM_CAP_DEVICE_CTRL */
