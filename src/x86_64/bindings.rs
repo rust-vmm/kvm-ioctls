@@ -162,6 +162,7 @@ impl<T> ::std::cmp::PartialEq for __BindgenUnionField<T> {
 }
 impl<T> ::std::cmp::Eq for __BindgenUnionField<T> {}
 pub const __BITS_PER_LONG: u32 = 64;
+pub const __BITS_PER_LONG_LONG: u32 = 64;
 pub const __FD_SETSIZE: u32 = 1024;
 pub const _IOC_NRBITS: u32 = 8;
 pub const _IOC_TYPEBITS: u32 = 8;
@@ -267,46 +268,49 @@ pub const KVM_STATE_VMX_PREEMPTION_TIMER_DEADLINE: u32 = 1;
 pub const KVM_X86_XCOMP_GUEST_SUPP: u32 = 0;
 pub const KVM_PMU_EVENT_ALLOW: u32 = 0;
 pub const KVM_PMU_EVENT_DENY: u32 = 1;
+pub const KVM_XEN_HVM_CONFIG_HYPERCALL_MSR: u32 = 1;
+pub const KVM_XEN_HVM_CONFIG_INTERCEPT_HCALL: u32 = 2;
+pub const KVM_XEN_HVM_CONFIG_SHARED_INFO: u32 = 4;
+pub const KVM_XEN_HVM_CONFIG_RUNSTATE: u32 = 8;
+pub const KVM_XEN_HVM_CONFIG_EVTCHN_2LEVEL: u32 = 16;
+pub const KVM_XEN_HVM_CONFIG_EVTCHN_SEND: u32 = 32;
+pub const KVM_XEN_HVM_CONFIG_RUNSTATE_UPDATE_FLAG: u32 = 64;
+pub const KVM_XEN_HVM_CONFIG_PVCLOCK_TSC_UNSTABLE: u32 = 128;
+pub const KVM_XEN_HVM_CONFIG_SHARED_INFO_HVA: u32 = 256;
+pub const KVM_XEN_EVTCHN_DEASSIGN: u32 = 1;
+pub const KVM_XEN_EVTCHN_UPDATE: u32 = 2;
+pub const KVM_XEN_EVTCHN_RESET: u32 = 4;
+pub const KVM_XEN_ATTR_TYPE_LONG_MODE: u32 = 0;
+pub const KVM_XEN_ATTR_TYPE_SHARED_INFO: u32 = 1;
+pub const KVM_XEN_ATTR_TYPE_UPCALL_VECTOR: u32 = 2;
+pub const KVM_XEN_ATTR_TYPE_EVTCHN: u32 = 3;
+pub const KVM_XEN_ATTR_TYPE_XEN_VERSION: u32 = 4;
+pub const KVM_XEN_ATTR_TYPE_RUNSTATE_UPDATE_FLAG: u32 = 5;
+pub const KVM_XEN_ATTR_TYPE_SHARED_INFO_HVA: u32 = 6;
+pub const KVM_XEN_VCPU_ATTR_TYPE_VCPU_INFO: u32 = 0;
+pub const KVM_XEN_VCPU_ATTR_TYPE_VCPU_TIME_INFO: u32 = 1;
+pub const KVM_XEN_VCPU_ATTR_TYPE_RUNSTATE_ADDR: u32 = 2;
+pub const KVM_XEN_VCPU_ATTR_TYPE_RUNSTATE_CURRENT: u32 = 3;
+pub const KVM_XEN_VCPU_ATTR_TYPE_RUNSTATE_DATA: u32 = 4;
+pub const KVM_XEN_VCPU_ATTR_TYPE_RUNSTATE_ADJUST: u32 = 5;
+pub const KVM_XEN_VCPU_ATTR_TYPE_VCPU_ID: u32 = 6;
+pub const KVM_XEN_VCPU_ATTR_TYPE_TIMER: u32 = 7;
+pub const KVM_XEN_VCPU_ATTR_TYPE_UPCALL_VECTOR: u32 = 8;
+pub const KVM_XEN_VCPU_ATTR_TYPE_VCPU_INFO_HVA: u32 = 9;
+pub const KVM_X2APIC_API_USE_32BIT_IDS: u32 = 1;
+pub const KVM_X2APIC_API_DISABLE_BROADCAST_QUIRK: u32 = 2;
+pub const KVM_HYPERV_CONN_ID_MASK: u32 = 16777215;
+pub const KVM_HYPERV_EVENTFD_DEASSIGN: u32 = 1;
+pub const KVM_PMU_MASKED_ENTRY_UMASK_MASK_SHIFT: u32 = 56;
 pub const KVM_VCPU_TSC_CTRL: u32 = 0;
 pub const KVM_VCPU_TSC_OFFSET: u32 = 0;
+pub const KVM_X86_DEFAULT_VM: u32 = 0;
+pub const KVM_X86_SW_PROTECTED_VM: u32 = 1;
 pub const KVM_API_VERSION: u32 = 12;
-pub const KVM_TRC_SHIFT: u32 = 16;
-pub const KVM_TRC_ENTRYEXIT: u32 = 65536;
-pub const KVM_TRC_HANDLER: u32 = 131072;
-pub const KVM_TRC_VMENTRY: u32 = 65537;
-pub const KVM_TRC_VMEXIT: u32 = 65538;
-pub const KVM_TRC_PAGE_FAULT: u32 = 131073;
-pub const KVM_TRC_HEAD_SIZE: u32 = 12;
-pub const KVM_TRC_CYCLE_SIZE: u32 = 8;
-pub const KVM_TRC_EXTRA_MAX: u32 = 7;
-pub const KVM_TRC_INJ_VIRQ: u32 = 131074;
-pub const KVM_TRC_REDELIVER_EVT: u32 = 131075;
-pub const KVM_TRC_PEND_INTR: u32 = 131076;
-pub const KVM_TRC_IO_READ: u32 = 131077;
-pub const KVM_TRC_IO_WRITE: u32 = 131078;
-pub const KVM_TRC_CR_READ: u32 = 131079;
-pub const KVM_TRC_CR_WRITE: u32 = 131080;
-pub const KVM_TRC_DR_READ: u32 = 131081;
-pub const KVM_TRC_DR_WRITE: u32 = 131082;
-pub const KVM_TRC_MSR_READ: u32 = 131083;
-pub const KVM_TRC_MSR_WRITE: u32 = 131084;
-pub const KVM_TRC_CPUID: u32 = 131085;
-pub const KVM_TRC_INTR: u32 = 131086;
-pub const KVM_TRC_NMI: u32 = 131087;
-pub const KVM_TRC_VMMCALL: u32 = 131088;
-pub const KVM_TRC_HLT: u32 = 131089;
-pub const KVM_TRC_CLTS: u32 = 131090;
-pub const KVM_TRC_LMSW: u32 = 131091;
-pub const KVM_TRC_APIC_ACCESS: u32 = 131092;
-pub const KVM_TRC_TDP_FAULT: u32 = 131093;
-pub const KVM_TRC_GTLB_WRITE: u32 = 131094;
-pub const KVM_TRC_STLB_WRITE: u32 = 131095;
-pub const KVM_TRC_STLB_INVAL: u32 = 131096;
-pub const KVM_TRC_PPC_INSTR: u32 = 131097;
 pub const KVM_MEM_LOG_DIRTY_PAGES: u32 = 1;
 pub const KVM_MEM_READONLY: u32 = 2;
+pub const KVM_MEM_GUEST_MEMFD: u32 = 4;
 pub const KVM_PIT_SPEAKER_DUMMY: u32 = 1;
-pub const KVM_S390_CMMA_PEEK: u32 = 1;
 pub const KVM_EXIT_HYPERV_SYNIC: u32 = 1;
 pub const KVM_EXIT_HYPERV_HCALL: u32 = 2;
 pub const KVM_EXIT_HYPERV_SYNDBG: u32 = 3;
@@ -351,6 +355,8 @@ pub const KVM_EXIT_XEN: u32 = 34;
 pub const KVM_EXIT_RISCV_SBI: u32 = 35;
 pub const KVM_EXIT_RISCV_CSR: u32 = 36;
 pub const KVM_EXIT_NOTIFY: u32 = 37;
+pub const KVM_EXIT_LOONGARCH_IOCSR: u32 = 38;
+pub const KVM_EXIT_MEMORY_FAULT: u32 = 39;
 pub const KVM_INTERNAL_ERROR_EMULATION: u32 = 1;
 pub const KVM_INTERNAL_ERROR_SIMUL_EX: u32 = 2;
 pub const KVM_INTERNAL_ERROR_DELIVERY_EV: u32 = 3;
@@ -358,11 +364,6 @@ pub const KVM_INTERNAL_ERROR_UNEXPECTED_EXIT_REASON: u32 = 4;
 pub const KVM_INTERNAL_ERROR_EMULATION_FLAG_INSTRUCTION_BYTES: u32 = 1;
 pub const KVM_EXIT_IO_IN: u32 = 0;
 pub const KVM_EXIT_IO_OUT: u32 = 1;
-pub const KVM_S390_RESET_POR: u32 = 1;
-pub const KVM_S390_RESET_CLEAR: u32 = 2;
-pub const KVM_S390_RESET_SUBSYSTEM: u32 = 4;
-pub const KVM_S390_RESET_CPU_INIT: u32 = 8;
-pub const KVM_S390_RESET_IPL: u32 = 16;
 pub const KVM_SYSTEM_EVENT_SHUTDOWN: u32 = 1;
 pub const KVM_SYSTEM_EVENT_RESET: u32 = 2;
 pub const KVM_SYSTEM_EVENT_CRASH: u32 = 3;
@@ -374,16 +375,8 @@ pub const KVM_MSR_EXIT_REASON_UNKNOWN: u32 = 2;
 pub const KVM_MSR_EXIT_REASON_FILTER: u32 = 4;
 pub const KVM_MSR_EXIT_REASON_VALID_MASK: u32 = 7;
 pub const KVM_NOTIFY_CONTEXT_INVALID: u32 = 1;
+pub const KVM_MEMORY_EXIT_FLAG_PRIVATE: u32 = 8;
 pub const SYNC_REGS_SIZE_BYTES: u32 = 2048;
-pub const KVM_S390_MEMOP_LOGICAL_READ: u32 = 0;
-pub const KVM_S390_MEMOP_LOGICAL_WRITE: u32 = 1;
-pub const KVM_S390_MEMOP_SIDA_READ: u32 = 2;
-pub const KVM_S390_MEMOP_SIDA_WRITE: u32 = 3;
-pub const KVM_S390_MEMOP_ABSOLUTE_READ: u32 = 4;
-pub const KVM_S390_MEMOP_ABSOLUTE_WRITE: u32 = 5;
-pub const KVM_S390_MEMOP_F_CHECK_ONLY: u32 = 1;
-pub const KVM_S390_MEMOP_F_INJECT_EXCEPTION: u32 = 2;
-pub const KVM_S390_MEMOP_F_SKEY_PROTECTION: u32 = 4;
 pub const KVM_MP_STATE_RUNNABLE: u32 = 0;
 pub const KVM_MP_STATE_UNINITIALIZED: u32 = 1;
 pub const KVM_MP_STATE_INIT_RECEIVED: u32 = 2;
@@ -395,28 +388,6 @@ pub const KVM_MP_STATE_OPERATING: u32 = 7;
 pub const KVM_MP_STATE_LOAD: u32 = 8;
 pub const KVM_MP_STATE_AP_RESET_HOLD: u32 = 9;
 pub const KVM_MP_STATE_SUSPENDED: u32 = 10;
-pub const KVM_S390_SIGP_STOP: u32 = 4294836224;
-pub const KVM_S390_PROGRAM_INT: u32 = 4294836225;
-pub const KVM_S390_SIGP_SET_PREFIX: u32 = 4294836226;
-pub const KVM_S390_RESTART: u32 = 4294836227;
-pub const KVM_S390_INT_PFAULT_INIT: u32 = 4294836228;
-pub const KVM_S390_INT_PFAULT_DONE: u32 = 4294836229;
-pub const KVM_S390_MCHK: u32 = 4294840320;
-pub const KVM_S390_INT_CLOCK_COMP: u32 = 4294905860;
-pub const KVM_S390_INT_CPU_TIMER: u32 = 4294905861;
-pub const KVM_S390_INT_VIRTIO: u32 = 4294911491;
-pub const KVM_S390_INT_SERVICE: u32 = 4294910977;
-pub const KVM_S390_INT_EMERGENCY: u32 = 4294906369;
-pub const KVM_S390_INT_EXTERNAL_CALL: u32 = 4294906370;
-pub const KVM_S390_INT_IO_MIN: u32 = 0;
-pub const KVM_S390_INT_IO_MAX: u32 = 4294836223;
-pub const KVM_S390_INT_IO_AI_MASK: u32 = 67108864;
-pub const KVM_S390_PGM_FLAGS_ILC_VALID: u32 = 1;
-pub const KVM_S390_PGM_FLAGS_ILC_0: u32 = 2;
-pub const KVM_S390_PGM_FLAGS_ILC_1: u32 = 4;
-pub const KVM_S390_PGM_FLAGS_ILC_MASK: u32 = 6;
-pub const KVM_S390_PGM_FLAGS_NO_REWIND: u32 = 8;
-pub const KVM_S390_STOP_FLAG_STORE_STATUS: u32 = 1;
 pub const KVM_GUESTDBG_ENABLE: u32 = 1;
 pub const KVM_GUESTDBG_SINGLESTEP: u32 = 2;
 pub const KVM_X86_DISABLE_EXITS_MWAIT: u32 = 1;
@@ -424,11 +395,6 @@ pub const KVM_X86_DISABLE_EXITS_HLT: u32 = 2;
 pub const KVM_X86_DISABLE_EXITS_PAUSE: u32 = 4;
 pub const KVM_X86_DISABLE_EXITS_CSTATE: u32 = 8;
 pub const KVM_X86_DISABLE_VALID_EXITS: u32 = 15;
-pub const KVM_PPC_PVINFO_FLAGS_EV_IDLE: u32 = 1;
-pub const KVM_PPC_PAGE_SIZES_MAX_SZ: u32 = 8;
-pub const KVM_PPC_PAGE_SIZES_REAL: u32 = 1;
-pub const KVM_PPC_1T_SEGMENTS: u32 = 2;
-pub const KVM_PPC_NO_HASH: u32 = 4;
 pub const KVMIO: u32 = 174;
 pub const KVM_VM_S390_UCONTROL: u32 = 1;
 pub const KVM_VM_PPC_HV: u32 = 1;
@@ -658,18 +624,21 @@ pub const KVM_CAP_S390_CPU_TOPOLOGY: u32 = 222;
 pub const KVM_CAP_DIRTY_LOG_RING_ACQ_REL: u32 = 223;
 pub const KVM_CAP_S390_PROTECTED_ASYNC_DISABLE: u32 = 224;
 pub const KVM_CAP_DIRTY_LOG_RING_WITH_BITMAP: u32 = 225;
+pub const KVM_CAP_PMU_EVENT_MASKED_EVENTS: u32 = 226;
+pub const KVM_CAP_COUNTER_OFFSET: u32 = 227;
+pub const KVM_CAP_ARM_EAGER_SPLIT_CHUNK_SIZE: u32 = 228;
+pub const KVM_CAP_ARM_SUPPORTED_BLOCK_SIZES: u32 = 229;
+pub const KVM_CAP_ARM_SUPPORTED_REG_MASK_RANGES: u32 = 230;
+pub const KVM_CAP_USER_MEMORY2: u32 = 231;
+pub const KVM_CAP_MEMORY_FAULT_INFO: u32 = 232;
+pub const KVM_CAP_MEMORY_ATTRIBUTES: u32 = 233;
+pub const KVM_CAP_GUEST_MEMFD: u32 = 234;
+pub const KVM_CAP_VM_TYPES: u32 = 235;
 pub const KVM_IRQ_ROUTING_IRQCHIP: u32 = 1;
 pub const KVM_IRQ_ROUTING_MSI: u32 = 2;
 pub const KVM_IRQ_ROUTING_S390_ADAPTER: u32 = 3;
 pub const KVM_IRQ_ROUTING_HV_SINT: u32 = 4;
 pub const KVM_IRQ_ROUTING_XEN_EVTCHN: u32 = 5;
-pub const KVM_XEN_HVM_CONFIG_HYPERCALL_MSR: u32 = 1;
-pub const KVM_XEN_HVM_CONFIG_INTERCEPT_HCALL: u32 = 2;
-pub const KVM_XEN_HVM_CONFIG_SHARED_INFO: u32 = 4;
-pub const KVM_XEN_HVM_CONFIG_RUNSTATE: u32 = 8;
-pub const KVM_XEN_HVM_CONFIG_EVTCHN_2LEVEL: u32 = 16;
-pub const KVM_XEN_HVM_CONFIG_EVTCHN_SEND: u32 = 32;
-pub const KVM_XEN_HVM_CONFIG_RUNSTATE_UPDATE_FLAG: u32 = 64;
 pub const KVM_IRQFD_FLAG_DEASSIGN: u32 = 1;
 pub const KVM_IRQFD_FLAG_RESAMPLE: u32 = 2;
 pub const KVM_CLOCK_TSC_STABLE: u32 = 2;
@@ -687,6 +656,7 @@ pub const KVM_REG_S390: u64 = 5764607523034234880;
 pub const KVM_REG_ARM64: u64 = 6917529027641081856;
 pub const KVM_REG_MIPS: u64 = 8070450532247928832;
 pub const KVM_REG_RISCV: i64 = -9223372036854775808;
+pub const KVM_REG_LOONGARCH: i64 = -8070450532247928832;
 pub const KVM_REG_SIZE_SHIFT: u32 = 52;
 pub const KVM_REG_SIZE_MASK: u64 = 67553994410557440;
 pub const KVM_REG_SIZE_U8: u32 = 0;
@@ -700,49 +670,15 @@ pub const KVM_REG_SIZE_U1024: u64 = 31525197391593472;
 pub const KVM_REG_SIZE_U2048: u64 = 36028797018963968;
 pub const KVM_MSI_VALID_DEVID: u32 = 1;
 pub const KVM_CREATE_DEVICE_TEST: u32 = 1;
+pub const KVM_DEV_VFIO_FILE: u32 = 1;
+pub const KVM_DEV_VFIO_FILE_ADD: u32 = 1;
+pub const KVM_DEV_VFIO_FILE_DEL: u32 = 2;
 pub const KVM_DEV_VFIO_GROUP: u32 = 1;
 pub const KVM_DEV_VFIO_GROUP_ADD: u32 = 1;
 pub const KVM_DEV_VFIO_GROUP_DEL: u32 = 2;
 pub const KVM_DEV_VFIO_GROUP_SET_SPAPR_TCE: u32 = 3;
 pub const KVM_S390_STORE_STATUS_NOADDR: i32 = -1;
 pub const KVM_S390_STORE_STATUS_PREFIXED: i32 = -2;
-pub const KVM_XEN_EVTCHN_DEASSIGN: u32 = 1;
-pub const KVM_XEN_EVTCHN_UPDATE: u32 = 2;
-pub const KVM_XEN_EVTCHN_RESET: u32 = 4;
-pub const KVM_XEN_ATTR_TYPE_LONG_MODE: u32 = 0;
-pub const KVM_XEN_ATTR_TYPE_SHARED_INFO: u32 = 1;
-pub const KVM_XEN_ATTR_TYPE_UPCALL_VECTOR: u32 = 2;
-pub const KVM_XEN_ATTR_TYPE_EVTCHN: u32 = 3;
-pub const KVM_XEN_ATTR_TYPE_XEN_VERSION: u32 = 4;
-pub const KVM_XEN_ATTR_TYPE_RUNSTATE_UPDATE_FLAG: u32 = 5;
-pub const KVM_XEN_VCPU_ATTR_TYPE_VCPU_INFO: u32 = 0;
-pub const KVM_XEN_VCPU_ATTR_TYPE_VCPU_TIME_INFO: u32 = 1;
-pub const KVM_XEN_VCPU_ATTR_TYPE_RUNSTATE_ADDR: u32 = 2;
-pub const KVM_XEN_VCPU_ATTR_TYPE_RUNSTATE_CURRENT: u32 = 3;
-pub const KVM_XEN_VCPU_ATTR_TYPE_RUNSTATE_DATA: u32 = 4;
-pub const KVM_XEN_VCPU_ATTR_TYPE_RUNSTATE_ADJUST: u32 = 5;
-pub const KVM_XEN_VCPU_ATTR_TYPE_VCPU_ID: u32 = 6;
-pub const KVM_XEN_VCPU_ATTR_TYPE_TIMER: u32 = 7;
-pub const KVM_XEN_VCPU_ATTR_TYPE_UPCALL_VECTOR: u32 = 8;
-pub const KVM_DEV_ASSIGN_ENABLE_IOMMU: u32 = 1;
-pub const KVM_DEV_ASSIGN_PCI_2_3: u32 = 2;
-pub const KVM_DEV_ASSIGN_MASK_INTX: u32 = 4;
-pub const KVM_DEV_IRQ_HOST_INTX: u32 = 1;
-pub const KVM_DEV_IRQ_HOST_MSI: u32 = 2;
-pub const KVM_DEV_IRQ_HOST_MSIX: u32 = 4;
-pub const KVM_DEV_IRQ_GUEST_INTX: u32 = 256;
-pub const KVM_DEV_IRQ_GUEST_MSI: u32 = 512;
-pub const KVM_DEV_IRQ_GUEST_MSIX: u32 = 1024;
-pub const KVM_DEV_IRQ_HOST_MASK: u32 = 255;
-pub const KVM_DEV_IRQ_GUEST_MASK: u32 = 65280;
-pub const KVM_MAX_MSIX_PER_DEV: u32 = 256;
-pub const KVM_X2APIC_API_USE_32BIT_IDS: u32 = 1;
-pub const KVM_X2APIC_API_DISABLE_BROADCAST_QUIRK: u32 = 2;
-pub const KVM_ARM_DEV_EL1_VTIMER: u32 = 1;
-pub const KVM_ARM_DEV_EL1_PTIMER: u32 = 2;
-pub const KVM_ARM_DEV_PMU: u32 = 4;
-pub const KVM_HYPERV_CONN_ID_MASK: u32 = 16777215;
-pub const KVM_HYPERV_EVENTFD_DEASSIGN: u32 = 1;
 pub const KVM_DIRTY_LOG_MANUAL_PROTECT_ENABLE: u32 = 1;
 pub const KVM_DIRTY_LOG_INITIALLY_SET: u32 = 2;
 pub const KVM_DIRTY_GFN_F_MASK: u32 = 3;
@@ -772,9 +708,7 @@ pub const KVM_STATS_BASE_POW2: u32 = 256;
 pub const KVM_STATS_BASE_MAX: u32 = 256;
 pub const KVM_X86_NOTIFY_VMEXIT_ENABLED: u32 = 1;
 pub const KVM_X86_NOTIFY_VMEXIT_USER: u32 = 2;
-pub const KVM_S390_ZPCIOP_REG_AEN: u32 = 0;
-pub const KVM_S390_ZPCIOP_DEREG_AEN: u32 = 1;
-pub const KVM_S390_ZPCIOP_REGAEN_HOST: u32 = 1;
+pub const KVM_MEMORY_ATTRIBUTE_PRIVATE: u32 = 8;
 pub type __s8 = ::std::os::raw::c_schar;
 pub type __u8 = ::std::os::raw::c_uchar;
 pub type __s16 = ::std::os::raw::c_short;
@@ -876,6 +810,8 @@ pub type __kernel_clockid_t = ::std::os::raw::c_int;
 pub type __kernel_caddr_t = *mut ::std::os::raw::c_char;
 pub type __kernel_uid16_t = ::std::os::raw::c_ushort;
 pub type __kernel_gid16_t = ::std::os::raw::c_ushort;
+pub type __s128 = i128;
+pub type __u128 = u128;
 pub type __le16 = __u16;
 pub type __be16 = __u16;
 pub type __le32 = __u32;
@@ -4039,7 +3975,6 @@ pub struct kvm_xsave {
     pub region: [__u32; 1024usize],
     pub extra: __IncompleteArrayField<__u32>,
 }
-
 #[test]
 fn bindgen_test_layout_kvm_xsave() {
     const UNINIT: ::std::mem::MaybeUninit<kvm_xsave> = ::std::mem::MaybeUninit::uninit();
@@ -4581,15 +4516,170 @@ impl ::std::fmt::Debug for kvm_nested_state__bindgen_ty_1 {
 }
 #[repr(C)]
 pub struct kvm_nested_state__bindgen_ty_2 {
-    pub vmx: __BindgenUnionField<[kvm_vmx_nested_state_data; 0usize]>,
-    pub svm: __BindgenUnionField<[kvm_svm_nested_state_data; 0usize]>,
+    pub __bindgen_anon_1: __BindgenUnionField<kvm_nested_state__bindgen_ty_2__bindgen_ty_1>,
+    pub __bindgen_anon_2: __BindgenUnionField<kvm_nested_state__bindgen_ty_2__bindgen_ty_2>,
     pub bindgen_union_field: [u8; 0usize],
+}
+#[repr(C)]
+#[derive(Debug)]
+pub struct kvm_nested_state__bindgen_ty_2__bindgen_ty_1 {
+    pub __empty_vmx: kvm_nested_state__bindgen_ty_2__bindgen_ty_1__bindgen_ty_1,
+    pub vmx: __IncompleteArrayField<kvm_vmx_nested_state_data>,
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
+pub struct kvm_nested_state__bindgen_ty_2__bindgen_ty_1__bindgen_ty_1 {}
+#[test]
+fn bindgen_test_layout_kvm_nested_state__bindgen_ty_2__bindgen_ty_1__bindgen_ty_1() {
+    assert_eq!(
+        ::std::mem::size_of::<kvm_nested_state__bindgen_ty_2__bindgen_ty_1__bindgen_ty_1>(),
+        0usize,
+        concat!(
+            "Size of: ",
+            stringify!(kvm_nested_state__bindgen_ty_2__bindgen_ty_1__bindgen_ty_1)
+        )
+    );
+    assert_eq!(
+        ::std::mem::align_of::<kvm_nested_state__bindgen_ty_2__bindgen_ty_1__bindgen_ty_1>(),
+        1usize,
+        concat!(
+            "Alignment of ",
+            stringify!(kvm_nested_state__bindgen_ty_2__bindgen_ty_1__bindgen_ty_1)
+        )
+    );
+}
+#[test]
+fn bindgen_test_layout_kvm_nested_state__bindgen_ty_2__bindgen_ty_1() {
+    const UNINIT: ::std::mem::MaybeUninit<kvm_nested_state__bindgen_ty_2__bindgen_ty_1> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<kvm_nested_state__bindgen_ty_2__bindgen_ty_1>(),
+        0usize,
+        concat!(
+            "Size of: ",
+            stringify!(kvm_nested_state__bindgen_ty_2__bindgen_ty_1)
+        )
+    );
+    assert_eq!(
+        ::std::mem::align_of::<kvm_nested_state__bindgen_ty_2__bindgen_ty_1>(),
+        1usize,
+        concat!(
+            "Alignment of ",
+            stringify!(kvm_nested_state__bindgen_ty_2__bindgen_ty_1)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).__empty_vmx) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_nested_state__bindgen_ty_2__bindgen_ty_1),
+            "::",
+            stringify!(__empty_vmx)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).vmx) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_nested_state__bindgen_ty_2__bindgen_ty_1),
+            "::",
+            stringify!(vmx)
+        )
+    );
+}
+impl Default for kvm_nested_state__bindgen_ty_2__bindgen_ty_1 {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+#[repr(C)]
+#[derive(Debug)]
+pub struct kvm_nested_state__bindgen_ty_2__bindgen_ty_2 {
+    pub __empty_svm: kvm_nested_state__bindgen_ty_2__bindgen_ty_2__bindgen_ty_1,
+    pub svm: __IncompleteArrayField<kvm_svm_nested_state_data>,
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
+pub struct kvm_nested_state__bindgen_ty_2__bindgen_ty_2__bindgen_ty_1 {}
+#[test]
+fn bindgen_test_layout_kvm_nested_state__bindgen_ty_2__bindgen_ty_2__bindgen_ty_1() {
+    assert_eq!(
+        ::std::mem::size_of::<kvm_nested_state__bindgen_ty_2__bindgen_ty_2__bindgen_ty_1>(),
+        0usize,
+        concat!(
+            "Size of: ",
+            stringify!(kvm_nested_state__bindgen_ty_2__bindgen_ty_2__bindgen_ty_1)
+        )
+    );
+    assert_eq!(
+        ::std::mem::align_of::<kvm_nested_state__bindgen_ty_2__bindgen_ty_2__bindgen_ty_1>(),
+        1usize,
+        concat!(
+            "Alignment of ",
+            stringify!(kvm_nested_state__bindgen_ty_2__bindgen_ty_2__bindgen_ty_1)
+        )
+    );
+}
+#[test]
+fn bindgen_test_layout_kvm_nested_state__bindgen_ty_2__bindgen_ty_2() {
+    const UNINIT: ::std::mem::MaybeUninit<kvm_nested_state__bindgen_ty_2__bindgen_ty_2> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<kvm_nested_state__bindgen_ty_2__bindgen_ty_2>(),
+        0usize,
+        concat!(
+            "Size of: ",
+            stringify!(kvm_nested_state__bindgen_ty_2__bindgen_ty_2)
+        )
+    );
+    assert_eq!(
+        ::std::mem::align_of::<kvm_nested_state__bindgen_ty_2__bindgen_ty_2>(),
+        1usize,
+        concat!(
+            "Alignment of ",
+            stringify!(kvm_nested_state__bindgen_ty_2__bindgen_ty_2)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).__empty_svm) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_nested_state__bindgen_ty_2__bindgen_ty_2),
+            "::",
+            stringify!(__empty_svm)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).svm) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_nested_state__bindgen_ty_2__bindgen_ty_2),
+            "::",
+            stringify!(svm)
+        )
+    );
+}
+impl Default for kvm_nested_state__bindgen_ty_2__bindgen_ty_2 {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 #[test]
 fn bindgen_test_layout_kvm_nested_state__bindgen_ty_2() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_nested_state__bindgen_ty_2> =
-        ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
     assert_eq!(
         ::std::mem::size_of::<kvm_nested_state__bindgen_ty_2>(),
         0usize,
@@ -4599,26 +4689,6 @@ fn bindgen_test_layout_kvm_nested_state__bindgen_ty_2() {
         ::std::mem::align_of::<kvm_nested_state__bindgen_ty_2>(),
         1usize,
         concat!("Alignment of ", stringify!(kvm_nested_state__bindgen_ty_2))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).vmx) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_nested_state__bindgen_ty_2),
-            "::",
-            stringify!(vmx)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).svm) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_nested_state__bindgen_ty_2),
-            "::",
-            stringify!(svm)
-        )
     );
 }
 impl Default for kvm_nested_state__bindgen_ty_2 {
@@ -4805,157 +4875,2240 @@ fn bindgen_test_layout_kvm_pmu_event_filter() {
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_user_trace_setup {
-    pub buf_size: __u32,
-    pub buf_nr: __u32,
+pub struct kvm_x86_mce {
+    pub status: __u64,
+    pub addr: __u64,
+    pub misc: __u64,
+    pub mcg_status: __u64,
+    pub bank: __u8,
+    pub pad1: [__u8; 7usize],
+    pub pad2: [__u64; 3usize],
 }
 #[test]
-fn bindgen_test_layout_kvm_user_trace_setup() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_user_trace_setup> = ::std::mem::MaybeUninit::uninit();
+fn bindgen_test_layout_kvm_x86_mce() {
+    const UNINIT: ::std::mem::MaybeUninit<kvm_x86_mce> = ::std::mem::MaybeUninit::uninit();
     let ptr = UNINIT.as_ptr();
     assert_eq!(
-        ::std::mem::size_of::<kvm_user_trace_setup>(),
+        ::std::mem::size_of::<kvm_x86_mce>(),
+        64usize,
+        concat!("Size of: ", stringify!(kvm_x86_mce))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<kvm_x86_mce>(),
         8usize,
-        concat!("Size of: ", stringify!(kvm_user_trace_setup))
+        concat!("Alignment of ", stringify!(kvm_x86_mce))
     );
     assert_eq!(
-        ::std::mem::align_of::<kvm_user_trace_setup>(),
-        4usize,
-        concat!("Alignment of ", stringify!(kvm_user_trace_setup))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).buf_size) as usize - ptr as usize },
+        unsafe { ::std::ptr::addr_of!((*ptr).status) as usize - ptr as usize },
         0usize,
         concat!(
             "Offset of field: ",
-            stringify!(kvm_user_trace_setup),
+            stringify!(kvm_x86_mce),
             "::",
-            stringify!(buf_size)
+            stringify!(status)
         )
     );
     assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).buf_nr) as usize - ptr as usize },
-        4usize,
+        unsafe { ::std::ptr::addr_of!((*ptr).addr) as usize - ptr as usize },
+        8usize,
         concat!(
             "Offset of field: ",
-            stringify!(kvm_user_trace_setup),
+            stringify!(kvm_x86_mce),
             "::",
-            stringify!(buf_nr)
+            stringify!(addr)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).misc) as usize - ptr as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_x86_mce),
+            "::",
+            stringify!(misc)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).mcg_status) as usize - ptr as usize },
+        24usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_x86_mce),
+            "::",
+            stringify!(mcg_status)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).bank) as usize - ptr as usize },
+        32usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_x86_mce),
+            "::",
+            stringify!(bank)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pad1) as usize - ptr as usize },
+        33usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_x86_mce),
+            "::",
+            stringify!(pad1)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pad2) as usize - ptr as usize },
+        40usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_x86_mce),
+            "::",
+            stringify!(pad2)
         )
     );
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_breakpoint {
-    pub enabled: __u32,
-    pub padding: __u32,
-    pub address: __u64,
+pub struct kvm_xen_hvm_config {
+    pub flags: __u32,
+    pub msr: __u32,
+    pub blob_addr_32: __u64,
+    pub blob_addr_64: __u64,
+    pub blob_size_32: __u8,
+    pub blob_size_64: __u8,
+    pub pad2: [__u8; 30usize],
 }
 #[test]
-fn bindgen_test_layout_kvm_breakpoint() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_breakpoint> = ::std::mem::MaybeUninit::uninit();
+fn bindgen_test_layout_kvm_xen_hvm_config() {
+    const UNINIT: ::std::mem::MaybeUninit<kvm_xen_hvm_config> = ::std::mem::MaybeUninit::uninit();
     let ptr = UNINIT.as_ptr();
     assert_eq!(
-        ::std::mem::size_of::<kvm_breakpoint>(),
-        16usize,
-        concat!("Size of: ", stringify!(kvm_breakpoint))
+        ::std::mem::size_of::<kvm_xen_hvm_config>(),
+        56usize,
+        concat!("Size of: ", stringify!(kvm_xen_hvm_config))
     );
     assert_eq!(
-        ::std::mem::align_of::<kvm_breakpoint>(),
+        ::std::mem::align_of::<kvm_xen_hvm_config>(),
         8usize,
-        concat!("Alignment of ", stringify!(kvm_breakpoint))
+        concat!("Alignment of ", stringify!(kvm_xen_hvm_config))
     );
     assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).enabled) as usize - ptr as usize },
+        unsafe { ::std::ptr::addr_of!((*ptr).flags) as usize - ptr as usize },
         0usize,
         concat!(
             "Offset of field: ",
-            stringify!(kvm_breakpoint),
+            stringify!(kvm_xen_hvm_config),
             "::",
-            stringify!(enabled)
+            stringify!(flags)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).msr) as usize - ptr as usize },
+        4usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_xen_hvm_config),
+            "::",
+            stringify!(msr)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).blob_addr_32) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_xen_hvm_config),
+            "::",
+            stringify!(blob_addr_32)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).blob_addr_64) as usize - ptr as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_xen_hvm_config),
+            "::",
+            stringify!(blob_addr_64)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).blob_size_32) as usize - ptr as usize },
+        24usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_xen_hvm_config),
+            "::",
+            stringify!(blob_size_32)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).blob_size_64) as usize - ptr as usize },
+        25usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_xen_hvm_config),
+            "::",
+            stringify!(blob_size_64)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pad2) as usize - ptr as usize },
+        26usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_xen_hvm_config),
+            "::",
+            stringify!(pad2)
+        )
+    );
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct kvm_xen_hvm_attr {
+    pub type_: __u16,
+    pub pad: [__u16; 3usize],
+    pub u: kvm_xen_hvm_attr__bindgen_ty_1,
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub union kvm_xen_hvm_attr__bindgen_ty_1 {
+    pub long_mode: __u8,
+    pub vector: __u8,
+    pub runstate_update_flag: __u8,
+    pub shared_info: kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_1,
+    pub evtchn: kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2,
+    pub xen_version: __u32,
+    pub pad: [__u64; 8usize],
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub union kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_1 {
+    pub gfn: __u64,
+    pub hva: __u64,
+}
+#[test]
+fn bindgen_test_layout_kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_1() {
+    const UNINIT: ::std::mem::MaybeUninit<kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_1> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_1>(),
+        8usize,
+        concat!(
+            "Size of: ",
+            stringify!(kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_1)
+        )
+    );
+    assert_eq!(
+        ::std::mem::align_of::<kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_1>(),
+        8usize,
+        concat!(
+            "Alignment of ",
+            stringify!(kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_1)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).gfn) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_1),
+            "::",
+            stringify!(gfn)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).hva) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_1),
+            "::",
+            stringify!(hva)
+        )
+    );
+}
+impl Default for kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_1 {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl ::std::fmt::Debug for kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_1 {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        write!(
+            f,
+            "kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_1 {{ union }}"
+        )
+    }
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2 {
+    pub send_port: __u32,
+    pub type_: __u32,
+    pub flags: __u32,
+    pub deliver: kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1,
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub union kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1 {
+    pub port: kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1__bindgen_ty_1,
+    pub eventfd: kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1__bindgen_ty_2,
+    pub padding: [__u32; 4usize],
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
+pub struct kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1__bindgen_ty_1 {
+    pub port: __u32,
+    pub vcpu: __u32,
+    pub priority: __u32,
+}
+#[test]
+fn bindgen_test_layout_kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1__bindgen_ty_1() {
+    const UNINIT: ::std::mem::MaybeUninit<
+        kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1__bindgen_ty_1,
+    > = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<
+            kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1__bindgen_ty_1,
+        >(),
+        12usize,
+        concat!(
+            "Size of: ",
+            stringify!(kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1__bindgen_ty_1)
+        )
+    );
+    assert_eq!(
+        ::std::mem::align_of::<
+            kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1__bindgen_ty_1,
+        >(),
+        4usize,
+        concat!(
+            "Alignment of ",
+            stringify!(kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1__bindgen_ty_1)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).port) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1__bindgen_ty_1),
+            "::",
+            stringify!(port)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).vcpu) as usize - ptr as usize },
+        4usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1__bindgen_ty_1),
+            "::",
+            stringify!(vcpu)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).priority) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1__bindgen_ty_1),
+            "::",
+            stringify!(priority)
+        )
+    );
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
+pub struct kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1__bindgen_ty_2 {
+    pub port: __u32,
+    pub fd: __s32,
+}
+#[test]
+fn bindgen_test_layout_kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1__bindgen_ty_2() {
+    const UNINIT: ::std::mem::MaybeUninit<
+        kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1__bindgen_ty_2,
+    > = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<
+            kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1__bindgen_ty_2,
+        >(),
+        8usize,
+        concat!(
+            "Size of: ",
+            stringify!(kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1__bindgen_ty_2)
+        )
+    );
+    assert_eq!(
+        ::std::mem::align_of::<
+            kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1__bindgen_ty_2,
+        >(),
+        4usize,
+        concat!(
+            "Alignment of ",
+            stringify!(kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1__bindgen_ty_2)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).port) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1__bindgen_ty_2),
+            "::",
+            stringify!(port)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).fd) as usize - ptr as usize },
+        4usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1__bindgen_ty_2),
+            "::",
+            stringify!(fd)
+        )
+    );
+}
+#[test]
+fn bindgen_test_layout_kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1() {
+    const UNINIT: ::std::mem::MaybeUninit<
+        kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1,
+    > = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1>(),
+        16usize,
+        concat!(
+            "Size of: ",
+            stringify!(kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1)
+        )
+    );
+    assert_eq!(
+        ::std::mem::align_of::<kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1>(),
+        4usize,
+        concat!(
+            "Alignment of ",
+            stringify!(kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).port) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1),
+            "::",
+            stringify!(port)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).eventfd) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1),
+            "::",
+            stringify!(eventfd)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).padding) as usize - ptr as usize },
-        4usize,
+        0usize,
         concat!(
             "Offset of field: ",
-            stringify!(kvm_breakpoint),
+            stringify!(kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1),
             "::",
             stringify!(padding)
         )
     );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).address) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_breakpoint),
-            "::",
-            stringify!(address)
-        )
-    );
 }
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_debug_guest {
-    pub enabled: __u32,
-    pub pad: __u32,
-    pub breakpoints: [kvm_breakpoint; 4usize],
-    pub singlestep: __u32,
+impl Default for kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1 {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl ::std::fmt::Debug for kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1 {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        write!(
+            f,
+            "kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1 {{ union }}"
+        )
+    }
 }
 #[test]
-fn bindgen_test_layout_kvm_debug_guest() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_debug_guest> = ::std::mem::MaybeUninit::uninit();
+fn bindgen_test_layout_kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2() {
+    const UNINIT: ::std::mem::MaybeUninit<kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2> =
+        ::std::mem::MaybeUninit::uninit();
     let ptr = UNINIT.as_ptr();
     assert_eq!(
-        ::std::mem::size_of::<kvm_debug_guest>(),
-        80usize,
-        concat!("Size of: ", stringify!(kvm_debug_guest))
+        ::std::mem::size_of::<kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2>(),
+        28usize,
+        concat!(
+            "Size of: ",
+            stringify!(kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2)
+        )
     );
     assert_eq!(
-        ::std::mem::align_of::<kvm_debug_guest>(),
-        8usize,
-        concat!("Alignment of ", stringify!(kvm_debug_guest))
+        ::std::mem::align_of::<kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2>(),
+        4usize,
+        concat!(
+            "Alignment of ",
+            stringify!(kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2)
+        )
     );
     assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).enabled) as usize - ptr as usize },
+        unsafe { ::std::ptr::addr_of!((*ptr).send_port) as usize - ptr as usize },
         0usize,
         concat!(
             "Offset of field: ",
-            stringify!(kvm_debug_guest),
+            stringify!(kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2),
             "::",
-            stringify!(enabled)
+            stringify!(send_port)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).type_) as usize - ptr as usize },
+        4usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2),
+            "::",
+            stringify!(type_)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).flags) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2),
+            "::",
+            stringify!(flags)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).deliver) as usize - ptr as usize },
+        12usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2),
+            "::",
+            stringify!(deliver)
+        )
+    );
+}
+impl Default for kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2 {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl ::std::fmt::Debug for kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2 {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        write ! (f , "kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2 {{ send_port: {:?}, type: {:?}, flags: {:?}, deliver: {:?} }}" , self . send_port , self . type_ , self . flags , self . deliver)
+    }
+}
+#[test]
+fn bindgen_test_layout_kvm_xen_hvm_attr__bindgen_ty_1() {
+    const UNINIT: ::std::mem::MaybeUninit<kvm_xen_hvm_attr__bindgen_ty_1> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<kvm_xen_hvm_attr__bindgen_ty_1>(),
+        64usize,
+        concat!("Size of: ", stringify!(kvm_xen_hvm_attr__bindgen_ty_1))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<kvm_xen_hvm_attr__bindgen_ty_1>(),
+        8usize,
+        concat!("Alignment of ", stringify!(kvm_xen_hvm_attr__bindgen_ty_1))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).long_mode) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_xen_hvm_attr__bindgen_ty_1),
+            "::",
+            stringify!(long_mode)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).vector) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_xen_hvm_attr__bindgen_ty_1),
+            "::",
+            stringify!(vector)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).runstate_update_flag) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_xen_hvm_attr__bindgen_ty_1),
+            "::",
+            stringify!(runstate_update_flag)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).shared_info) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_xen_hvm_attr__bindgen_ty_1),
+            "::",
+            stringify!(shared_info)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).evtchn) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_xen_hvm_attr__bindgen_ty_1),
+            "::",
+            stringify!(evtchn)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).xen_version) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_xen_hvm_attr__bindgen_ty_1),
+            "::",
+            stringify!(xen_version)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).pad) as usize - ptr as usize },
-        4usize,
+        0usize,
         concat!(
             "Offset of field: ",
-            stringify!(kvm_debug_guest),
+            stringify!(kvm_xen_hvm_attr__bindgen_ty_1),
+            "::",
+            stringify!(pad)
+        )
+    );
+}
+impl Default for kvm_xen_hvm_attr__bindgen_ty_1 {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl ::std::fmt::Debug for kvm_xen_hvm_attr__bindgen_ty_1 {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        write!(f, "kvm_xen_hvm_attr__bindgen_ty_1 {{ union }}")
+    }
+}
+#[test]
+fn bindgen_test_layout_kvm_xen_hvm_attr() {
+    const UNINIT: ::std::mem::MaybeUninit<kvm_xen_hvm_attr> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<kvm_xen_hvm_attr>(),
+        72usize,
+        concat!("Size of: ", stringify!(kvm_xen_hvm_attr))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<kvm_xen_hvm_attr>(),
+        8usize,
+        concat!("Alignment of ", stringify!(kvm_xen_hvm_attr))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).type_) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_xen_hvm_attr),
+            "::",
+            stringify!(type_)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pad) as usize - ptr as usize },
+        2usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_xen_hvm_attr),
             "::",
             stringify!(pad)
         )
     );
     assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).breakpoints) as usize - ptr as usize },
+        unsafe { ::std::ptr::addr_of!((*ptr).u) as usize - ptr as usize },
         8usize,
         concat!(
             "Offset of field: ",
-            stringify!(kvm_debug_guest),
+            stringify!(kvm_xen_hvm_attr),
             "::",
-            stringify!(breakpoints)
+            stringify!(u)
+        )
+    );
+}
+impl Default for kvm_xen_hvm_attr {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl ::std::fmt::Debug for kvm_xen_hvm_attr {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        write!(
+            f,
+            "kvm_xen_hvm_attr {{ type: {:?}, pad: {:?}, u: {:?} }}",
+            self.type_, self.pad, self.u
+        )
+    }
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct kvm_xen_vcpu_attr {
+    pub type_: __u16,
+    pub pad: [__u16; 3usize],
+    pub u: kvm_xen_vcpu_attr__bindgen_ty_1,
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub union kvm_xen_vcpu_attr__bindgen_ty_1 {
+    pub gpa: __u64,
+    pub hva: __u64,
+    pub pad: [__u64; 8usize],
+    pub runstate: kvm_xen_vcpu_attr__bindgen_ty_1__bindgen_ty_1,
+    pub vcpu_id: __u32,
+    pub timer: kvm_xen_vcpu_attr__bindgen_ty_1__bindgen_ty_2,
+    pub vector: __u8,
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
+pub struct kvm_xen_vcpu_attr__bindgen_ty_1__bindgen_ty_1 {
+    pub state: __u64,
+    pub state_entry_time: __u64,
+    pub time_running: __u64,
+    pub time_runnable: __u64,
+    pub time_blocked: __u64,
+    pub time_offline: __u64,
+}
+#[test]
+fn bindgen_test_layout_kvm_xen_vcpu_attr__bindgen_ty_1__bindgen_ty_1() {
+    const UNINIT: ::std::mem::MaybeUninit<kvm_xen_vcpu_attr__bindgen_ty_1__bindgen_ty_1> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<kvm_xen_vcpu_attr__bindgen_ty_1__bindgen_ty_1>(),
+        48usize,
+        concat!(
+            "Size of: ",
+            stringify!(kvm_xen_vcpu_attr__bindgen_ty_1__bindgen_ty_1)
         )
     );
     assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).singlestep) as usize - ptr as usize },
-        72usize,
+        ::std::mem::align_of::<kvm_xen_vcpu_attr__bindgen_ty_1__bindgen_ty_1>(),
+        8usize,
+        concat!(
+            "Alignment of ",
+            stringify!(kvm_xen_vcpu_attr__bindgen_ty_1__bindgen_ty_1)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).state) as usize - ptr as usize },
+        0usize,
         concat!(
             "Offset of field: ",
-            stringify!(kvm_debug_guest),
+            stringify!(kvm_xen_vcpu_attr__bindgen_ty_1__bindgen_ty_1),
             "::",
-            stringify!(singlestep)
+            stringify!(state)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).state_entry_time) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_xen_vcpu_attr__bindgen_ty_1__bindgen_ty_1),
+            "::",
+            stringify!(state_entry_time)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).time_running) as usize - ptr as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_xen_vcpu_attr__bindgen_ty_1__bindgen_ty_1),
+            "::",
+            stringify!(time_running)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).time_runnable) as usize - ptr as usize },
+        24usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_xen_vcpu_attr__bindgen_ty_1__bindgen_ty_1),
+            "::",
+            stringify!(time_runnable)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).time_blocked) as usize - ptr as usize },
+        32usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_xen_vcpu_attr__bindgen_ty_1__bindgen_ty_1),
+            "::",
+            stringify!(time_blocked)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).time_offline) as usize - ptr as usize },
+        40usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_xen_vcpu_attr__bindgen_ty_1__bindgen_ty_1),
+            "::",
+            stringify!(time_offline)
+        )
+    );
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
+pub struct kvm_xen_vcpu_attr__bindgen_ty_1__bindgen_ty_2 {
+    pub port: __u32,
+    pub priority: __u32,
+    pub expires_ns: __u64,
+}
+#[test]
+fn bindgen_test_layout_kvm_xen_vcpu_attr__bindgen_ty_1__bindgen_ty_2() {
+    const UNINIT: ::std::mem::MaybeUninit<kvm_xen_vcpu_attr__bindgen_ty_1__bindgen_ty_2> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<kvm_xen_vcpu_attr__bindgen_ty_1__bindgen_ty_2>(),
+        16usize,
+        concat!(
+            "Size of: ",
+            stringify!(kvm_xen_vcpu_attr__bindgen_ty_1__bindgen_ty_2)
+        )
+    );
+    assert_eq!(
+        ::std::mem::align_of::<kvm_xen_vcpu_attr__bindgen_ty_1__bindgen_ty_2>(),
+        8usize,
+        concat!(
+            "Alignment of ",
+            stringify!(kvm_xen_vcpu_attr__bindgen_ty_1__bindgen_ty_2)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).port) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_xen_vcpu_attr__bindgen_ty_1__bindgen_ty_2),
+            "::",
+            stringify!(port)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).priority) as usize - ptr as usize },
+        4usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_xen_vcpu_attr__bindgen_ty_1__bindgen_ty_2),
+            "::",
+            stringify!(priority)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).expires_ns) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_xen_vcpu_attr__bindgen_ty_1__bindgen_ty_2),
+            "::",
+            stringify!(expires_ns)
+        )
+    );
+}
+#[test]
+fn bindgen_test_layout_kvm_xen_vcpu_attr__bindgen_ty_1() {
+    const UNINIT: ::std::mem::MaybeUninit<kvm_xen_vcpu_attr__bindgen_ty_1> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<kvm_xen_vcpu_attr__bindgen_ty_1>(),
+        64usize,
+        concat!("Size of: ", stringify!(kvm_xen_vcpu_attr__bindgen_ty_1))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<kvm_xen_vcpu_attr__bindgen_ty_1>(),
+        8usize,
+        concat!("Alignment of ", stringify!(kvm_xen_vcpu_attr__bindgen_ty_1))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).gpa) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_xen_vcpu_attr__bindgen_ty_1),
+            "::",
+            stringify!(gpa)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).hva) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_xen_vcpu_attr__bindgen_ty_1),
+            "::",
+            stringify!(hva)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pad) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_xen_vcpu_attr__bindgen_ty_1),
+            "::",
+            stringify!(pad)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).runstate) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_xen_vcpu_attr__bindgen_ty_1),
+            "::",
+            stringify!(runstate)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).vcpu_id) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_xen_vcpu_attr__bindgen_ty_1),
+            "::",
+            stringify!(vcpu_id)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).timer) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_xen_vcpu_attr__bindgen_ty_1),
+            "::",
+            stringify!(timer)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).vector) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_xen_vcpu_attr__bindgen_ty_1),
+            "::",
+            stringify!(vector)
+        )
+    );
+}
+impl Default for kvm_xen_vcpu_attr__bindgen_ty_1 {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl ::std::fmt::Debug for kvm_xen_vcpu_attr__bindgen_ty_1 {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        write!(f, "kvm_xen_vcpu_attr__bindgen_ty_1 {{ union }}")
+    }
+}
+#[test]
+fn bindgen_test_layout_kvm_xen_vcpu_attr() {
+    const UNINIT: ::std::mem::MaybeUninit<kvm_xen_vcpu_attr> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<kvm_xen_vcpu_attr>(),
+        72usize,
+        concat!("Size of: ", stringify!(kvm_xen_vcpu_attr))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<kvm_xen_vcpu_attr>(),
+        8usize,
+        concat!("Alignment of ", stringify!(kvm_xen_vcpu_attr))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).type_) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_xen_vcpu_attr),
+            "::",
+            stringify!(type_)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pad) as usize - ptr as usize },
+        2usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_xen_vcpu_attr),
+            "::",
+            stringify!(pad)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).u) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_xen_vcpu_attr),
+            "::",
+            stringify!(u)
+        )
+    );
+}
+impl Default for kvm_xen_vcpu_attr {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl ::std::fmt::Debug for kvm_xen_vcpu_attr {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        write!(
+            f,
+            "kvm_xen_vcpu_attr {{ type: {:?}, pad: {:?}, u: {:?} }}",
+            self.type_, self.pad, self.u
+        )
+    }
+}
+pub const sev_cmd_id_KVM_SEV_INIT: sev_cmd_id = 0;
+pub const sev_cmd_id_KVM_SEV_ES_INIT: sev_cmd_id = 1;
+pub const sev_cmd_id_KVM_SEV_LAUNCH_START: sev_cmd_id = 2;
+pub const sev_cmd_id_KVM_SEV_LAUNCH_UPDATE_DATA: sev_cmd_id = 3;
+pub const sev_cmd_id_KVM_SEV_LAUNCH_UPDATE_VMSA: sev_cmd_id = 4;
+pub const sev_cmd_id_KVM_SEV_LAUNCH_SECRET: sev_cmd_id = 5;
+pub const sev_cmd_id_KVM_SEV_LAUNCH_MEASURE: sev_cmd_id = 6;
+pub const sev_cmd_id_KVM_SEV_LAUNCH_FINISH: sev_cmd_id = 7;
+pub const sev_cmd_id_KVM_SEV_SEND_START: sev_cmd_id = 8;
+pub const sev_cmd_id_KVM_SEV_SEND_UPDATE_DATA: sev_cmd_id = 9;
+pub const sev_cmd_id_KVM_SEV_SEND_UPDATE_VMSA: sev_cmd_id = 10;
+pub const sev_cmd_id_KVM_SEV_SEND_FINISH: sev_cmd_id = 11;
+pub const sev_cmd_id_KVM_SEV_RECEIVE_START: sev_cmd_id = 12;
+pub const sev_cmd_id_KVM_SEV_RECEIVE_UPDATE_DATA: sev_cmd_id = 13;
+pub const sev_cmd_id_KVM_SEV_RECEIVE_UPDATE_VMSA: sev_cmd_id = 14;
+pub const sev_cmd_id_KVM_SEV_RECEIVE_FINISH: sev_cmd_id = 15;
+pub const sev_cmd_id_KVM_SEV_GUEST_STATUS: sev_cmd_id = 16;
+pub const sev_cmd_id_KVM_SEV_DBG_DECRYPT: sev_cmd_id = 17;
+pub const sev_cmd_id_KVM_SEV_DBG_ENCRYPT: sev_cmd_id = 18;
+pub const sev_cmd_id_KVM_SEV_CERT_EXPORT: sev_cmd_id = 19;
+pub const sev_cmd_id_KVM_SEV_GET_ATTESTATION_REPORT: sev_cmd_id = 20;
+pub const sev_cmd_id_KVM_SEV_SEND_CANCEL: sev_cmd_id = 21;
+pub const sev_cmd_id_KVM_SEV_NR_MAX: sev_cmd_id = 22;
+pub type sev_cmd_id = ::std::os::raw::c_uint;
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
+pub struct kvm_sev_cmd {
+    pub id: __u32,
+    pub pad0: __u32,
+    pub data: __u64,
+    pub error: __u32,
+    pub sev_fd: __u32,
+}
+#[test]
+fn bindgen_test_layout_kvm_sev_cmd() {
+    const UNINIT: ::std::mem::MaybeUninit<kvm_sev_cmd> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<kvm_sev_cmd>(),
+        24usize,
+        concat!("Size of: ", stringify!(kvm_sev_cmd))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<kvm_sev_cmd>(),
+        8usize,
+        concat!("Alignment of ", stringify!(kvm_sev_cmd))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).id) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_cmd),
+            "::",
+            stringify!(id)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pad0) as usize - ptr as usize },
+        4usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_cmd),
+            "::",
+            stringify!(pad0)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).data) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_cmd),
+            "::",
+            stringify!(data)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).error) as usize - ptr as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_cmd),
+            "::",
+            stringify!(error)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).sev_fd) as usize - ptr as usize },
+        20usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_cmd),
+            "::",
+            stringify!(sev_fd)
+        )
+    );
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
+pub struct kvm_sev_launch_start {
+    pub handle: __u32,
+    pub policy: __u32,
+    pub dh_uaddr: __u64,
+    pub dh_len: __u32,
+    pub pad0: __u32,
+    pub session_uaddr: __u64,
+    pub session_len: __u32,
+    pub pad1: __u32,
+}
+#[test]
+fn bindgen_test_layout_kvm_sev_launch_start() {
+    const UNINIT: ::std::mem::MaybeUninit<kvm_sev_launch_start> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<kvm_sev_launch_start>(),
+        40usize,
+        concat!("Size of: ", stringify!(kvm_sev_launch_start))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<kvm_sev_launch_start>(),
+        8usize,
+        concat!("Alignment of ", stringify!(kvm_sev_launch_start))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).handle) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_launch_start),
+            "::",
+            stringify!(handle)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).policy) as usize - ptr as usize },
+        4usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_launch_start),
+            "::",
+            stringify!(policy)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).dh_uaddr) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_launch_start),
+            "::",
+            stringify!(dh_uaddr)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).dh_len) as usize - ptr as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_launch_start),
+            "::",
+            stringify!(dh_len)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pad0) as usize - ptr as usize },
+        20usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_launch_start),
+            "::",
+            stringify!(pad0)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).session_uaddr) as usize - ptr as usize },
+        24usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_launch_start),
+            "::",
+            stringify!(session_uaddr)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).session_len) as usize - ptr as usize },
+        32usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_launch_start),
+            "::",
+            stringify!(session_len)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pad1) as usize - ptr as usize },
+        36usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_launch_start),
+            "::",
+            stringify!(pad1)
+        )
+    );
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
+pub struct kvm_sev_launch_update_data {
+    pub uaddr: __u64,
+    pub len: __u32,
+    pub pad0: __u32,
+}
+#[test]
+fn bindgen_test_layout_kvm_sev_launch_update_data() {
+    const UNINIT: ::std::mem::MaybeUninit<kvm_sev_launch_update_data> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<kvm_sev_launch_update_data>(),
+        16usize,
+        concat!("Size of: ", stringify!(kvm_sev_launch_update_data))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<kvm_sev_launch_update_data>(),
+        8usize,
+        concat!("Alignment of ", stringify!(kvm_sev_launch_update_data))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).uaddr) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_launch_update_data),
+            "::",
+            stringify!(uaddr)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).len) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_launch_update_data),
+            "::",
+            stringify!(len)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pad0) as usize - ptr as usize },
+        12usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_launch_update_data),
+            "::",
+            stringify!(pad0)
+        )
+    );
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
+pub struct kvm_sev_launch_secret {
+    pub hdr_uaddr: __u64,
+    pub hdr_len: __u32,
+    pub pad0: __u32,
+    pub guest_uaddr: __u64,
+    pub guest_len: __u32,
+    pub pad1: __u32,
+    pub trans_uaddr: __u64,
+    pub trans_len: __u32,
+    pub pad2: __u32,
+}
+#[test]
+fn bindgen_test_layout_kvm_sev_launch_secret() {
+    const UNINIT: ::std::mem::MaybeUninit<kvm_sev_launch_secret> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<kvm_sev_launch_secret>(),
+        48usize,
+        concat!("Size of: ", stringify!(kvm_sev_launch_secret))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<kvm_sev_launch_secret>(),
+        8usize,
+        concat!("Alignment of ", stringify!(kvm_sev_launch_secret))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).hdr_uaddr) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_launch_secret),
+            "::",
+            stringify!(hdr_uaddr)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).hdr_len) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_launch_secret),
+            "::",
+            stringify!(hdr_len)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pad0) as usize - ptr as usize },
+        12usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_launch_secret),
+            "::",
+            stringify!(pad0)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).guest_uaddr) as usize - ptr as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_launch_secret),
+            "::",
+            stringify!(guest_uaddr)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).guest_len) as usize - ptr as usize },
+        24usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_launch_secret),
+            "::",
+            stringify!(guest_len)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pad1) as usize - ptr as usize },
+        28usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_launch_secret),
+            "::",
+            stringify!(pad1)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).trans_uaddr) as usize - ptr as usize },
+        32usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_launch_secret),
+            "::",
+            stringify!(trans_uaddr)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).trans_len) as usize - ptr as usize },
+        40usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_launch_secret),
+            "::",
+            stringify!(trans_len)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pad2) as usize - ptr as usize },
+        44usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_launch_secret),
+            "::",
+            stringify!(pad2)
+        )
+    );
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
+pub struct kvm_sev_launch_measure {
+    pub uaddr: __u64,
+    pub len: __u32,
+    pub pad0: __u32,
+}
+#[test]
+fn bindgen_test_layout_kvm_sev_launch_measure() {
+    const UNINIT: ::std::mem::MaybeUninit<kvm_sev_launch_measure> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<kvm_sev_launch_measure>(),
+        16usize,
+        concat!("Size of: ", stringify!(kvm_sev_launch_measure))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<kvm_sev_launch_measure>(),
+        8usize,
+        concat!("Alignment of ", stringify!(kvm_sev_launch_measure))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).uaddr) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_launch_measure),
+            "::",
+            stringify!(uaddr)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).len) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_launch_measure),
+            "::",
+            stringify!(len)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pad0) as usize - ptr as usize },
+        12usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_launch_measure),
+            "::",
+            stringify!(pad0)
+        )
+    );
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
+pub struct kvm_sev_guest_status {
+    pub handle: __u32,
+    pub policy: __u32,
+    pub state: __u32,
+}
+#[test]
+fn bindgen_test_layout_kvm_sev_guest_status() {
+    const UNINIT: ::std::mem::MaybeUninit<kvm_sev_guest_status> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<kvm_sev_guest_status>(),
+        12usize,
+        concat!("Size of: ", stringify!(kvm_sev_guest_status))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<kvm_sev_guest_status>(),
+        4usize,
+        concat!("Alignment of ", stringify!(kvm_sev_guest_status))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).handle) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_guest_status),
+            "::",
+            stringify!(handle)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).policy) as usize - ptr as usize },
+        4usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_guest_status),
+            "::",
+            stringify!(policy)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).state) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_guest_status),
+            "::",
+            stringify!(state)
+        )
+    );
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
+pub struct kvm_sev_dbg {
+    pub src_uaddr: __u64,
+    pub dst_uaddr: __u64,
+    pub len: __u32,
+    pub pad0: __u32,
+}
+#[test]
+fn bindgen_test_layout_kvm_sev_dbg() {
+    const UNINIT: ::std::mem::MaybeUninit<kvm_sev_dbg> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<kvm_sev_dbg>(),
+        24usize,
+        concat!("Size of: ", stringify!(kvm_sev_dbg))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<kvm_sev_dbg>(),
+        8usize,
+        concat!("Alignment of ", stringify!(kvm_sev_dbg))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).src_uaddr) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_dbg),
+            "::",
+            stringify!(src_uaddr)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).dst_uaddr) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_dbg),
+            "::",
+            stringify!(dst_uaddr)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).len) as usize - ptr as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_dbg),
+            "::",
+            stringify!(len)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pad0) as usize - ptr as usize },
+        20usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_dbg),
+            "::",
+            stringify!(pad0)
+        )
+    );
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
+pub struct kvm_sev_attestation_report {
+    pub mnonce: [__u8; 16usize],
+    pub uaddr: __u64,
+    pub len: __u32,
+    pub pad0: __u32,
+}
+#[test]
+fn bindgen_test_layout_kvm_sev_attestation_report() {
+    const UNINIT: ::std::mem::MaybeUninit<kvm_sev_attestation_report> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<kvm_sev_attestation_report>(),
+        32usize,
+        concat!("Size of: ", stringify!(kvm_sev_attestation_report))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<kvm_sev_attestation_report>(),
+        8usize,
+        concat!("Alignment of ", stringify!(kvm_sev_attestation_report))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).mnonce) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_attestation_report),
+            "::",
+            stringify!(mnonce)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).uaddr) as usize - ptr as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_attestation_report),
+            "::",
+            stringify!(uaddr)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).len) as usize - ptr as usize },
+        24usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_attestation_report),
+            "::",
+            stringify!(len)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pad0) as usize - ptr as usize },
+        28usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_attestation_report),
+            "::",
+            stringify!(pad0)
+        )
+    );
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
+pub struct kvm_sev_send_start {
+    pub policy: __u32,
+    pub pad0: __u32,
+    pub pdh_cert_uaddr: __u64,
+    pub pdh_cert_len: __u32,
+    pub pad1: __u32,
+    pub plat_certs_uaddr: __u64,
+    pub plat_certs_len: __u32,
+    pub pad2: __u32,
+    pub amd_certs_uaddr: __u64,
+    pub amd_certs_len: __u32,
+    pub pad3: __u32,
+    pub session_uaddr: __u64,
+    pub session_len: __u32,
+    pub pad4: __u32,
+}
+#[test]
+fn bindgen_test_layout_kvm_sev_send_start() {
+    const UNINIT: ::std::mem::MaybeUninit<kvm_sev_send_start> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<kvm_sev_send_start>(),
+        72usize,
+        concat!("Size of: ", stringify!(kvm_sev_send_start))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<kvm_sev_send_start>(),
+        8usize,
+        concat!("Alignment of ", stringify!(kvm_sev_send_start))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).policy) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_send_start),
+            "::",
+            stringify!(policy)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pad0) as usize - ptr as usize },
+        4usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_send_start),
+            "::",
+            stringify!(pad0)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pdh_cert_uaddr) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_send_start),
+            "::",
+            stringify!(pdh_cert_uaddr)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pdh_cert_len) as usize - ptr as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_send_start),
+            "::",
+            stringify!(pdh_cert_len)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pad1) as usize - ptr as usize },
+        20usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_send_start),
+            "::",
+            stringify!(pad1)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).plat_certs_uaddr) as usize - ptr as usize },
+        24usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_send_start),
+            "::",
+            stringify!(plat_certs_uaddr)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).plat_certs_len) as usize - ptr as usize },
+        32usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_send_start),
+            "::",
+            stringify!(plat_certs_len)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pad2) as usize - ptr as usize },
+        36usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_send_start),
+            "::",
+            stringify!(pad2)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).amd_certs_uaddr) as usize - ptr as usize },
+        40usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_send_start),
+            "::",
+            stringify!(amd_certs_uaddr)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).amd_certs_len) as usize - ptr as usize },
+        48usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_send_start),
+            "::",
+            stringify!(amd_certs_len)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pad3) as usize - ptr as usize },
+        52usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_send_start),
+            "::",
+            stringify!(pad3)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).session_uaddr) as usize - ptr as usize },
+        56usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_send_start),
+            "::",
+            stringify!(session_uaddr)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).session_len) as usize - ptr as usize },
+        64usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_send_start),
+            "::",
+            stringify!(session_len)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pad4) as usize - ptr as usize },
+        68usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_send_start),
+            "::",
+            stringify!(pad4)
+        )
+    );
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
+pub struct kvm_sev_send_update_data {
+    pub hdr_uaddr: __u64,
+    pub hdr_len: __u32,
+    pub pad0: __u32,
+    pub guest_uaddr: __u64,
+    pub guest_len: __u32,
+    pub pad1: __u32,
+    pub trans_uaddr: __u64,
+    pub trans_len: __u32,
+    pub pad2: __u32,
+}
+#[test]
+fn bindgen_test_layout_kvm_sev_send_update_data() {
+    const UNINIT: ::std::mem::MaybeUninit<kvm_sev_send_update_data> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<kvm_sev_send_update_data>(),
+        48usize,
+        concat!("Size of: ", stringify!(kvm_sev_send_update_data))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<kvm_sev_send_update_data>(),
+        8usize,
+        concat!("Alignment of ", stringify!(kvm_sev_send_update_data))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).hdr_uaddr) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_send_update_data),
+            "::",
+            stringify!(hdr_uaddr)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).hdr_len) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_send_update_data),
+            "::",
+            stringify!(hdr_len)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pad0) as usize - ptr as usize },
+        12usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_send_update_data),
+            "::",
+            stringify!(pad0)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).guest_uaddr) as usize - ptr as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_send_update_data),
+            "::",
+            stringify!(guest_uaddr)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).guest_len) as usize - ptr as usize },
+        24usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_send_update_data),
+            "::",
+            stringify!(guest_len)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pad1) as usize - ptr as usize },
+        28usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_send_update_data),
+            "::",
+            stringify!(pad1)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).trans_uaddr) as usize - ptr as usize },
+        32usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_send_update_data),
+            "::",
+            stringify!(trans_uaddr)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).trans_len) as usize - ptr as usize },
+        40usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_send_update_data),
+            "::",
+            stringify!(trans_len)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pad2) as usize - ptr as usize },
+        44usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_send_update_data),
+            "::",
+            stringify!(pad2)
+        )
+    );
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
+pub struct kvm_sev_receive_start {
+    pub handle: __u32,
+    pub policy: __u32,
+    pub pdh_uaddr: __u64,
+    pub pdh_len: __u32,
+    pub pad0: __u32,
+    pub session_uaddr: __u64,
+    pub session_len: __u32,
+    pub pad1: __u32,
+}
+#[test]
+fn bindgen_test_layout_kvm_sev_receive_start() {
+    const UNINIT: ::std::mem::MaybeUninit<kvm_sev_receive_start> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<kvm_sev_receive_start>(),
+        40usize,
+        concat!("Size of: ", stringify!(kvm_sev_receive_start))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<kvm_sev_receive_start>(),
+        8usize,
+        concat!("Alignment of ", stringify!(kvm_sev_receive_start))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).handle) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_receive_start),
+            "::",
+            stringify!(handle)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).policy) as usize - ptr as usize },
+        4usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_receive_start),
+            "::",
+            stringify!(policy)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pdh_uaddr) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_receive_start),
+            "::",
+            stringify!(pdh_uaddr)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pdh_len) as usize - ptr as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_receive_start),
+            "::",
+            stringify!(pdh_len)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pad0) as usize - ptr as usize },
+        20usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_receive_start),
+            "::",
+            stringify!(pad0)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).session_uaddr) as usize - ptr as usize },
+        24usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_receive_start),
+            "::",
+            stringify!(session_uaddr)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).session_len) as usize - ptr as usize },
+        32usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_receive_start),
+            "::",
+            stringify!(session_len)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pad1) as usize - ptr as usize },
+        36usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_receive_start),
+            "::",
+            stringify!(pad1)
+        )
+    );
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
+pub struct kvm_sev_receive_update_data {
+    pub hdr_uaddr: __u64,
+    pub hdr_len: __u32,
+    pub pad0: __u32,
+    pub guest_uaddr: __u64,
+    pub guest_len: __u32,
+    pub pad1: __u32,
+    pub trans_uaddr: __u64,
+    pub trans_len: __u32,
+    pub pad2: __u32,
+}
+#[test]
+fn bindgen_test_layout_kvm_sev_receive_update_data() {
+    const UNINIT: ::std::mem::MaybeUninit<kvm_sev_receive_update_data> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<kvm_sev_receive_update_data>(),
+        48usize,
+        concat!("Size of: ", stringify!(kvm_sev_receive_update_data))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<kvm_sev_receive_update_data>(),
+        8usize,
+        concat!("Alignment of ", stringify!(kvm_sev_receive_update_data))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).hdr_uaddr) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_receive_update_data),
+            "::",
+            stringify!(hdr_uaddr)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).hdr_len) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_receive_update_data),
+            "::",
+            stringify!(hdr_len)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pad0) as usize - ptr as usize },
+        12usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_receive_update_data),
+            "::",
+            stringify!(pad0)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).guest_uaddr) as usize - ptr as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_receive_update_data),
+            "::",
+            stringify!(guest_uaddr)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).guest_len) as usize - ptr as usize },
+        24usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_receive_update_data),
+            "::",
+            stringify!(guest_len)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pad1) as usize - ptr as usize },
+        28usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_receive_update_data),
+            "::",
+            stringify!(pad1)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).trans_uaddr) as usize - ptr as usize },
+        32usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_receive_update_data),
+            "::",
+            stringify!(trans_uaddr)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).trans_len) as usize - ptr as usize },
+        40usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_receive_update_data),
+            "::",
+            stringify!(trans_len)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pad2) as usize - ptr as usize },
+        44usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_sev_receive_update_data),
+            "::",
+            stringify!(pad2)
+        )
+    );
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
+pub struct kvm_hyperv_eventfd {
+    pub conn_id: __u32,
+    pub fd: __s32,
+    pub flags: __u32,
+    pub padding: [__u32; 3usize],
+}
+#[test]
+fn bindgen_test_layout_kvm_hyperv_eventfd() {
+    const UNINIT: ::std::mem::MaybeUninit<kvm_hyperv_eventfd> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<kvm_hyperv_eventfd>(),
+        24usize,
+        concat!("Size of: ", stringify!(kvm_hyperv_eventfd))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<kvm_hyperv_eventfd>(),
+        4usize,
+        concat!("Alignment of ", stringify!(kvm_hyperv_eventfd))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).conn_id) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_hyperv_eventfd),
+            "::",
+            stringify!(conn_id)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).fd) as usize - ptr as usize },
+        4usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_hyperv_eventfd),
+            "::",
+            stringify!(fd)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).flags) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_hyperv_eventfd),
+            "::",
+            stringify!(flags)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).padding) as usize - ptr as usize },
+        12usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_hyperv_eventfd),
+            "::",
+            stringify!(padding)
         )
     );
 }
@@ -5031,6 +7184,125 @@ fn bindgen_test_layout_kvm_userspace_memory_region() {
             stringify!(kvm_userspace_memory_region),
             "::",
             stringify!(userspace_addr)
+        )
+    );
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
+pub struct kvm_userspace_memory_region2 {
+    pub slot: __u32,
+    pub flags: __u32,
+    pub guest_phys_addr: __u64,
+    pub memory_size: __u64,
+    pub userspace_addr: __u64,
+    pub guest_memfd_offset: __u64,
+    pub guest_memfd: __u32,
+    pub pad1: __u32,
+    pub pad2: [__u64; 14usize],
+}
+#[test]
+fn bindgen_test_layout_kvm_userspace_memory_region2() {
+    const UNINIT: ::std::mem::MaybeUninit<kvm_userspace_memory_region2> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<kvm_userspace_memory_region2>(),
+        160usize,
+        concat!("Size of: ", stringify!(kvm_userspace_memory_region2))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<kvm_userspace_memory_region2>(),
+        8usize,
+        concat!("Alignment of ", stringify!(kvm_userspace_memory_region2))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).slot) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_userspace_memory_region2),
+            "::",
+            stringify!(slot)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).flags) as usize - ptr as usize },
+        4usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_userspace_memory_region2),
+            "::",
+            stringify!(flags)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).guest_phys_addr) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_userspace_memory_region2),
+            "::",
+            stringify!(guest_phys_addr)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).memory_size) as usize - ptr as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_userspace_memory_region2),
+            "::",
+            stringify!(memory_size)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).userspace_addr) as usize - ptr as usize },
+        24usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_userspace_memory_region2),
+            "::",
+            stringify!(userspace_addr)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).guest_memfd_offset) as usize - ptr as usize },
+        32usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_userspace_memory_region2),
+            "::",
+            stringify!(guest_memfd_offset)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).guest_memfd) as usize - ptr as usize },
+        40usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_userspace_memory_region2),
+            "::",
+            stringify!(guest_memfd)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pad1) as usize - ptr as usize },
+        44usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_userspace_memory_region2),
+            "::",
+            stringify!(pad1)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pad2) as usize - ptr as usize },
+        48usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_userspace_memory_region2),
+            "::",
+            stringify!(pad2)
         )
     );
 }
@@ -5157,7 +7429,6 @@ pub union kvm_irqchip__bindgen_ty_1 {
     pub pic: kvm_pic_state,
     pub ioapic: kvm_ioapic_state,
 }
-
 #[test]
 fn bindgen_test_layout_kvm_irqchip__bindgen_ty_1() {
     const UNINIT: ::std::mem::MaybeUninit<kvm_irqchip__bindgen_ty_1> =
@@ -5321,215 +7592,6 @@ fn bindgen_test_layout_kvm_pit_config() {
             stringify!(pad)
         )
     );
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_s390_skeys {
-    pub start_gfn: __u64,
-    pub count: __u64,
-    pub skeydata_addr: __u64,
-    pub flags: __u32,
-    pub reserved: [__u32; 9usize],
-}
-#[test]
-fn bindgen_test_layout_kvm_s390_skeys() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_s390_skeys> = ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_s390_skeys>(),
-        64usize,
-        concat!("Size of: ", stringify!(kvm_s390_skeys))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_s390_skeys>(),
-        8usize,
-        concat!("Alignment of ", stringify!(kvm_s390_skeys))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).start_gfn) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_skeys),
-            "::",
-            stringify!(start_gfn)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).count) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_skeys),
-            "::",
-            stringify!(count)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).skeydata_addr) as usize - ptr as usize },
-        16usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_skeys),
-            "::",
-            stringify!(skeydata_addr)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).flags) as usize - ptr as usize },
-        24usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_skeys),
-            "::",
-            stringify!(flags)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).reserved) as usize - ptr as usize },
-        28usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_skeys),
-            "::",
-            stringify!(reserved)
-        )
-    );
-}
-#[doc = " kvm_s390_cmma_log - Used for CMMA migration.\n\n Used both for input and output.\n\n @start_gfn: Guest page number to start from.\n @count: Size of the result buffer.\n @flags: Control operation mode via KVM_S390_CMMA_* flags\n @remaining: Used with KVM_S390_GET_CMMA_BITS. Indicates how many dirty\n             pages are still remaining.\n @mask: Used with KVM_S390_SET_CMMA_BITS. Bitmap of bits to actually set\n        in the PGSTE.\n @values: Pointer to the values buffer.\n\n Used in KVM_S390_{G,S}ET_CMMA_BITS ioctls."]
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct kvm_s390_cmma_log {
-    pub start_gfn: __u64,
-    pub count: __u32,
-    pub flags: __u32,
-    pub __bindgen_anon_1: kvm_s390_cmma_log__bindgen_ty_1,
-    pub values: __u64,
-}
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub union kvm_s390_cmma_log__bindgen_ty_1 {
-    pub remaining: __u64,
-    pub mask: __u64,
-}
-#[test]
-fn bindgen_test_layout_kvm_s390_cmma_log__bindgen_ty_1() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_s390_cmma_log__bindgen_ty_1> =
-        ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_s390_cmma_log__bindgen_ty_1>(),
-        8usize,
-        concat!("Size of: ", stringify!(kvm_s390_cmma_log__bindgen_ty_1))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_s390_cmma_log__bindgen_ty_1>(),
-        8usize,
-        concat!("Alignment of ", stringify!(kvm_s390_cmma_log__bindgen_ty_1))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).remaining) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_cmma_log__bindgen_ty_1),
-            "::",
-            stringify!(remaining)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).mask) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_cmma_log__bindgen_ty_1),
-            "::",
-            stringify!(mask)
-        )
-    );
-}
-impl Default for kvm_s390_cmma_log__bindgen_ty_1 {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-impl ::std::fmt::Debug for kvm_s390_cmma_log__bindgen_ty_1 {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        write!(f, "kvm_s390_cmma_log__bindgen_ty_1 {{ union }}")
-    }
-}
-#[test]
-fn bindgen_test_layout_kvm_s390_cmma_log() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_s390_cmma_log> = ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_s390_cmma_log>(),
-        32usize,
-        concat!("Size of: ", stringify!(kvm_s390_cmma_log))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_s390_cmma_log>(),
-        8usize,
-        concat!("Alignment of ", stringify!(kvm_s390_cmma_log))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).start_gfn) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_cmma_log),
-            "::",
-            stringify!(start_gfn)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).count) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_cmma_log),
-            "::",
-            stringify!(count)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).flags) as usize - ptr as usize },
-        12usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_cmma_log),
-            "::",
-            stringify!(flags)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).values) as usize - ptr as usize },
-        24usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_cmma_log),
-            "::",
-            stringify!(values)
-        )
-    );
-}
-impl Default for kvm_s390_cmma_log {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-impl ::std::fmt::Debug for kvm_s390_cmma_log {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        write ! (f , "kvm_s390_cmma_log {{ start_gfn: {:?}, count: {:?}, flags: {:?}, __bindgen_anon_1: {:?}, values: {:?} }}" , self . start_gfn , self . count , self . flags , self . __bindgen_anon_1 , self . values)
-    }
 }
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -6122,28 +8184,30 @@ pub union kvm_run__bindgen_ty_1 {
     pub io: kvm_run__bindgen_ty_1__bindgen_ty_4,
     pub debug: kvm_run__bindgen_ty_1__bindgen_ty_5,
     pub mmio: kvm_run__bindgen_ty_1__bindgen_ty_6,
-    pub hypercall: kvm_run__bindgen_ty_1__bindgen_ty_7,
-    pub tpr_access: kvm_run__bindgen_ty_1__bindgen_ty_8,
-    pub s390_sieic: kvm_run__bindgen_ty_1__bindgen_ty_9,
+    pub iocsr_io: kvm_run__bindgen_ty_1__bindgen_ty_7,
+    pub hypercall: kvm_run__bindgen_ty_1__bindgen_ty_8,
+    pub tpr_access: kvm_run__bindgen_ty_1__bindgen_ty_9,
+    pub s390_sieic: kvm_run__bindgen_ty_1__bindgen_ty_10,
     pub s390_reset_flags: __u64,
-    pub s390_ucontrol: kvm_run__bindgen_ty_1__bindgen_ty_10,
-    pub dcr: kvm_run__bindgen_ty_1__bindgen_ty_11,
-    pub internal: kvm_run__bindgen_ty_1__bindgen_ty_12,
-    pub emulation_failure: kvm_run__bindgen_ty_1__bindgen_ty_13,
-    pub osi: kvm_run__bindgen_ty_1__bindgen_ty_14,
-    pub papr_hcall: kvm_run__bindgen_ty_1__bindgen_ty_15,
-    pub s390_tsch: kvm_run__bindgen_ty_1__bindgen_ty_16,
-    pub epr: kvm_run__bindgen_ty_1__bindgen_ty_17,
-    pub system_event: kvm_run__bindgen_ty_1__bindgen_ty_18,
-    pub s390_stsi: kvm_run__bindgen_ty_1__bindgen_ty_19,
-    pub eoi: kvm_run__bindgen_ty_1__bindgen_ty_20,
+    pub s390_ucontrol: kvm_run__bindgen_ty_1__bindgen_ty_11,
+    pub dcr: kvm_run__bindgen_ty_1__bindgen_ty_12,
+    pub internal: kvm_run__bindgen_ty_1__bindgen_ty_13,
+    pub emulation_failure: kvm_run__bindgen_ty_1__bindgen_ty_14,
+    pub osi: kvm_run__bindgen_ty_1__bindgen_ty_15,
+    pub papr_hcall: kvm_run__bindgen_ty_1__bindgen_ty_16,
+    pub s390_tsch: kvm_run__bindgen_ty_1__bindgen_ty_17,
+    pub epr: kvm_run__bindgen_ty_1__bindgen_ty_18,
+    pub system_event: kvm_run__bindgen_ty_1__bindgen_ty_19,
+    pub s390_stsi: kvm_run__bindgen_ty_1__bindgen_ty_20,
+    pub eoi: kvm_run__bindgen_ty_1__bindgen_ty_21,
     pub hyperv: kvm_hyperv_exit,
-    pub arm_nisv: kvm_run__bindgen_ty_1__bindgen_ty_21,
-    pub msr: kvm_run__bindgen_ty_1__bindgen_ty_22,
+    pub arm_nisv: kvm_run__bindgen_ty_1__bindgen_ty_22,
+    pub msr: kvm_run__bindgen_ty_1__bindgen_ty_23,
     pub xen: kvm_xen_exit,
-    pub riscv_sbi: kvm_run__bindgen_ty_1__bindgen_ty_23,
-    pub riscv_csr: kvm_run__bindgen_ty_1__bindgen_ty_24,
-    pub notify: kvm_run__bindgen_ty_1__bindgen_ty_25,
+    pub riscv_sbi: kvm_run__bindgen_ty_1__bindgen_ty_24,
+    pub riscv_csr: kvm_run__bindgen_ty_1__bindgen_ty_25,
+    pub notify: kvm_run__bindgen_ty_1__bindgen_ty_26,
+    pub memory_fault: kvm_run__bindgen_ty_1__bindgen_ty_27,
     pub padding: [::std::os::raw::c_char; 256usize],
 }
 #[repr(C)]
@@ -6454,11 +8518,10 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_6() {
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct kvm_run__bindgen_ty_1__bindgen_ty_7 {
-    pub nr: __u64,
-    pub args: [__u64; 6usize],
-    pub ret: __u64,
-    pub longmode: __u32,
-    pub pad: __u32,
+    pub phys_addr: __u64,
+    pub data: [__u8; 8usize],
+    pub len: __u32,
+    pub is_write: __u8,
 }
 #[test]
 fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_7() {
@@ -6467,7 +8530,7 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_7() {
     let ptr = UNINIT.as_ptr();
     assert_eq!(
         ::std::mem::size_of::<kvm_run__bindgen_ty_1__bindgen_ty_7>(),
-        72usize,
+        24usize,
         concat!("Size of: ", stringify!(kvm_run__bindgen_ty_1__bindgen_ty_7))
     );
     assert_eq!(
@@ -6479,62 +8542,118 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_7() {
         )
     );
     assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).nr) as usize - ptr as usize },
+        unsafe { ::std::ptr::addr_of!((*ptr).phys_addr) as usize - ptr as usize },
         0usize,
         concat!(
             "Offset of field: ",
             stringify!(kvm_run__bindgen_ty_1__bindgen_ty_7),
             "::",
-            stringify!(nr)
+            stringify!(phys_addr)
         )
     );
     assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).args) as usize - ptr as usize },
+        unsafe { ::std::ptr::addr_of!((*ptr).data) as usize - ptr as usize },
         8usize,
         concat!(
             "Offset of field: ",
             stringify!(kvm_run__bindgen_ty_1__bindgen_ty_7),
             "::",
-            stringify!(args)
+            stringify!(data)
         )
     );
     assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).ret) as usize - ptr as usize },
-        56usize,
+        unsafe { ::std::ptr::addr_of!((*ptr).len) as usize - ptr as usize },
+        16usize,
         concat!(
             "Offset of field: ",
             stringify!(kvm_run__bindgen_ty_1__bindgen_ty_7),
             "::",
-            stringify!(ret)
+            stringify!(len)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).is_write) as usize - ptr as usize },
+        20usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_7),
+            "::",
+            stringify!(is_write)
+        )
+    );
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct kvm_run__bindgen_ty_1__bindgen_ty_8 {
+    pub nr: __u64,
+    pub args: [__u64; 6usize],
+    pub ret: __u64,
+    pub __bindgen_anon_1: kvm_run__bindgen_ty_1__bindgen_ty_8__bindgen_ty_1,
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub union kvm_run__bindgen_ty_1__bindgen_ty_8__bindgen_ty_1 {
+    pub longmode: __u32,
+    pub flags: __u64,
+}
+#[test]
+fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_8__bindgen_ty_1() {
+    const UNINIT: ::std::mem::MaybeUninit<kvm_run__bindgen_ty_1__bindgen_ty_8__bindgen_ty_1> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<kvm_run__bindgen_ty_1__bindgen_ty_8__bindgen_ty_1>(),
+        8usize,
+        concat!(
+            "Size of: ",
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_8__bindgen_ty_1)
+        )
+    );
+    assert_eq!(
+        ::std::mem::align_of::<kvm_run__bindgen_ty_1__bindgen_ty_8__bindgen_ty_1>(),
+        8usize,
+        concat!(
+            "Alignment of ",
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_8__bindgen_ty_1)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).longmode) as usize - ptr as usize },
-        64usize,
+        0usize,
         concat!(
             "Offset of field: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_7),
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_8__bindgen_ty_1),
             "::",
             stringify!(longmode)
         )
     );
     assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).pad) as usize - ptr as usize },
-        68usize,
+        unsafe { ::std::ptr::addr_of!((*ptr).flags) as usize - ptr as usize },
+        0usize,
         concat!(
             "Offset of field: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_7),
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_8__bindgen_ty_1),
             "::",
-            stringify!(pad)
+            stringify!(flags)
         )
     );
 }
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_run__bindgen_ty_1__bindgen_ty_8 {
-    pub rip: __u64,
-    pub is_write: __u32,
-    pub pad: __u32,
+impl Default for kvm_run__bindgen_ty_1__bindgen_ty_8__bindgen_ty_1 {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl ::std::fmt::Debug for kvm_run__bindgen_ty_1__bindgen_ty_8__bindgen_ty_1 {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        write!(
+            f,
+            "kvm_run__bindgen_ty_1__bindgen_ty_8__bindgen_ty_1 {{ union }}"
+        )
+    }
 }
 #[test]
 fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_8() {
@@ -6543,7 +8662,7 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_8() {
     let ptr = UNINIT.as_ptr();
     assert_eq!(
         ::std::mem::size_of::<kvm_run__bindgen_ty_1__bindgen_ty_8>(),
-        16usize,
+        72usize,
         concat!("Size of: ", stringify!(kvm_run__bindgen_ty_1__bindgen_ty_8))
     );
     assert_eq!(
@@ -6555,11 +8674,81 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_8() {
         )
     );
     assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).rip) as usize - ptr as usize },
+        unsafe { ::std::ptr::addr_of!((*ptr).nr) as usize - ptr as usize },
         0usize,
         concat!(
             "Offset of field: ",
             stringify!(kvm_run__bindgen_ty_1__bindgen_ty_8),
+            "::",
+            stringify!(nr)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).args) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_8),
+            "::",
+            stringify!(args)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).ret) as usize - ptr as usize },
+        56usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_8),
+            "::",
+            stringify!(ret)
+        )
+    );
+}
+impl Default for kvm_run__bindgen_ty_1__bindgen_ty_8 {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl ::std::fmt::Debug for kvm_run__bindgen_ty_1__bindgen_ty_8 {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        write ! (f , "kvm_run__bindgen_ty_1__bindgen_ty_8 {{ nr: {:?}, args: {:?}, ret: {:?}, __bindgen_anon_1: {:?} }}" , self . nr , self . args , self . ret , self . __bindgen_anon_1)
+    }
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
+pub struct kvm_run__bindgen_ty_1__bindgen_ty_9 {
+    pub rip: __u64,
+    pub is_write: __u32,
+    pub pad: __u32,
+}
+#[test]
+fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_9() {
+    const UNINIT: ::std::mem::MaybeUninit<kvm_run__bindgen_ty_1__bindgen_ty_9> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<kvm_run__bindgen_ty_1__bindgen_ty_9>(),
+        16usize,
+        concat!("Size of: ", stringify!(kvm_run__bindgen_ty_1__bindgen_ty_9))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<kvm_run__bindgen_ty_1__bindgen_ty_9>(),
+        8usize,
+        concat!(
+            "Alignment of ",
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_9)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).rip) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_9),
             "::",
             stringify!(rip)
         )
@@ -6569,7 +8758,7 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_8() {
         8usize,
         concat!(
             "Offset of field: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_8),
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_9),
             "::",
             stringify!(is_write)
         )
@@ -6579,7 +8768,7 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_8() {
         12usize,
         concat!(
             "Offset of field: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_8),
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_9),
             "::",
             stringify!(pad)
         )
@@ -6587,27 +8776,30 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_8() {
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_run__bindgen_ty_1__bindgen_ty_9 {
+pub struct kvm_run__bindgen_ty_1__bindgen_ty_10 {
     pub icptcode: __u8,
     pub ipa: __u16,
     pub ipb: __u32,
 }
 #[test]
-fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_9() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_run__bindgen_ty_1__bindgen_ty_9> =
+fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_10() {
+    const UNINIT: ::std::mem::MaybeUninit<kvm_run__bindgen_ty_1__bindgen_ty_10> =
         ::std::mem::MaybeUninit::uninit();
     let ptr = UNINIT.as_ptr();
     assert_eq!(
-        ::std::mem::size_of::<kvm_run__bindgen_ty_1__bindgen_ty_9>(),
+        ::std::mem::size_of::<kvm_run__bindgen_ty_1__bindgen_ty_10>(),
         8usize,
-        concat!("Size of: ", stringify!(kvm_run__bindgen_ty_1__bindgen_ty_9))
+        concat!(
+            "Size of: ",
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_10)
+        )
     );
     assert_eq!(
-        ::std::mem::align_of::<kvm_run__bindgen_ty_1__bindgen_ty_9>(),
+        ::std::mem::align_of::<kvm_run__bindgen_ty_1__bindgen_ty_10>(),
         4usize,
         concat!(
             "Alignment of ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_9)
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_10)
         )
     );
     assert_eq!(
@@ -6615,7 +8807,7 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_9() {
         0usize,
         concat!(
             "Offset of field: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_9),
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_10),
             "::",
             stringify!(icptcode)
         )
@@ -6625,7 +8817,7 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_9() {
         2usize,
         concat!(
             "Offset of field: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_9),
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_10),
             "::",
             stringify!(ipa)
         )
@@ -6635,7 +8827,7 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_9() {
         4usize,
         concat!(
             "Offset of field: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_9),
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_10),
             "::",
             stringify!(ipb)
         )
@@ -6643,29 +8835,29 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_9() {
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_run__bindgen_ty_1__bindgen_ty_10 {
+pub struct kvm_run__bindgen_ty_1__bindgen_ty_11 {
     pub trans_exc_code: __u64,
     pub pgm_code: __u32,
 }
 #[test]
-fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_10() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_run__bindgen_ty_1__bindgen_ty_10> =
+fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_11() {
+    const UNINIT: ::std::mem::MaybeUninit<kvm_run__bindgen_ty_1__bindgen_ty_11> =
         ::std::mem::MaybeUninit::uninit();
     let ptr = UNINIT.as_ptr();
     assert_eq!(
-        ::std::mem::size_of::<kvm_run__bindgen_ty_1__bindgen_ty_10>(),
+        ::std::mem::size_of::<kvm_run__bindgen_ty_1__bindgen_ty_11>(),
         16usize,
         concat!(
             "Size of: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_10)
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_11)
         )
     );
     assert_eq!(
-        ::std::mem::align_of::<kvm_run__bindgen_ty_1__bindgen_ty_10>(),
+        ::std::mem::align_of::<kvm_run__bindgen_ty_1__bindgen_ty_11>(),
         8usize,
         concat!(
             "Alignment of ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_10)
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_11)
         )
     );
     assert_eq!(
@@ -6673,7 +8865,7 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_10() {
         0usize,
         concat!(
             "Offset of field: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_10),
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_11),
             "::",
             stringify!(trans_exc_code)
         )
@@ -6683,7 +8875,7 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_10() {
         8usize,
         concat!(
             "Offset of field: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_10),
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_11),
             "::",
             stringify!(pgm_code)
         )
@@ -6691,30 +8883,30 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_10() {
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_run__bindgen_ty_1__bindgen_ty_11 {
+pub struct kvm_run__bindgen_ty_1__bindgen_ty_12 {
     pub dcrn: __u32,
     pub data: __u32,
     pub is_write: __u8,
 }
 #[test]
-fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_11() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_run__bindgen_ty_1__bindgen_ty_11> =
+fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_12() {
+    const UNINIT: ::std::mem::MaybeUninit<kvm_run__bindgen_ty_1__bindgen_ty_12> =
         ::std::mem::MaybeUninit::uninit();
     let ptr = UNINIT.as_ptr();
     assert_eq!(
-        ::std::mem::size_of::<kvm_run__bindgen_ty_1__bindgen_ty_11>(),
+        ::std::mem::size_of::<kvm_run__bindgen_ty_1__bindgen_ty_12>(),
         12usize,
         concat!(
             "Size of: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_11)
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_12)
         )
     );
     assert_eq!(
-        ::std::mem::align_of::<kvm_run__bindgen_ty_1__bindgen_ty_11>(),
+        ::std::mem::align_of::<kvm_run__bindgen_ty_1__bindgen_ty_12>(),
         4usize,
         concat!(
             "Alignment of ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_11)
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_12)
         )
     );
     assert_eq!(
@@ -6722,7 +8914,7 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_11() {
         0usize,
         concat!(
             "Offset of field: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_11),
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_12),
             "::",
             stringify!(dcrn)
         )
@@ -6732,7 +8924,7 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_11() {
         4usize,
         concat!(
             "Offset of field: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_11),
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_12),
             "::",
             stringify!(data)
         )
@@ -6742,7 +8934,7 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_11() {
         8usize,
         concat!(
             "Offset of field: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_11),
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_12),
             "::",
             stringify!(is_write)
         )
@@ -6750,160 +8942,10 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_11() {
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_run__bindgen_ty_1__bindgen_ty_12 {
-    pub suberror: __u32,
-    pub ndata: __u32,
-    pub data: [__u64; 16usize],
-}
-#[test]
-fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_12() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_run__bindgen_ty_1__bindgen_ty_12> =
-        ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_run__bindgen_ty_1__bindgen_ty_12>(),
-        136usize,
-        concat!(
-            "Size of: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_12)
-        )
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_run__bindgen_ty_1__bindgen_ty_12>(),
-        8usize,
-        concat!(
-            "Alignment of ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_12)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).suberror) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_12),
-            "::",
-            stringify!(suberror)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).ndata) as usize - ptr as usize },
-        4usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_12),
-            "::",
-            stringify!(ndata)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).data) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_12),
-            "::",
-            stringify!(data)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Copy, Clone)]
 pub struct kvm_run__bindgen_ty_1__bindgen_ty_13 {
     pub suberror: __u32,
     pub ndata: __u32,
-    pub flags: __u64,
-    pub __bindgen_anon_1: kvm_run__bindgen_ty_1__bindgen_ty_13__bindgen_ty_1,
-}
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub union kvm_run__bindgen_ty_1__bindgen_ty_13__bindgen_ty_1 {
-    pub __bindgen_anon_1: kvm_run__bindgen_ty_1__bindgen_ty_13__bindgen_ty_1__bindgen_ty_1,
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_run__bindgen_ty_1__bindgen_ty_13__bindgen_ty_1__bindgen_ty_1 {
-    pub insn_size: __u8,
-    pub insn_bytes: [__u8; 15usize],
-}
-#[test]
-fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_13__bindgen_ty_1__bindgen_ty_1() {
-    const UNINIT: ::std::mem::MaybeUninit<
-        kvm_run__bindgen_ty_1__bindgen_ty_13__bindgen_ty_1__bindgen_ty_1,
-    > = ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_run__bindgen_ty_1__bindgen_ty_13__bindgen_ty_1__bindgen_ty_1>(),
-        16usize,
-        concat!(
-            "Size of: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_13__bindgen_ty_1__bindgen_ty_1)
-        )
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_run__bindgen_ty_1__bindgen_ty_13__bindgen_ty_1__bindgen_ty_1>(),
-        1usize,
-        concat!(
-            "Alignment of ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_13__bindgen_ty_1__bindgen_ty_1)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).insn_size) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_13__bindgen_ty_1__bindgen_ty_1),
-            "::",
-            stringify!(insn_size)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).insn_bytes) as usize - ptr as usize },
-        1usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_13__bindgen_ty_1__bindgen_ty_1),
-            "::",
-            stringify!(insn_bytes)
-        )
-    );
-}
-#[test]
-fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_13__bindgen_ty_1() {
-    assert_eq!(
-        ::std::mem::size_of::<kvm_run__bindgen_ty_1__bindgen_ty_13__bindgen_ty_1>(),
-        16usize,
-        concat!(
-            "Size of: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_13__bindgen_ty_1)
-        )
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_run__bindgen_ty_1__bindgen_ty_13__bindgen_ty_1>(),
-        1usize,
-        concat!(
-            "Alignment of ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_13__bindgen_ty_1)
-        )
-    );
-}
-impl Default for kvm_run__bindgen_ty_1__bindgen_ty_13__bindgen_ty_1 {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-impl ::std::fmt::Debug for kvm_run__bindgen_ty_1__bindgen_ty_13__bindgen_ty_1 {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        write!(
-            f,
-            "kvm_run__bindgen_ty_1__bindgen_ty_13__bindgen_ty_1 {{ union }}"
-        )
-    }
+    pub data: [__u64; 16usize],
 }
 #[test]
 fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_13() {
@@ -6912,7 +8954,7 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_13() {
     let ptr = UNINIT.as_ptr();
     assert_eq!(
         ::std::mem::size_of::<kvm_run__bindgen_ty_1__bindgen_ty_13>(),
-        32usize,
+        136usize,
         concat!(
             "Size of: ",
             stringify!(kvm_run__bindgen_ty_1__bindgen_ty_13)
@@ -6947,17 +8989,98 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_13() {
         )
     );
     assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).flags) as usize - ptr as usize },
+        unsafe { ::std::ptr::addr_of!((*ptr).data) as usize - ptr as usize },
         8usize,
         concat!(
             "Offset of field: ",
             stringify!(kvm_run__bindgen_ty_1__bindgen_ty_13),
             "::",
-            stringify!(flags)
+            stringify!(data)
         )
     );
 }
-impl Default for kvm_run__bindgen_ty_1__bindgen_ty_13 {
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct kvm_run__bindgen_ty_1__bindgen_ty_14 {
+    pub suberror: __u32,
+    pub ndata: __u32,
+    pub flags: __u64,
+    pub __bindgen_anon_1: kvm_run__bindgen_ty_1__bindgen_ty_14__bindgen_ty_1,
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub union kvm_run__bindgen_ty_1__bindgen_ty_14__bindgen_ty_1 {
+    pub __bindgen_anon_1: kvm_run__bindgen_ty_1__bindgen_ty_14__bindgen_ty_1__bindgen_ty_1,
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
+pub struct kvm_run__bindgen_ty_1__bindgen_ty_14__bindgen_ty_1__bindgen_ty_1 {
+    pub insn_size: __u8,
+    pub insn_bytes: [__u8; 15usize],
+}
+#[test]
+fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_14__bindgen_ty_1__bindgen_ty_1() {
+    const UNINIT: ::std::mem::MaybeUninit<
+        kvm_run__bindgen_ty_1__bindgen_ty_14__bindgen_ty_1__bindgen_ty_1,
+    > = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<kvm_run__bindgen_ty_1__bindgen_ty_14__bindgen_ty_1__bindgen_ty_1>(),
+        16usize,
+        concat!(
+            "Size of: ",
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_14__bindgen_ty_1__bindgen_ty_1)
+        )
+    );
+    assert_eq!(
+        ::std::mem::align_of::<kvm_run__bindgen_ty_1__bindgen_ty_14__bindgen_ty_1__bindgen_ty_1>(),
+        1usize,
+        concat!(
+            "Alignment of ",
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_14__bindgen_ty_1__bindgen_ty_1)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).insn_size) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_14__bindgen_ty_1__bindgen_ty_1),
+            "::",
+            stringify!(insn_size)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).insn_bytes) as usize - ptr as usize },
+        1usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_14__bindgen_ty_1__bindgen_ty_1),
+            "::",
+            stringify!(insn_bytes)
+        )
+    );
+}
+#[test]
+fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_14__bindgen_ty_1() {
+    assert_eq!(
+        ::std::mem::size_of::<kvm_run__bindgen_ty_1__bindgen_ty_14__bindgen_ty_1>(),
+        16usize,
+        concat!(
+            "Size of: ",
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_14__bindgen_ty_1)
+        )
+    );
+    assert_eq!(
+        ::std::mem::align_of::<kvm_run__bindgen_ty_1__bindgen_ty_14__bindgen_ty_1>(),
+        1usize,
+        concat!(
+            "Alignment of ",
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_14__bindgen_ty_1)
+        )
+    );
+}
+impl Default for kvm_run__bindgen_ty_1__bindgen_ty_14__bindgen_ty_1 {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
         unsafe {
@@ -6966,15 +9089,13 @@ impl Default for kvm_run__bindgen_ty_1__bindgen_ty_13 {
         }
     }
 }
-impl ::std::fmt::Debug for kvm_run__bindgen_ty_1__bindgen_ty_13 {
+impl ::std::fmt::Debug for kvm_run__bindgen_ty_1__bindgen_ty_14__bindgen_ty_1 {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        write ! (f , "kvm_run__bindgen_ty_1__bindgen_ty_13 {{ suberror: {:?}, ndata: {:?}, flags: {:?}, __bindgen_anon_1: {:?} }}" , self . suberror , self . ndata , self . flags , self . __bindgen_anon_1)
+        write!(
+            f,
+            "kvm_run__bindgen_ty_1__bindgen_ty_14__bindgen_ty_1 {{ union }}"
+        )
     }
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_run__bindgen_ty_1__bindgen_ty_14 {
-    pub gprs: [__u64; 32usize],
 }
 #[test]
 fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_14() {
@@ -6983,7 +9104,7 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_14() {
     let ptr = UNINIT.as_ptr();
     assert_eq!(
         ::std::mem::size_of::<kvm_run__bindgen_ty_1__bindgen_ty_14>(),
-        256usize,
+        32usize,
         concat!(
             "Size of: ",
             stringify!(kvm_run__bindgen_ty_1__bindgen_ty_14)
@@ -6998,22 +9119,54 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_14() {
         )
     );
     assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).gprs) as usize - ptr as usize },
+        unsafe { ::std::ptr::addr_of!((*ptr).suberror) as usize - ptr as usize },
         0usize,
         concat!(
             "Offset of field: ",
             stringify!(kvm_run__bindgen_ty_1__bindgen_ty_14),
             "::",
-            stringify!(gprs)
+            stringify!(suberror)
         )
     );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).ndata) as usize - ptr as usize },
+        4usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_14),
+            "::",
+            stringify!(ndata)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).flags) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_14),
+            "::",
+            stringify!(flags)
+        )
+    );
+}
+impl Default for kvm_run__bindgen_ty_1__bindgen_ty_14 {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl ::std::fmt::Debug for kvm_run__bindgen_ty_1__bindgen_ty_14 {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        write ! (f , "kvm_run__bindgen_ty_1__bindgen_ty_14 {{ suberror: {:?}, ndata: {:?}, flags: {:?}, __bindgen_anon_1: {:?} }}" , self . suberror , self . ndata , self . flags , self . __bindgen_anon_1)
+    }
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct kvm_run__bindgen_ty_1__bindgen_ty_15 {
-    pub nr: __u64,
-    pub ret: __u64,
-    pub args: [__u64; 9usize],
+    pub gprs: [__u64; 32usize],
 }
 #[test]
 fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_15() {
@@ -7022,7 +9175,7 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_15() {
     let ptr = UNINIT.as_ptr();
     assert_eq!(
         ::std::mem::size_of::<kvm_run__bindgen_ty_1__bindgen_ty_15>(),
-        88usize,
+        256usize,
         concat!(
             "Size of: ",
             stringify!(kvm_run__bindgen_ty_1__bindgen_ty_15)
@@ -7037,11 +9190,50 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_15() {
         )
     );
     assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).nr) as usize - ptr as usize },
+        unsafe { ::std::ptr::addr_of!((*ptr).gprs) as usize - ptr as usize },
         0usize,
         concat!(
             "Offset of field: ",
             stringify!(kvm_run__bindgen_ty_1__bindgen_ty_15),
+            "::",
+            stringify!(gprs)
+        )
+    );
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
+pub struct kvm_run__bindgen_ty_1__bindgen_ty_16 {
+    pub nr: __u64,
+    pub ret: __u64,
+    pub args: [__u64; 9usize],
+}
+#[test]
+fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_16() {
+    const UNINIT: ::std::mem::MaybeUninit<kvm_run__bindgen_ty_1__bindgen_ty_16> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<kvm_run__bindgen_ty_1__bindgen_ty_16>(),
+        88usize,
+        concat!(
+            "Size of: ",
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_16)
+        )
+    );
+    assert_eq!(
+        ::std::mem::align_of::<kvm_run__bindgen_ty_1__bindgen_ty_16>(),
+        8usize,
+        concat!(
+            "Alignment of ",
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_16)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).nr) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_16),
             "::",
             stringify!(nr)
         )
@@ -7051,7 +9243,7 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_15() {
         8usize,
         concat!(
             "Offset of field: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_15),
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_16),
             "::",
             stringify!(ret)
         )
@@ -7061,7 +9253,7 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_15() {
         16usize,
         concat!(
             "Offset of field: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_15),
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_16),
             "::",
             stringify!(args)
         )
@@ -7069,7 +9261,7 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_15() {
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_run__bindgen_ty_1__bindgen_ty_16 {
+pub struct kvm_run__bindgen_ty_1__bindgen_ty_17 {
     pub subchannel_id: __u16,
     pub subchannel_nr: __u16,
     pub io_int_parm: __u32,
@@ -7078,100 +9270,13 @@ pub struct kvm_run__bindgen_ty_1__bindgen_ty_16 {
     pub dequeued: __u8,
 }
 #[test]
-fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_16() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_run__bindgen_ty_1__bindgen_ty_16> =
-        ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_run__bindgen_ty_1__bindgen_ty_16>(),
-        20usize,
-        concat!(
-            "Size of: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_16)
-        )
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_run__bindgen_ty_1__bindgen_ty_16>(),
-        4usize,
-        concat!(
-            "Alignment of ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_16)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).subchannel_id) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_16),
-            "::",
-            stringify!(subchannel_id)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).subchannel_nr) as usize - ptr as usize },
-        2usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_16),
-            "::",
-            stringify!(subchannel_nr)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).io_int_parm) as usize - ptr as usize },
-        4usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_16),
-            "::",
-            stringify!(io_int_parm)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).io_int_word) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_16),
-            "::",
-            stringify!(io_int_word)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).ipb) as usize - ptr as usize },
-        12usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_16),
-            "::",
-            stringify!(ipb)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).dequeued) as usize - ptr as usize },
-        16usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_16),
-            "::",
-            stringify!(dequeued)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_run__bindgen_ty_1__bindgen_ty_17 {
-    pub epr: __u32,
-}
-#[test]
 fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_17() {
     const UNINIT: ::std::mem::MaybeUninit<kvm_run__bindgen_ty_1__bindgen_ty_17> =
         ::std::mem::MaybeUninit::uninit();
     let ptr = UNINIT.as_ptr();
     assert_eq!(
         ::std::mem::size_of::<kvm_run__bindgen_ty_1__bindgen_ty_17>(),
-        4usize,
+        20usize,
         concat!(
             "Size of: ",
             stringify!(kvm_run__bindgen_ty_1__bindgen_ty_17)
@@ -7186,11 +9291,98 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_17() {
         )
     );
     assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).epr) as usize - ptr as usize },
+        unsafe { ::std::ptr::addr_of!((*ptr).subchannel_id) as usize - ptr as usize },
         0usize,
         concat!(
             "Offset of field: ",
             stringify!(kvm_run__bindgen_ty_1__bindgen_ty_17),
+            "::",
+            stringify!(subchannel_id)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).subchannel_nr) as usize - ptr as usize },
+        2usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_17),
+            "::",
+            stringify!(subchannel_nr)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).io_int_parm) as usize - ptr as usize },
+        4usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_17),
+            "::",
+            stringify!(io_int_parm)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).io_int_word) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_17),
+            "::",
+            stringify!(io_int_word)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).ipb) as usize - ptr as usize },
+        12usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_17),
+            "::",
+            stringify!(ipb)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).dequeued) as usize - ptr as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_17),
+            "::",
+            stringify!(dequeued)
+        )
+    );
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
+pub struct kvm_run__bindgen_ty_1__bindgen_ty_18 {
+    pub epr: __u32,
+}
+#[test]
+fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_18() {
+    const UNINIT: ::std::mem::MaybeUninit<kvm_run__bindgen_ty_1__bindgen_ty_18> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<kvm_run__bindgen_ty_1__bindgen_ty_18>(),
+        4usize,
+        concat!(
+            "Size of: ",
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_18)
+        )
+    );
+    assert_eq!(
+        ::std::mem::align_of::<kvm_run__bindgen_ty_1__bindgen_ty_18>(),
+        4usize,
+        concat!(
+            "Alignment of ",
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_18)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).epr) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_18),
             "::",
             stringify!(epr)
         )
@@ -7198,36 +9390,36 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_17() {
 }
 #[repr(C)]
 #[derive(Copy, Clone)]
-pub struct kvm_run__bindgen_ty_1__bindgen_ty_18 {
+pub struct kvm_run__bindgen_ty_1__bindgen_ty_19 {
     pub type_: __u32,
     pub ndata: __u32,
-    pub __bindgen_anon_1: kvm_run__bindgen_ty_1__bindgen_ty_18__bindgen_ty_1,
+    pub __bindgen_anon_1: kvm_run__bindgen_ty_1__bindgen_ty_19__bindgen_ty_1,
 }
 #[repr(C)]
 #[derive(Copy, Clone)]
-pub union kvm_run__bindgen_ty_1__bindgen_ty_18__bindgen_ty_1 {
+pub union kvm_run__bindgen_ty_1__bindgen_ty_19__bindgen_ty_1 {
     pub flags: __u64,
     pub data: [__u64; 16usize],
 }
 #[test]
-fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_18__bindgen_ty_1() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_run__bindgen_ty_1__bindgen_ty_18__bindgen_ty_1> =
+fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_19__bindgen_ty_1() {
+    const UNINIT: ::std::mem::MaybeUninit<kvm_run__bindgen_ty_1__bindgen_ty_19__bindgen_ty_1> =
         ::std::mem::MaybeUninit::uninit();
     let ptr = UNINIT.as_ptr();
     assert_eq!(
-        ::std::mem::size_of::<kvm_run__bindgen_ty_1__bindgen_ty_18__bindgen_ty_1>(),
+        ::std::mem::size_of::<kvm_run__bindgen_ty_1__bindgen_ty_19__bindgen_ty_1>(),
         128usize,
         concat!(
             "Size of: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_18__bindgen_ty_1)
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_19__bindgen_ty_1)
         )
     );
     assert_eq!(
-        ::std::mem::align_of::<kvm_run__bindgen_ty_1__bindgen_ty_18__bindgen_ty_1>(),
+        ::std::mem::align_of::<kvm_run__bindgen_ty_1__bindgen_ty_19__bindgen_ty_1>(),
         8usize,
         concat!(
             "Alignment of ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_18__bindgen_ty_1)
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_19__bindgen_ty_1)
         )
     );
     assert_eq!(
@@ -7235,7 +9427,7 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_18__bindgen_ty_1() {
         0usize,
         concat!(
             "Offset of field: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_18__bindgen_ty_1),
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_19__bindgen_ty_1),
             "::",
             stringify!(flags)
         )
@@ -7245,13 +9437,13 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_18__bindgen_ty_1() {
         0usize,
         concat!(
             "Offset of field: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_18__bindgen_ty_1),
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_19__bindgen_ty_1),
             "::",
             stringify!(data)
         )
     );
 }
-impl Default for kvm_run__bindgen_ty_1__bindgen_ty_18__bindgen_ty_1 {
+impl Default for kvm_run__bindgen_ty_1__bindgen_ty_19__bindgen_ty_1 {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
         unsafe {
@@ -7260,79 +9452,13 @@ impl Default for kvm_run__bindgen_ty_1__bindgen_ty_18__bindgen_ty_1 {
         }
     }
 }
-impl ::std::fmt::Debug for kvm_run__bindgen_ty_1__bindgen_ty_18__bindgen_ty_1 {
+impl ::std::fmt::Debug for kvm_run__bindgen_ty_1__bindgen_ty_19__bindgen_ty_1 {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         write!(
             f,
-            "kvm_run__bindgen_ty_1__bindgen_ty_18__bindgen_ty_1 {{ union }}"
+            "kvm_run__bindgen_ty_1__bindgen_ty_19__bindgen_ty_1 {{ union }}"
         )
     }
-}
-#[test]
-fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_18() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_run__bindgen_ty_1__bindgen_ty_18> =
-        ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_run__bindgen_ty_1__bindgen_ty_18>(),
-        136usize,
-        concat!(
-            "Size of: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_18)
-        )
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_run__bindgen_ty_1__bindgen_ty_18>(),
-        8usize,
-        concat!(
-            "Alignment of ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_18)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).type_) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_18),
-            "::",
-            stringify!(type_)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).ndata) as usize - ptr as usize },
-        4usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_18),
-            "::",
-            stringify!(ndata)
-        )
-    );
-}
-impl Default for kvm_run__bindgen_ty_1__bindgen_ty_18 {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-impl ::std::fmt::Debug for kvm_run__bindgen_ty_1__bindgen_ty_18 {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        write ! (f , "kvm_run__bindgen_ty_1__bindgen_ty_18 {{ type: {:?}, ndata: {:?}, __bindgen_anon_1: {:?} }}" , self . type_ , self . ndata , self . __bindgen_anon_1)
-    }
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_run__bindgen_ty_1__bindgen_ty_19 {
-    pub addr: __u64,
-    pub ar: __u8,
-    pub reserved: __u8,
-    pub fc: __u8,
-    pub sel1: __u8,
-    pub sel2: __u16,
 }
 #[test]
 fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_19() {
@@ -7341,7 +9467,7 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_19() {
     let ptr = UNINIT.as_ptr();
     assert_eq!(
         ::std::mem::size_of::<kvm_run__bindgen_ty_1__bindgen_ty_19>(),
-        16usize,
+        136usize,
         concat!(
             "Size of: ",
             stringify!(kvm_run__bindgen_ty_1__bindgen_ty_19)
@@ -7356,11 +9482,77 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_19() {
         )
     );
     assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).addr) as usize - ptr as usize },
+        unsafe { ::std::ptr::addr_of!((*ptr).type_) as usize - ptr as usize },
         0usize,
         concat!(
             "Offset of field: ",
             stringify!(kvm_run__bindgen_ty_1__bindgen_ty_19),
+            "::",
+            stringify!(type_)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).ndata) as usize - ptr as usize },
+        4usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_19),
+            "::",
+            stringify!(ndata)
+        )
+    );
+}
+impl Default for kvm_run__bindgen_ty_1__bindgen_ty_19 {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl ::std::fmt::Debug for kvm_run__bindgen_ty_1__bindgen_ty_19 {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        write ! (f , "kvm_run__bindgen_ty_1__bindgen_ty_19 {{ type: {:?}, ndata: {:?}, __bindgen_anon_1: {:?} }}" , self . type_ , self . ndata , self . __bindgen_anon_1)
+    }
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
+pub struct kvm_run__bindgen_ty_1__bindgen_ty_20 {
+    pub addr: __u64,
+    pub ar: __u8,
+    pub reserved: __u8,
+    pub fc: __u8,
+    pub sel1: __u8,
+    pub sel2: __u16,
+}
+#[test]
+fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_20() {
+    const UNINIT: ::std::mem::MaybeUninit<kvm_run__bindgen_ty_1__bindgen_ty_20> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<kvm_run__bindgen_ty_1__bindgen_ty_20>(),
+        16usize,
+        concat!(
+            "Size of: ",
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_20)
+        )
+    );
+    assert_eq!(
+        ::std::mem::align_of::<kvm_run__bindgen_ty_1__bindgen_ty_20>(),
+        8usize,
+        concat!(
+            "Alignment of ",
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_20)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).addr) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_20),
             "::",
             stringify!(addr)
         )
@@ -7370,7 +9562,7 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_19() {
         8usize,
         concat!(
             "Offset of field: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_19),
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_20),
             "::",
             stringify!(ar)
         )
@@ -7380,7 +9572,7 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_19() {
         9usize,
         concat!(
             "Offset of field: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_19),
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_20),
             "::",
             stringify!(reserved)
         )
@@ -7390,7 +9582,7 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_19() {
         10usize,
         concat!(
             "Offset of field: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_19),
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_20),
             "::",
             stringify!(fc)
         )
@@ -7400,7 +9592,7 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_19() {
         11usize,
         concat!(
             "Offset of field: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_19),
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_20),
             "::",
             stringify!(sel1)
         )
@@ -7410,7 +9602,7 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_19() {
         12usize,
         concat!(
             "Offset of field: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_19),
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_20),
             "::",
             stringify!(sel2)
         )
@@ -7418,46 +9610,8 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_19() {
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_run__bindgen_ty_1__bindgen_ty_20 {
-    pub vector: __u8,
-}
-#[test]
-fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_20() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_run__bindgen_ty_1__bindgen_ty_20> =
-        ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_run__bindgen_ty_1__bindgen_ty_20>(),
-        1usize,
-        concat!(
-            "Size of: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_20)
-        )
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_run__bindgen_ty_1__bindgen_ty_20>(),
-        1usize,
-        concat!(
-            "Alignment of ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_20)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).vector) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_20),
-            "::",
-            stringify!(vector)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct kvm_run__bindgen_ty_1__bindgen_ty_21 {
-    pub esr_iss: __u64,
-    pub fault_ipa: __u64,
+    pub vector: __u8,
 }
 #[test]
 fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_21() {
@@ -7466,7 +9620,7 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_21() {
     let ptr = UNINIT.as_ptr();
     assert_eq!(
         ::std::mem::size_of::<kvm_run__bindgen_ty_1__bindgen_ty_21>(),
-        16usize,
+        1usize,
         concat!(
             "Size of: ",
             stringify!(kvm_run__bindgen_ty_1__bindgen_ty_21)
@@ -7474,41 +9628,28 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_21() {
     );
     assert_eq!(
         ::std::mem::align_of::<kvm_run__bindgen_ty_1__bindgen_ty_21>(),
-        8usize,
+        1usize,
         concat!(
             "Alignment of ",
             stringify!(kvm_run__bindgen_ty_1__bindgen_ty_21)
         )
     );
     assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).esr_iss) as usize - ptr as usize },
+        unsafe { ::std::ptr::addr_of!((*ptr).vector) as usize - ptr as usize },
         0usize,
         concat!(
             "Offset of field: ",
             stringify!(kvm_run__bindgen_ty_1__bindgen_ty_21),
             "::",
-            stringify!(esr_iss)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).fault_ipa) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_21),
-            "::",
-            stringify!(fault_ipa)
+            stringify!(vector)
         )
     );
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct kvm_run__bindgen_ty_1__bindgen_ty_22 {
-    pub error: __u8,
-    pub pad: [__u8; 7usize],
-    pub reason: __u32,
-    pub index: __u32,
-    pub data: __u64,
+    pub esr_iss: __u64,
+    pub fault_ipa: __u64,
 }
 #[test]
 fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_22() {
@@ -7517,7 +9658,7 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_22() {
     let ptr = UNINIT.as_ptr();
     assert_eq!(
         ::std::mem::size_of::<kvm_run__bindgen_ty_1__bindgen_ty_22>(),
-        24usize,
+        16usize,
         concat!(
             "Size of: ",
             stringify!(kvm_run__bindgen_ty_1__bindgen_ty_22)
@@ -7532,63 +9673,34 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_22() {
         )
     );
     assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).error) as usize - ptr as usize },
+        unsafe { ::std::ptr::addr_of!((*ptr).esr_iss) as usize - ptr as usize },
         0usize,
         concat!(
             "Offset of field: ",
             stringify!(kvm_run__bindgen_ty_1__bindgen_ty_22),
             "::",
-            stringify!(error)
+            stringify!(esr_iss)
         )
     );
     assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).pad) as usize - ptr as usize },
-        1usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_22),
-            "::",
-            stringify!(pad)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).reason) as usize - ptr as usize },
+        unsafe { ::std::ptr::addr_of!((*ptr).fault_ipa) as usize - ptr as usize },
         8usize,
         concat!(
             "Offset of field: ",
             stringify!(kvm_run__bindgen_ty_1__bindgen_ty_22),
             "::",
-            stringify!(reason)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).index) as usize - ptr as usize },
-        12usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_22),
-            "::",
-            stringify!(index)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).data) as usize - ptr as usize },
-        16usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_22),
-            "::",
-            stringify!(data)
+            stringify!(fault_ipa)
         )
     );
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct kvm_run__bindgen_ty_1__bindgen_ty_23 {
-    pub extension_id: ::std::os::raw::c_ulong,
-    pub function_id: ::std::os::raw::c_ulong,
-    pub args: [::std::os::raw::c_ulong; 6usize],
-    pub ret: [::std::os::raw::c_ulong; 2usize],
+    pub error: __u8,
+    pub pad: [__u8; 7usize],
+    pub reason: __u32,
+    pub index: __u32,
+    pub data: __u64,
 }
 #[test]
 fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_23() {
@@ -7597,7 +9709,7 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_23() {
     let ptr = UNINIT.as_ptr();
     assert_eq!(
         ::std::mem::size_of::<kvm_run__bindgen_ty_1__bindgen_ty_23>(),
-        80usize,
+        24usize,
         concat!(
             "Size of: ",
             stringify!(kvm_run__bindgen_ty_1__bindgen_ty_23)
@@ -7612,53 +9724,63 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_23() {
         )
     );
     assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).extension_id) as usize - ptr as usize },
+        unsafe { ::std::ptr::addr_of!((*ptr).error) as usize - ptr as usize },
         0usize,
         concat!(
             "Offset of field: ",
             stringify!(kvm_run__bindgen_ty_1__bindgen_ty_23),
             "::",
-            stringify!(extension_id)
+            stringify!(error)
         )
     );
     assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).function_id) as usize - ptr as usize },
+        unsafe { ::std::ptr::addr_of!((*ptr).pad) as usize - ptr as usize },
+        1usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_23),
+            "::",
+            stringify!(pad)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).reason) as usize - ptr as usize },
         8usize,
         concat!(
             "Offset of field: ",
             stringify!(kvm_run__bindgen_ty_1__bindgen_ty_23),
             "::",
-            stringify!(function_id)
+            stringify!(reason)
         )
     );
     assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).args) as usize - ptr as usize },
+        unsafe { ::std::ptr::addr_of!((*ptr).index) as usize - ptr as usize },
+        12usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_23),
+            "::",
+            stringify!(index)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).data) as usize - ptr as usize },
         16usize,
         concat!(
             "Offset of field: ",
             stringify!(kvm_run__bindgen_ty_1__bindgen_ty_23),
             "::",
-            stringify!(args)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).ret) as usize - ptr as usize },
-        64usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_23),
-            "::",
-            stringify!(ret)
+            stringify!(data)
         )
     );
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct kvm_run__bindgen_ty_1__bindgen_ty_24 {
-    pub csr_num: ::std::os::raw::c_ulong,
-    pub new_value: ::std::os::raw::c_ulong,
-    pub write_mask: ::std::os::raw::c_ulong,
-    pub ret_value: ::std::os::raw::c_ulong,
+    pub extension_id: ::std::os::raw::c_ulong,
+    pub function_id: ::std::os::raw::c_ulong,
+    pub args: [::std::os::raw::c_ulong; 6usize],
+    pub ret: [::std::os::raw::c_ulong; 2usize],
 }
 #[test]
 fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_24() {
@@ -7667,7 +9789,7 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_24() {
     let ptr = UNINIT.as_ptr();
     assert_eq!(
         ::std::mem::size_of::<kvm_run__bindgen_ty_1__bindgen_ty_24>(),
-        32usize,
+        80usize,
         concat!(
             "Size of: ",
             stringify!(kvm_run__bindgen_ty_1__bindgen_ty_24)
@@ -7682,11 +9804,81 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_24() {
         )
     );
     assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).csr_num) as usize - ptr as usize },
+        unsafe { ::std::ptr::addr_of!((*ptr).extension_id) as usize - ptr as usize },
         0usize,
         concat!(
             "Offset of field: ",
             stringify!(kvm_run__bindgen_ty_1__bindgen_ty_24),
+            "::",
+            stringify!(extension_id)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).function_id) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_24),
+            "::",
+            stringify!(function_id)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).args) as usize - ptr as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_24),
+            "::",
+            stringify!(args)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).ret) as usize - ptr as usize },
+        64usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_24),
+            "::",
+            stringify!(ret)
+        )
+    );
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
+pub struct kvm_run__bindgen_ty_1__bindgen_ty_25 {
+    pub csr_num: ::std::os::raw::c_ulong,
+    pub new_value: ::std::os::raw::c_ulong,
+    pub write_mask: ::std::os::raw::c_ulong,
+    pub ret_value: ::std::os::raw::c_ulong,
+}
+#[test]
+fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_25() {
+    const UNINIT: ::std::mem::MaybeUninit<kvm_run__bindgen_ty_1__bindgen_ty_25> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<kvm_run__bindgen_ty_1__bindgen_ty_25>(),
+        32usize,
+        concat!(
+            "Size of: ",
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_25)
+        )
+    );
+    assert_eq!(
+        ::std::mem::align_of::<kvm_run__bindgen_ty_1__bindgen_ty_25>(),
+        8usize,
+        concat!(
+            "Alignment of ",
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_25)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).csr_num) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_25),
             "::",
             stringify!(csr_num)
         )
@@ -7696,7 +9888,7 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_24() {
         8usize,
         concat!(
             "Offset of field: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_24),
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_25),
             "::",
             stringify!(new_value)
         )
@@ -7706,7 +9898,7 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_24() {
         16usize,
         concat!(
             "Offset of field: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_24),
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_25),
             "::",
             stringify!(write_mask)
         )
@@ -7716,7 +9908,7 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_24() {
         24usize,
         concat!(
             "Offset of field: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_24),
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_25),
             "::",
             stringify!(ret_value)
         )
@@ -7724,28 +9916,28 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_24() {
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_run__bindgen_ty_1__bindgen_ty_25 {
+pub struct kvm_run__bindgen_ty_1__bindgen_ty_26 {
     pub flags: __u32,
 }
 #[test]
-fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_25() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_run__bindgen_ty_1__bindgen_ty_25> =
+fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_26() {
+    const UNINIT: ::std::mem::MaybeUninit<kvm_run__bindgen_ty_1__bindgen_ty_26> =
         ::std::mem::MaybeUninit::uninit();
     let ptr = UNINIT.as_ptr();
     assert_eq!(
-        ::std::mem::size_of::<kvm_run__bindgen_ty_1__bindgen_ty_25>(),
+        ::std::mem::size_of::<kvm_run__bindgen_ty_1__bindgen_ty_26>(),
         4usize,
         concat!(
             "Size of: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_25)
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_26)
         )
     );
     assert_eq!(
-        ::std::mem::align_of::<kvm_run__bindgen_ty_1__bindgen_ty_25>(),
+        ::std::mem::align_of::<kvm_run__bindgen_ty_1__bindgen_ty_26>(),
         4usize,
         concat!(
             "Alignment of ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_25)
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_26)
         )
     );
     assert_eq!(
@@ -7753,9 +9945,68 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_25() {
         0usize,
         concat!(
             "Offset of field: ",
-            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_25),
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_26),
             "::",
             stringify!(flags)
+        )
+    );
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
+pub struct kvm_run__bindgen_ty_1__bindgen_ty_27 {
+    pub flags: __u64,
+    pub gpa: __u64,
+    pub size: __u64,
+}
+#[test]
+fn bindgen_test_layout_kvm_run__bindgen_ty_1__bindgen_ty_27() {
+    const UNINIT: ::std::mem::MaybeUninit<kvm_run__bindgen_ty_1__bindgen_ty_27> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<kvm_run__bindgen_ty_1__bindgen_ty_27>(),
+        24usize,
+        concat!(
+            "Size of: ",
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_27)
+        )
+    );
+    assert_eq!(
+        ::std::mem::align_of::<kvm_run__bindgen_ty_1__bindgen_ty_27>(),
+        8usize,
+        concat!(
+            "Alignment of ",
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_27)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).flags) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_27),
+            "::",
+            stringify!(flags)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).gpa) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_27),
+            "::",
+            stringify!(gpa)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).size) as usize - ptr as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_run__bindgen_ty_1__bindgen_ty_27),
+            "::",
+            stringify!(size)
         )
     );
 }
@@ -7832,6 +10083,16 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1() {
             stringify!(kvm_run__bindgen_ty_1),
             "::",
             stringify!(mmio)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).iocsr_io) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_run__bindgen_ty_1),
+            "::",
+            stringify!(iocsr_io)
         )
     );
     assert_eq!(
@@ -8052,6 +10313,16 @@ fn bindgen_test_layout_kvm_run__bindgen_ty_1() {
             stringify!(kvm_run__bindgen_ty_1),
             "::",
             stringify!(notify)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).memory_fault) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_run__bindgen_ty_1),
+            "::",
+            stringify!(memory_fault)
         )
     );
     assert_eq!(
@@ -8691,200 +10962,6 @@ fn bindgen_test_layout_kvm_translation() {
     );
 }
 #[repr(C)]
-#[derive(Copy, Clone)]
-pub struct kvm_s390_mem_op {
-    pub gaddr: __u64,
-    pub flags: __u64,
-    pub size: __u32,
-    pub op: __u32,
-    pub buf: __u64,
-    pub __bindgen_anon_1: kvm_s390_mem_op__bindgen_ty_1,
-}
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub union kvm_s390_mem_op__bindgen_ty_1 {
-    pub __bindgen_anon_1: kvm_s390_mem_op__bindgen_ty_1__bindgen_ty_1,
-    pub sida_offset: __u32,
-    pub reserved: [__u8; 32usize],
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_s390_mem_op__bindgen_ty_1__bindgen_ty_1 {
-    pub ar: __u8,
-    pub key: __u8,
-}
-#[test]
-fn bindgen_test_layout_kvm_s390_mem_op__bindgen_ty_1__bindgen_ty_1() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_s390_mem_op__bindgen_ty_1__bindgen_ty_1> =
-        ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_s390_mem_op__bindgen_ty_1__bindgen_ty_1>(),
-        2usize,
-        concat!(
-            "Size of: ",
-            stringify!(kvm_s390_mem_op__bindgen_ty_1__bindgen_ty_1)
-        )
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_s390_mem_op__bindgen_ty_1__bindgen_ty_1>(),
-        1usize,
-        concat!(
-            "Alignment of ",
-            stringify!(kvm_s390_mem_op__bindgen_ty_1__bindgen_ty_1)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).ar) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_mem_op__bindgen_ty_1__bindgen_ty_1),
-            "::",
-            stringify!(ar)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).key) as usize - ptr as usize },
-        1usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_mem_op__bindgen_ty_1__bindgen_ty_1),
-            "::",
-            stringify!(key)
-        )
-    );
-}
-#[test]
-fn bindgen_test_layout_kvm_s390_mem_op__bindgen_ty_1() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_s390_mem_op__bindgen_ty_1> =
-        ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_s390_mem_op__bindgen_ty_1>(),
-        32usize,
-        concat!("Size of: ", stringify!(kvm_s390_mem_op__bindgen_ty_1))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_s390_mem_op__bindgen_ty_1>(),
-        4usize,
-        concat!("Alignment of ", stringify!(kvm_s390_mem_op__bindgen_ty_1))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).sida_offset) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_mem_op__bindgen_ty_1),
-            "::",
-            stringify!(sida_offset)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).reserved) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_mem_op__bindgen_ty_1),
-            "::",
-            stringify!(reserved)
-        )
-    );
-}
-impl Default for kvm_s390_mem_op__bindgen_ty_1 {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-impl ::std::fmt::Debug for kvm_s390_mem_op__bindgen_ty_1 {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        write!(f, "kvm_s390_mem_op__bindgen_ty_1 {{ union }}")
-    }
-}
-#[test]
-fn bindgen_test_layout_kvm_s390_mem_op() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_s390_mem_op> = ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_s390_mem_op>(),
-        64usize,
-        concat!("Size of: ", stringify!(kvm_s390_mem_op))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_s390_mem_op>(),
-        8usize,
-        concat!("Alignment of ", stringify!(kvm_s390_mem_op))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).gaddr) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_mem_op),
-            "::",
-            stringify!(gaddr)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).flags) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_mem_op),
-            "::",
-            stringify!(flags)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).size) as usize - ptr as usize },
-        16usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_mem_op),
-            "::",
-            stringify!(size)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).op) as usize - ptr as usize },
-        20usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_mem_op),
-            "::",
-            stringify!(op)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).buf) as usize - ptr as usize },
-        24usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_mem_op),
-            "::",
-            stringify!(buf)
-        )
-    );
-}
-impl Default for kvm_s390_mem_op {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-impl ::std::fmt::Debug for kvm_s390_mem_op {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        write ! (f , "kvm_s390_mem_op {{ gaddr: {:?}, flags: {:?}, size: {:?}, op: {:?}, buf: {:?}, __bindgen_anon_1: {:?} }}" , self . gaddr , self . flags , self . size , self . op , self . buf , self . __bindgen_anon_1)
-    }
-}
-#[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct kvm_interrupt {
     pub irq: __u32,
@@ -9315,837 +11392,6 @@ fn bindgen_test_layout_kvm_mp_state() {
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_s390_psw {
-    pub mask: __u64,
-    pub addr: __u64,
-}
-#[test]
-fn bindgen_test_layout_kvm_s390_psw() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_s390_psw> = ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_s390_psw>(),
-        16usize,
-        concat!("Size of: ", stringify!(kvm_s390_psw))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_s390_psw>(),
-        8usize,
-        concat!("Alignment of ", stringify!(kvm_s390_psw))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).mask) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_psw),
-            "::",
-            stringify!(mask)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).addr) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_psw),
-            "::",
-            stringify!(addr)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_s390_interrupt {
-    pub type_: __u32,
-    pub parm: __u32,
-    pub parm64: __u64,
-}
-#[test]
-fn bindgen_test_layout_kvm_s390_interrupt() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_s390_interrupt> = ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_s390_interrupt>(),
-        16usize,
-        concat!("Size of: ", stringify!(kvm_s390_interrupt))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_s390_interrupt>(),
-        8usize,
-        concat!("Alignment of ", stringify!(kvm_s390_interrupt))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).type_) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_interrupt),
-            "::",
-            stringify!(type_)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).parm) as usize - ptr as usize },
-        4usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_interrupt),
-            "::",
-            stringify!(parm)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).parm64) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_interrupt),
-            "::",
-            stringify!(parm64)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_s390_io_info {
-    pub subchannel_id: __u16,
-    pub subchannel_nr: __u16,
-    pub io_int_parm: __u32,
-    pub io_int_word: __u32,
-}
-#[test]
-fn bindgen_test_layout_kvm_s390_io_info() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_s390_io_info> = ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_s390_io_info>(),
-        12usize,
-        concat!("Size of: ", stringify!(kvm_s390_io_info))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_s390_io_info>(),
-        4usize,
-        concat!("Alignment of ", stringify!(kvm_s390_io_info))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).subchannel_id) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_io_info),
-            "::",
-            stringify!(subchannel_id)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).subchannel_nr) as usize - ptr as usize },
-        2usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_io_info),
-            "::",
-            stringify!(subchannel_nr)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).io_int_parm) as usize - ptr as usize },
-        4usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_io_info),
-            "::",
-            stringify!(io_int_parm)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).io_int_word) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_io_info),
-            "::",
-            stringify!(io_int_word)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_s390_ext_info {
-    pub ext_params: __u32,
-    pub pad: __u32,
-    pub ext_params2: __u64,
-}
-#[test]
-fn bindgen_test_layout_kvm_s390_ext_info() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_s390_ext_info> = ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_s390_ext_info>(),
-        16usize,
-        concat!("Size of: ", stringify!(kvm_s390_ext_info))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_s390_ext_info>(),
-        8usize,
-        concat!("Alignment of ", stringify!(kvm_s390_ext_info))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).ext_params) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_ext_info),
-            "::",
-            stringify!(ext_params)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).pad) as usize - ptr as usize },
-        4usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_ext_info),
-            "::",
-            stringify!(pad)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).ext_params2) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_ext_info),
-            "::",
-            stringify!(ext_params2)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_s390_pgm_info {
-    pub trans_exc_code: __u64,
-    pub mon_code: __u64,
-    pub per_address: __u64,
-    pub data_exc_code: __u32,
-    pub code: __u16,
-    pub mon_class_nr: __u16,
-    pub per_code: __u8,
-    pub per_atmid: __u8,
-    pub exc_access_id: __u8,
-    pub per_access_id: __u8,
-    pub op_access_id: __u8,
-    pub flags: __u8,
-    pub pad: [__u8; 2usize],
-}
-#[test]
-fn bindgen_test_layout_kvm_s390_pgm_info() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_s390_pgm_info> = ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_s390_pgm_info>(),
-        40usize,
-        concat!("Size of: ", stringify!(kvm_s390_pgm_info))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_s390_pgm_info>(),
-        8usize,
-        concat!("Alignment of ", stringify!(kvm_s390_pgm_info))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).trans_exc_code) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_pgm_info),
-            "::",
-            stringify!(trans_exc_code)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).mon_code) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_pgm_info),
-            "::",
-            stringify!(mon_code)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).per_address) as usize - ptr as usize },
-        16usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_pgm_info),
-            "::",
-            stringify!(per_address)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).data_exc_code) as usize - ptr as usize },
-        24usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_pgm_info),
-            "::",
-            stringify!(data_exc_code)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).code) as usize - ptr as usize },
-        28usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_pgm_info),
-            "::",
-            stringify!(code)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).mon_class_nr) as usize - ptr as usize },
-        30usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_pgm_info),
-            "::",
-            stringify!(mon_class_nr)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).per_code) as usize - ptr as usize },
-        32usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_pgm_info),
-            "::",
-            stringify!(per_code)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).per_atmid) as usize - ptr as usize },
-        33usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_pgm_info),
-            "::",
-            stringify!(per_atmid)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).exc_access_id) as usize - ptr as usize },
-        34usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_pgm_info),
-            "::",
-            stringify!(exc_access_id)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).per_access_id) as usize - ptr as usize },
-        35usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_pgm_info),
-            "::",
-            stringify!(per_access_id)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).op_access_id) as usize - ptr as usize },
-        36usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_pgm_info),
-            "::",
-            stringify!(op_access_id)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).flags) as usize - ptr as usize },
-        37usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_pgm_info),
-            "::",
-            stringify!(flags)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).pad) as usize - ptr as usize },
-        38usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_pgm_info),
-            "::",
-            stringify!(pad)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_s390_prefix_info {
-    pub address: __u32,
-}
-#[test]
-fn bindgen_test_layout_kvm_s390_prefix_info() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_s390_prefix_info> = ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_s390_prefix_info>(),
-        4usize,
-        concat!("Size of: ", stringify!(kvm_s390_prefix_info))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_s390_prefix_info>(),
-        4usize,
-        concat!("Alignment of ", stringify!(kvm_s390_prefix_info))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).address) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_prefix_info),
-            "::",
-            stringify!(address)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_s390_extcall_info {
-    pub code: __u16,
-}
-#[test]
-fn bindgen_test_layout_kvm_s390_extcall_info() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_s390_extcall_info> =
-        ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_s390_extcall_info>(),
-        2usize,
-        concat!("Size of: ", stringify!(kvm_s390_extcall_info))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_s390_extcall_info>(),
-        2usize,
-        concat!("Alignment of ", stringify!(kvm_s390_extcall_info))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).code) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_extcall_info),
-            "::",
-            stringify!(code)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_s390_emerg_info {
-    pub code: __u16,
-}
-#[test]
-fn bindgen_test_layout_kvm_s390_emerg_info() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_s390_emerg_info> = ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_s390_emerg_info>(),
-        2usize,
-        concat!("Size of: ", stringify!(kvm_s390_emerg_info))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_s390_emerg_info>(),
-        2usize,
-        concat!("Alignment of ", stringify!(kvm_s390_emerg_info))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).code) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_emerg_info),
-            "::",
-            stringify!(code)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_s390_stop_info {
-    pub flags: __u32,
-}
-#[test]
-fn bindgen_test_layout_kvm_s390_stop_info() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_s390_stop_info> = ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_s390_stop_info>(),
-        4usize,
-        concat!("Size of: ", stringify!(kvm_s390_stop_info))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_s390_stop_info>(),
-        4usize,
-        concat!("Alignment of ", stringify!(kvm_s390_stop_info))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).flags) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_stop_info),
-            "::",
-            stringify!(flags)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_s390_mchk_info {
-    pub cr14: __u64,
-    pub mcic: __u64,
-    pub failing_storage_address: __u64,
-    pub ext_damage_code: __u32,
-    pub pad: __u32,
-    pub fixed_logout: [__u8; 16usize],
-}
-#[test]
-fn bindgen_test_layout_kvm_s390_mchk_info() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_s390_mchk_info> = ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_s390_mchk_info>(),
-        48usize,
-        concat!("Size of: ", stringify!(kvm_s390_mchk_info))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_s390_mchk_info>(),
-        8usize,
-        concat!("Alignment of ", stringify!(kvm_s390_mchk_info))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).cr14) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_mchk_info),
-            "::",
-            stringify!(cr14)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).mcic) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_mchk_info),
-            "::",
-            stringify!(mcic)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).failing_storage_address) as usize - ptr as usize },
-        16usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_mchk_info),
-            "::",
-            stringify!(failing_storage_address)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).ext_damage_code) as usize - ptr as usize },
-        24usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_mchk_info),
-            "::",
-            stringify!(ext_damage_code)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).pad) as usize - ptr as usize },
-        28usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_mchk_info),
-            "::",
-            stringify!(pad)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).fixed_logout) as usize - ptr as usize },
-        32usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_mchk_info),
-            "::",
-            stringify!(fixed_logout)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct kvm_s390_irq {
-    pub type_: __u64,
-    pub u: kvm_s390_irq__bindgen_ty_1,
-}
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub union kvm_s390_irq__bindgen_ty_1 {
-    pub io: kvm_s390_io_info,
-    pub ext: kvm_s390_ext_info,
-    pub pgm: kvm_s390_pgm_info,
-    pub emerg: kvm_s390_emerg_info,
-    pub extcall: kvm_s390_extcall_info,
-    pub prefix: kvm_s390_prefix_info,
-    pub stop: kvm_s390_stop_info,
-    pub mchk: kvm_s390_mchk_info,
-    pub reserved: [::std::os::raw::c_char; 64usize],
-}
-#[test]
-fn bindgen_test_layout_kvm_s390_irq__bindgen_ty_1() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_s390_irq__bindgen_ty_1> =
-        ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_s390_irq__bindgen_ty_1>(),
-        64usize,
-        concat!("Size of: ", stringify!(kvm_s390_irq__bindgen_ty_1))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_s390_irq__bindgen_ty_1>(),
-        8usize,
-        concat!("Alignment of ", stringify!(kvm_s390_irq__bindgen_ty_1))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).io) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_irq__bindgen_ty_1),
-            "::",
-            stringify!(io)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).ext) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_irq__bindgen_ty_1),
-            "::",
-            stringify!(ext)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).pgm) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_irq__bindgen_ty_1),
-            "::",
-            stringify!(pgm)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).emerg) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_irq__bindgen_ty_1),
-            "::",
-            stringify!(emerg)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).extcall) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_irq__bindgen_ty_1),
-            "::",
-            stringify!(extcall)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).prefix) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_irq__bindgen_ty_1),
-            "::",
-            stringify!(prefix)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).stop) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_irq__bindgen_ty_1),
-            "::",
-            stringify!(stop)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).mchk) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_irq__bindgen_ty_1),
-            "::",
-            stringify!(mchk)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).reserved) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_irq__bindgen_ty_1),
-            "::",
-            stringify!(reserved)
-        )
-    );
-}
-impl Default for kvm_s390_irq__bindgen_ty_1 {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-impl ::std::fmt::Debug for kvm_s390_irq__bindgen_ty_1 {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        write!(f, "kvm_s390_irq__bindgen_ty_1 {{ union }}")
-    }
-}
-#[test]
-fn bindgen_test_layout_kvm_s390_irq() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_s390_irq> = ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_s390_irq>(),
-        72usize,
-        concat!("Size of: ", stringify!(kvm_s390_irq))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_s390_irq>(),
-        8usize,
-        concat!("Alignment of ", stringify!(kvm_s390_irq))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).type_) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_irq),
-            "::",
-            stringify!(type_)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).u) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_irq),
-            "::",
-            stringify!(u)
-        )
-    );
-}
-impl Default for kvm_s390_irq {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-impl ::std::fmt::Debug for kvm_s390_irq {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        write!(
-            f,
-            "kvm_s390_irq {{ type: {:?}, u: {:?} }}",
-            self.type_, self.u
-        )
-    }
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_s390_irq_state {
-    pub buf: __u64,
-    pub flags: __u32,
-    pub len: __u32,
-    pub reserved: [__u32; 4usize],
-}
-#[test]
-fn bindgen_test_layout_kvm_s390_irq_state() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_s390_irq_state> = ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_s390_irq_state>(),
-        32usize,
-        concat!("Size of: ", stringify!(kvm_s390_irq_state))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_s390_irq_state>(),
-        8usize,
-        concat!("Alignment of ", stringify!(kvm_s390_irq_state))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).buf) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_irq_state),
-            "::",
-            stringify!(buf)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).flags) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_irq_state),
-            "::",
-            stringify!(flags)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).len) as usize - ptr as usize },
-        12usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_irq_state),
-            "::",
-            stringify!(len)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).reserved) as usize - ptr as usize },
-        16usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_irq_state),
-            "::",
-            stringify!(reserved)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct kvm_guest_debug {
     pub control: __u32,
     pub pad: __u32,
@@ -10368,288 +11614,6 @@ impl Default for kvm_enable_cap {
             s.assume_init()
         }
     }
-}
-#[repr(C)]
-#[derive(Debug, Copy, Clone, PartialEq)]
-pub struct kvm_ppc_pvinfo {
-    pub flags: __u32,
-    pub hcall: [__u32; 4usize],
-    pub pad: [__u8; 108usize],
-}
-#[test]
-fn bindgen_test_layout_kvm_ppc_pvinfo() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_ppc_pvinfo> = ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_ppc_pvinfo>(),
-        128usize,
-        concat!("Size of: ", stringify!(kvm_ppc_pvinfo))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_ppc_pvinfo>(),
-        4usize,
-        concat!("Alignment of ", stringify!(kvm_ppc_pvinfo))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).flags) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_ppc_pvinfo),
-            "::",
-            stringify!(flags)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).hcall) as usize - ptr as usize },
-        4usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_ppc_pvinfo),
-            "::",
-            stringify!(hcall)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).pad) as usize - ptr as usize },
-        20usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_ppc_pvinfo),
-            "::",
-            stringify!(pad)
-        )
-    );
-}
-impl Default for kvm_ppc_pvinfo {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_ppc_one_page_size {
-    pub page_shift: __u32,
-    pub pte_enc: __u32,
-}
-#[test]
-fn bindgen_test_layout_kvm_ppc_one_page_size() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_ppc_one_page_size> =
-        ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_ppc_one_page_size>(),
-        8usize,
-        concat!("Size of: ", stringify!(kvm_ppc_one_page_size))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_ppc_one_page_size>(),
-        4usize,
-        concat!("Alignment of ", stringify!(kvm_ppc_one_page_size))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).page_shift) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_ppc_one_page_size),
-            "::",
-            stringify!(page_shift)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).pte_enc) as usize - ptr as usize },
-        4usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_ppc_one_page_size),
-            "::",
-            stringify!(pte_enc)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_ppc_one_seg_page_size {
-    pub page_shift: __u32,
-    pub slb_enc: __u32,
-    pub enc: [kvm_ppc_one_page_size; 8usize],
-}
-#[test]
-fn bindgen_test_layout_kvm_ppc_one_seg_page_size() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_ppc_one_seg_page_size> =
-        ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_ppc_one_seg_page_size>(),
-        72usize,
-        concat!("Size of: ", stringify!(kvm_ppc_one_seg_page_size))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_ppc_one_seg_page_size>(),
-        4usize,
-        concat!("Alignment of ", stringify!(kvm_ppc_one_seg_page_size))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).page_shift) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_ppc_one_seg_page_size),
-            "::",
-            stringify!(page_shift)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).slb_enc) as usize - ptr as usize },
-        4usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_ppc_one_seg_page_size),
-            "::",
-            stringify!(slb_enc)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).enc) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_ppc_one_seg_page_size),
-            "::",
-            stringify!(enc)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_ppc_smmu_info {
-    pub flags: __u64,
-    pub slb_size: __u32,
-    pub data_keys: __u16,
-    pub instr_keys: __u16,
-    pub sps: [kvm_ppc_one_seg_page_size; 8usize],
-}
-#[test]
-fn bindgen_test_layout_kvm_ppc_smmu_info() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_ppc_smmu_info> = ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_ppc_smmu_info>(),
-        592usize,
-        concat!("Size of: ", stringify!(kvm_ppc_smmu_info))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_ppc_smmu_info>(),
-        8usize,
-        concat!("Alignment of ", stringify!(kvm_ppc_smmu_info))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).flags) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_ppc_smmu_info),
-            "::",
-            stringify!(flags)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).slb_size) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_ppc_smmu_info),
-            "::",
-            stringify!(slb_size)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).data_keys) as usize - ptr as usize },
-        12usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_ppc_smmu_info),
-            "::",
-            stringify!(data_keys)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).instr_keys) as usize - ptr as usize },
-        14usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_ppc_smmu_info),
-            "::",
-            stringify!(instr_keys)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).sps) as usize - ptr as usize },
-        16usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_ppc_smmu_info),
-            "::",
-            stringify!(sps)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_ppc_resize_hpt {
-    pub flags: __u64,
-    pub shift: __u32,
-    pub pad: __u32,
-}
-#[test]
-fn bindgen_test_layout_kvm_ppc_resize_hpt() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_ppc_resize_hpt> = ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_ppc_resize_hpt>(),
-        16usize,
-        concat!("Size of: ", stringify!(kvm_ppc_resize_hpt))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_ppc_resize_hpt>(),
-        8usize,
-        concat!("Alignment of ", stringify!(kvm_ppc_resize_hpt))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).flags) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_ppc_resize_hpt),
-            "::",
-            stringify!(flags)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).shift) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_ppc_resize_hpt),
-            "::",
-            stringify!(shift)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).pad) as usize - ptr as usize },
-        12usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_ppc_resize_hpt),
-            "::",
-            stringify!(pad)
-        )
-    );
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialEq)]
@@ -11256,198 +12220,6 @@ impl ::std::fmt::Debug for kvm_irq_routing {
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_x86_mce {
-    pub status: __u64,
-    pub addr: __u64,
-    pub misc: __u64,
-    pub mcg_status: __u64,
-    pub bank: __u8,
-    pub pad1: [__u8; 7usize],
-    pub pad2: [__u64; 3usize],
-}
-#[test]
-fn bindgen_test_layout_kvm_x86_mce() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_x86_mce> = ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_x86_mce>(),
-        64usize,
-        concat!("Size of: ", stringify!(kvm_x86_mce))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_x86_mce>(),
-        8usize,
-        concat!("Alignment of ", stringify!(kvm_x86_mce))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).status) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_x86_mce),
-            "::",
-            stringify!(status)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).addr) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_x86_mce),
-            "::",
-            stringify!(addr)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).misc) as usize - ptr as usize },
-        16usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_x86_mce),
-            "::",
-            stringify!(misc)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).mcg_status) as usize - ptr as usize },
-        24usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_x86_mce),
-            "::",
-            stringify!(mcg_status)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).bank) as usize - ptr as usize },
-        32usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_x86_mce),
-            "::",
-            stringify!(bank)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).pad1) as usize - ptr as usize },
-        33usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_x86_mce),
-            "::",
-            stringify!(pad1)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).pad2) as usize - ptr as usize },
-        40usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_x86_mce),
-            "::",
-            stringify!(pad2)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_xen_hvm_config {
-    pub flags: __u32,
-    pub msr: __u32,
-    pub blob_addr_32: __u64,
-    pub blob_addr_64: __u64,
-    pub blob_size_32: __u8,
-    pub blob_size_64: __u8,
-    pub pad2: [__u8; 30usize],
-}
-#[test]
-fn bindgen_test_layout_kvm_xen_hvm_config() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_xen_hvm_config> = ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_xen_hvm_config>(),
-        56usize,
-        concat!("Size of: ", stringify!(kvm_xen_hvm_config))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_xen_hvm_config>(),
-        8usize,
-        concat!("Alignment of ", stringify!(kvm_xen_hvm_config))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).flags) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_xen_hvm_config),
-            "::",
-            stringify!(flags)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).msr) as usize - ptr as usize },
-        4usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_xen_hvm_config),
-            "::",
-            stringify!(msr)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).blob_addr_32) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_xen_hvm_config),
-            "::",
-            stringify!(blob_addr_32)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).blob_addr_64) as usize - ptr as usize },
-        16usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_xen_hvm_config),
-            "::",
-            stringify!(blob_addr_64)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).blob_size_32) as usize - ptr as usize },
-        24usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_xen_hvm_config),
-            "::",
-            stringify!(blob_size_32)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).blob_size_64) as usize - ptr as usize },
-        25usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_xen_hvm_config),
-            "::",
-            stringify!(blob_size_64)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).pad2) as usize - ptr as usize },
-        26usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_xen_hvm_config),
-            "::",
-            stringify!(pad2)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct kvm_irqfd {
     pub fd: __u32,
     pub gsi: __u32,
@@ -12046,7 +12818,8 @@ pub const kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V3: kvm_device_type = 7;
 pub const kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_ITS: kvm_device_type = 8;
 pub const kvm_device_type_KVM_DEV_TYPE_XIVE: kvm_device_type = 9;
 pub const kvm_device_type_KVM_DEV_TYPE_ARM_PV_TIME: kvm_device_type = 10;
-pub const kvm_device_type_KVM_DEV_TYPE_MAX: kvm_device_type = 11;
+pub const kvm_device_type_KVM_DEV_TYPE_RISCV_AIA: kvm_device_type = 11;
+pub const kvm_device_type_KVM_DEV_TYPE_MAX: kvm_device_type = 12;
 pub type kvm_device_type = ::std::os::raw::c_uint;
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialEq)]
@@ -12091,59 +12864,6 @@ fn bindgen_test_layout_kvm_vfio_spapr_tce() {
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_s390_ucas_mapping {
-    pub user_addr: __u64,
-    pub vcpu_addr: __u64,
-    pub length: __u64,
-}
-#[test]
-fn bindgen_test_layout_kvm_s390_ucas_mapping() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_s390_ucas_mapping> =
-        ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_s390_ucas_mapping>(),
-        24usize,
-        concat!("Size of: ", stringify!(kvm_s390_ucas_mapping))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_s390_ucas_mapping>(),
-        8usize,
-        concat!("Alignment of ", stringify!(kvm_s390_ucas_mapping))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).user_addr) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_ucas_mapping),
-            "::",
-            stringify!(user_addr)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).vcpu_addr) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_ucas_mapping),
-            "::",
-            stringify!(vcpu_addr)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).length) as usize - ptr as usize },
-        16usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_ucas_mapping),
-            "::",
-            stringify!(length)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct kvm_enc_region {
     pub addr: __u64,
     pub size: __u64,
@@ -12180,2707 +12900,6 @@ fn bindgen_test_layout_kvm_enc_region() {
             stringify!(kvm_enc_region),
             "::",
             stringify!(size)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_s390_pv_sec_parm {
-    pub origin: __u64,
-    pub length: __u64,
-}
-#[test]
-fn bindgen_test_layout_kvm_s390_pv_sec_parm() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_s390_pv_sec_parm> = ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_s390_pv_sec_parm>(),
-        16usize,
-        concat!("Size of: ", stringify!(kvm_s390_pv_sec_parm))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_s390_pv_sec_parm>(),
-        8usize,
-        concat!("Alignment of ", stringify!(kvm_s390_pv_sec_parm))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).origin) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_pv_sec_parm),
-            "::",
-            stringify!(origin)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).length) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_pv_sec_parm),
-            "::",
-            stringify!(length)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_s390_pv_unp {
-    pub addr: __u64,
-    pub size: __u64,
-    pub tweak: __u64,
-}
-#[test]
-fn bindgen_test_layout_kvm_s390_pv_unp() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_s390_pv_unp> = ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_s390_pv_unp>(),
-        24usize,
-        concat!("Size of: ", stringify!(kvm_s390_pv_unp))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_s390_pv_unp>(),
-        8usize,
-        concat!("Alignment of ", stringify!(kvm_s390_pv_unp))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).addr) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_pv_unp),
-            "::",
-            stringify!(addr)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).size) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_pv_unp),
-            "::",
-            stringify!(size)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).tweak) as usize - ptr as usize },
-        16usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_pv_unp),
-            "::",
-            stringify!(tweak)
-        )
-    );
-}
-pub const pv_cmd_dmp_id_KVM_PV_DUMP_INIT: pv_cmd_dmp_id = 0;
-pub const pv_cmd_dmp_id_KVM_PV_DUMP_CONFIG_STOR_STATE: pv_cmd_dmp_id = 1;
-pub const pv_cmd_dmp_id_KVM_PV_DUMP_COMPLETE: pv_cmd_dmp_id = 2;
-pub const pv_cmd_dmp_id_KVM_PV_DUMP_CPU: pv_cmd_dmp_id = 3;
-pub type pv_cmd_dmp_id = ::std::os::raw::c_uint;
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_s390_pv_dmp {
-    pub subcmd: __u64,
-    pub buff_addr: __u64,
-    pub buff_len: __u64,
-    pub gaddr: __u64,
-    pub reserved: [__u64; 4usize],
-}
-#[test]
-fn bindgen_test_layout_kvm_s390_pv_dmp() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_s390_pv_dmp> = ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_s390_pv_dmp>(),
-        64usize,
-        concat!("Size of: ", stringify!(kvm_s390_pv_dmp))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_s390_pv_dmp>(),
-        8usize,
-        concat!("Alignment of ", stringify!(kvm_s390_pv_dmp))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).subcmd) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_pv_dmp),
-            "::",
-            stringify!(subcmd)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).buff_addr) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_pv_dmp),
-            "::",
-            stringify!(buff_addr)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).buff_len) as usize - ptr as usize },
-        16usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_pv_dmp),
-            "::",
-            stringify!(buff_len)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).gaddr) as usize - ptr as usize },
-        24usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_pv_dmp),
-            "::",
-            stringify!(gaddr)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).reserved) as usize - ptr as usize },
-        32usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_pv_dmp),
-            "::",
-            stringify!(reserved)
-        )
-    );
-}
-pub const pv_cmd_info_id_KVM_PV_INFO_VM: pv_cmd_info_id = 0;
-pub const pv_cmd_info_id_KVM_PV_INFO_DUMP: pv_cmd_info_id = 1;
-pub type pv_cmd_info_id = ::std::os::raw::c_uint;
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_s390_pv_info_dump {
-    pub dump_cpu_buffer_len: __u64,
-    pub dump_config_mem_buffer_per_1m: __u64,
-    pub dump_config_finalize_len: __u64,
-}
-#[test]
-fn bindgen_test_layout_kvm_s390_pv_info_dump() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_s390_pv_info_dump> =
-        ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_s390_pv_info_dump>(),
-        24usize,
-        concat!("Size of: ", stringify!(kvm_s390_pv_info_dump))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_s390_pv_info_dump>(),
-        8usize,
-        concat!("Alignment of ", stringify!(kvm_s390_pv_info_dump))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).dump_cpu_buffer_len) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_pv_info_dump),
-            "::",
-            stringify!(dump_cpu_buffer_len)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            ::std::ptr::addr_of!((*ptr).dump_config_mem_buffer_per_1m) as usize - ptr as usize
-        },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_pv_info_dump),
-            "::",
-            stringify!(dump_config_mem_buffer_per_1m)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).dump_config_finalize_len) as usize - ptr as usize },
-        16usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_pv_info_dump),
-            "::",
-            stringify!(dump_config_finalize_len)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_s390_pv_info_vm {
-    pub inst_calls_list: [__u64; 4usize],
-    pub max_cpus: __u64,
-    pub max_guests: __u64,
-    pub max_guest_addr: __u64,
-    pub feature_indication: __u64,
-}
-#[test]
-fn bindgen_test_layout_kvm_s390_pv_info_vm() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_s390_pv_info_vm> = ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_s390_pv_info_vm>(),
-        64usize,
-        concat!("Size of: ", stringify!(kvm_s390_pv_info_vm))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_s390_pv_info_vm>(),
-        8usize,
-        concat!("Alignment of ", stringify!(kvm_s390_pv_info_vm))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).inst_calls_list) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_pv_info_vm),
-            "::",
-            stringify!(inst_calls_list)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).max_cpus) as usize - ptr as usize },
-        32usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_pv_info_vm),
-            "::",
-            stringify!(max_cpus)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).max_guests) as usize - ptr as usize },
-        40usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_pv_info_vm),
-            "::",
-            stringify!(max_guests)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).max_guest_addr) as usize - ptr as usize },
-        48usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_pv_info_vm),
-            "::",
-            stringify!(max_guest_addr)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).feature_indication) as usize - ptr as usize },
-        56usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_pv_info_vm),
-            "::",
-            stringify!(feature_indication)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_s390_pv_info_header {
-    pub id: __u32,
-    pub len_max: __u32,
-    pub len_written: __u32,
-    pub reserved: __u32,
-}
-#[test]
-fn bindgen_test_layout_kvm_s390_pv_info_header() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_s390_pv_info_header> =
-        ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_s390_pv_info_header>(),
-        16usize,
-        concat!("Size of: ", stringify!(kvm_s390_pv_info_header))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_s390_pv_info_header>(),
-        4usize,
-        concat!("Alignment of ", stringify!(kvm_s390_pv_info_header))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).id) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_pv_info_header),
-            "::",
-            stringify!(id)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).len_max) as usize - ptr as usize },
-        4usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_pv_info_header),
-            "::",
-            stringify!(len_max)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).len_written) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_pv_info_header),
-            "::",
-            stringify!(len_written)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).reserved) as usize - ptr as usize },
-        12usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_pv_info_header),
-            "::",
-            stringify!(reserved)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct kvm_s390_pv_info {
-    pub header: kvm_s390_pv_info_header,
-    pub __bindgen_anon_1: kvm_s390_pv_info__bindgen_ty_1,
-}
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub union kvm_s390_pv_info__bindgen_ty_1 {
-    pub dump: kvm_s390_pv_info_dump,
-    pub vm: kvm_s390_pv_info_vm,
-}
-#[test]
-fn bindgen_test_layout_kvm_s390_pv_info__bindgen_ty_1() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_s390_pv_info__bindgen_ty_1> =
-        ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_s390_pv_info__bindgen_ty_1>(),
-        64usize,
-        concat!("Size of: ", stringify!(kvm_s390_pv_info__bindgen_ty_1))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_s390_pv_info__bindgen_ty_1>(),
-        8usize,
-        concat!("Alignment of ", stringify!(kvm_s390_pv_info__bindgen_ty_1))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).dump) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_pv_info__bindgen_ty_1),
-            "::",
-            stringify!(dump)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).vm) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_pv_info__bindgen_ty_1),
-            "::",
-            stringify!(vm)
-        )
-    );
-}
-impl Default for kvm_s390_pv_info__bindgen_ty_1 {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-impl ::std::fmt::Debug for kvm_s390_pv_info__bindgen_ty_1 {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        write!(f, "kvm_s390_pv_info__bindgen_ty_1 {{ union }}")
-    }
-}
-#[test]
-fn bindgen_test_layout_kvm_s390_pv_info() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_s390_pv_info> = ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_s390_pv_info>(),
-        80usize,
-        concat!("Size of: ", stringify!(kvm_s390_pv_info))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_s390_pv_info>(),
-        8usize,
-        concat!("Alignment of ", stringify!(kvm_s390_pv_info))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).header) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_pv_info),
-            "::",
-            stringify!(header)
-        )
-    );
-}
-impl Default for kvm_s390_pv_info {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-impl ::std::fmt::Debug for kvm_s390_pv_info {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        write!(
-            f,
-            "kvm_s390_pv_info {{ header: {:?}, __bindgen_anon_1: {:?} }}",
-            self.header, self.__bindgen_anon_1
-        )
-    }
-}
-pub const pv_cmd_id_KVM_PV_ENABLE: pv_cmd_id = 0;
-pub const pv_cmd_id_KVM_PV_DISABLE: pv_cmd_id = 1;
-pub const pv_cmd_id_KVM_PV_SET_SEC_PARMS: pv_cmd_id = 2;
-pub const pv_cmd_id_KVM_PV_UNPACK: pv_cmd_id = 3;
-pub const pv_cmd_id_KVM_PV_VERIFY: pv_cmd_id = 4;
-pub const pv_cmd_id_KVM_PV_PREP_RESET: pv_cmd_id = 5;
-pub const pv_cmd_id_KVM_PV_UNSHARE_ALL: pv_cmd_id = 6;
-pub const pv_cmd_id_KVM_PV_INFO: pv_cmd_id = 7;
-pub const pv_cmd_id_KVM_PV_DUMP: pv_cmd_id = 8;
-pub const pv_cmd_id_KVM_PV_ASYNC_CLEANUP_PREPARE: pv_cmd_id = 9;
-pub const pv_cmd_id_KVM_PV_ASYNC_CLEANUP_PERFORM: pv_cmd_id = 10;
-pub type pv_cmd_id = ::std::os::raw::c_uint;
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_pv_cmd {
-    pub cmd: __u32,
-    pub rc: __u16,
-    pub rrc: __u16,
-    pub data: __u64,
-    pub flags: __u32,
-    pub reserved: [__u32; 3usize],
-}
-#[test]
-fn bindgen_test_layout_kvm_pv_cmd() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_pv_cmd> = ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_pv_cmd>(),
-        32usize,
-        concat!("Size of: ", stringify!(kvm_pv_cmd))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_pv_cmd>(),
-        8usize,
-        concat!("Alignment of ", stringify!(kvm_pv_cmd))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).cmd) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_pv_cmd),
-            "::",
-            stringify!(cmd)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).rc) as usize - ptr as usize },
-        4usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_pv_cmd),
-            "::",
-            stringify!(rc)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).rrc) as usize - ptr as usize },
-        6usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_pv_cmd),
-            "::",
-            stringify!(rrc)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).data) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_pv_cmd),
-            "::",
-            stringify!(data)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).flags) as usize - ptr as usize },
-        16usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_pv_cmd),
-            "::",
-            stringify!(flags)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).reserved) as usize - ptr as usize },
-        20usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_pv_cmd),
-            "::",
-            stringify!(reserved)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct kvm_xen_hvm_attr {
-    pub type_: __u16,
-    pub pad: [__u16; 3usize],
-    pub u: kvm_xen_hvm_attr__bindgen_ty_1,
-}
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub union kvm_xen_hvm_attr__bindgen_ty_1 {
-    pub long_mode: __u8,
-    pub vector: __u8,
-    pub runstate_update_flag: __u8,
-    pub shared_info: kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_1,
-    pub evtchn: kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2,
-    pub xen_version: __u32,
-    pub pad: [__u64; 8usize],
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_1 {
-    pub gfn: __u64,
-}
-#[test]
-fn bindgen_test_layout_kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_1() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_1> =
-        ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_1>(),
-        8usize,
-        concat!(
-            "Size of: ",
-            stringify!(kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_1)
-        )
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_1>(),
-        8usize,
-        concat!(
-            "Alignment of ",
-            stringify!(kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_1)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).gfn) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_1),
-            "::",
-            stringify!(gfn)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2 {
-    pub send_port: __u32,
-    pub type_: __u32,
-    pub flags: __u32,
-    pub deliver: kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1,
-}
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub union kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1 {
-    pub port: kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1__bindgen_ty_1,
-    pub eventfd: kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1__bindgen_ty_2,
-    pub padding: [__u32; 4usize],
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1__bindgen_ty_1 {
-    pub port: __u32,
-    pub vcpu: __u32,
-    pub priority: __u32,
-}
-#[test]
-fn bindgen_test_layout_kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1__bindgen_ty_1() {
-    const UNINIT: ::std::mem::MaybeUninit<
-        kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1__bindgen_ty_1,
-    > = ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<
-            kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1__bindgen_ty_1,
-        >(),
-        12usize,
-        concat!(
-            "Size of: ",
-            stringify!(kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1__bindgen_ty_1)
-        )
-    );
-    assert_eq!(
-        ::std::mem::align_of::<
-            kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1__bindgen_ty_1,
-        >(),
-        4usize,
-        concat!(
-            "Alignment of ",
-            stringify!(kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1__bindgen_ty_1)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).port) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1__bindgen_ty_1),
-            "::",
-            stringify!(port)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).vcpu) as usize - ptr as usize },
-        4usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1__bindgen_ty_1),
-            "::",
-            stringify!(vcpu)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).priority) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1__bindgen_ty_1),
-            "::",
-            stringify!(priority)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1__bindgen_ty_2 {
-    pub port: __u32,
-    pub fd: __s32,
-}
-#[test]
-fn bindgen_test_layout_kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1__bindgen_ty_2() {
-    const UNINIT: ::std::mem::MaybeUninit<
-        kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1__bindgen_ty_2,
-    > = ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<
-            kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1__bindgen_ty_2,
-        >(),
-        8usize,
-        concat!(
-            "Size of: ",
-            stringify!(kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1__bindgen_ty_2)
-        )
-    );
-    assert_eq!(
-        ::std::mem::align_of::<
-            kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1__bindgen_ty_2,
-        >(),
-        4usize,
-        concat!(
-            "Alignment of ",
-            stringify!(kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1__bindgen_ty_2)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).port) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1__bindgen_ty_2),
-            "::",
-            stringify!(port)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).fd) as usize - ptr as usize },
-        4usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1__bindgen_ty_2),
-            "::",
-            stringify!(fd)
-        )
-    );
-}
-#[test]
-fn bindgen_test_layout_kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1() {
-    const UNINIT: ::std::mem::MaybeUninit<
-        kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1,
-    > = ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1>(),
-        16usize,
-        concat!(
-            "Size of: ",
-            stringify!(kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1)
-        )
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1>(),
-        4usize,
-        concat!(
-            "Alignment of ",
-            stringify!(kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).port) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1),
-            "::",
-            stringify!(port)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).eventfd) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1),
-            "::",
-            stringify!(eventfd)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).padding) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1),
-            "::",
-            stringify!(padding)
-        )
-    );
-}
-impl Default for kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1 {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-impl ::std::fmt::Debug for kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1 {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        write!(
-            f,
-            "kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2__bindgen_ty_1 {{ union }}"
-        )
-    }
-}
-#[test]
-fn bindgen_test_layout_kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2> =
-        ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2>(),
-        28usize,
-        concat!(
-            "Size of: ",
-            stringify!(kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2)
-        )
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2>(),
-        4usize,
-        concat!(
-            "Alignment of ",
-            stringify!(kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).send_port) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2),
-            "::",
-            stringify!(send_port)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).type_) as usize - ptr as usize },
-        4usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2),
-            "::",
-            stringify!(type_)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).flags) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2),
-            "::",
-            stringify!(flags)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).deliver) as usize - ptr as usize },
-        12usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2),
-            "::",
-            stringify!(deliver)
-        )
-    );
-}
-impl Default for kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2 {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-impl ::std::fmt::Debug for kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2 {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        write ! (f , "kvm_xen_hvm_attr__bindgen_ty_1__bindgen_ty_2 {{ send_port: {:?}, type: {:?}, flags: {:?}, deliver: {:?} }}" , self . send_port , self . type_ , self . flags , self . deliver)
-    }
-}
-#[test]
-fn bindgen_test_layout_kvm_xen_hvm_attr__bindgen_ty_1() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_xen_hvm_attr__bindgen_ty_1> =
-        ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_xen_hvm_attr__bindgen_ty_1>(),
-        64usize,
-        concat!("Size of: ", stringify!(kvm_xen_hvm_attr__bindgen_ty_1))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_xen_hvm_attr__bindgen_ty_1>(),
-        8usize,
-        concat!("Alignment of ", stringify!(kvm_xen_hvm_attr__bindgen_ty_1))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).long_mode) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_xen_hvm_attr__bindgen_ty_1),
-            "::",
-            stringify!(long_mode)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).vector) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_xen_hvm_attr__bindgen_ty_1),
-            "::",
-            stringify!(vector)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).runstate_update_flag) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_xen_hvm_attr__bindgen_ty_1),
-            "::",
-            stringify!(runstate_update_flag)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).shared_info) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_xen_hvm_attr__bindgen_ty_1),
-            "::",
-            stringify!(shared_info)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).evtchn) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_xen_hvm_attr__bindgen_ty_1),
-            "::",
-            stringify!(evtchn)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).xen_version) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_xen_hvm_attr__bindgen_ty_1),
-            "::",
-            stringify!(xen_version)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).pad) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_xen_hvm_attr__bindgen_ty_1),
-            "::",
-            stringify!(pad)
-        )
-    );
-}
-impl Default for kvm_xen_hvm_attr__bindgen_ty_1 {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-impl ::std::fmt::Debug for kvm_xen_hvm_attr__bindgen_ty_1 {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        write!(f, "kvm_xen_hvm_attr__bindgen_ty_1 {{ union }}")
-    }
-}
-#[test]
-fn bindgen_test_layout_kvm_xen_hvm_attr() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_xen_hvm_attr> = ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_xen_hvm_attr>(),
-        72usize,
-        concat!("Size of: ", stringify!(kvm_xen_hvm_attr))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_xen_hvm_attr>(),
-        8usize,
-        concat!("Alignment of ", stringify!(kvm_xen_hvm_attr))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).type_) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_xen_hvm_attr),
-            "::",
-            stringify!(type_)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).pad) as usize - ptr as usize },
-        2usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_xen_hvm_attr),
-            "::",
-            stringify!(pad)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).u) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_xen_hvm_attr),
-            "::",
-            stringify!(u)
-        )
-    );
-}
-impl Default for kvm_xen_hvm_attr {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-impl ::std::fmt::Debug for kvm_xen_hvm_attr {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        write!(
-            f,
-            "kvm_xen_hvm_attr {{ type: {:?}, pad: {:?}, u: {:?} }}",
-            self.type_, self.pad, self.u
-        )
-    }
-}
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct kvm_xen_vcpu_attr {
-    pub type_: __u16,
-    pub pad: [__u16; 3usize],
-    pub u: kvm_xen_vcpu_attr__bindgen_ty_1,
-}
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub union kvm_xen_vcpu_attr__bindgen_ty_1 {
-    pub gpa: __u64,
-    pub pad: [__u64; 8usize],
-    pub runstate: kvm_xen_vcpu_attr__bindgen_ty_1__bindgen_ty_1,
-    pub vcpu_id: __u32,
-    pub timer: kvm_xen_vcpu_attr__bindgen_ty_1__bindgen_ty_2,
-    pub vector: __u8,
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_xen_vcpu_attr__bindgen_ty_1__bindgen_ty_1 {
-    pub state: __u64,
-    pub state_entry_time: __u64,
-    pub time_running: __u64,
-    pub time_runnable: __u64,
-    pub time_blocked: __u64,
-    pub time_offline: __u64,
-}
-#[test]
-fn bindgen_test_layout_kvm_xen_vcpu_attr__bindgen_ty_1__bindgen_ty_1() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_xen_vcpu_attr__bindgen_ty_1__bindgen_ty_1> =
-        ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_xen_vcpu_attr__bindgen_ty_1__bindgen_ty_1>(),
-        48usize,
-        concat!(
-            "Size of: ",
-            stringify!(kvm_xen_vcpu_attr__bindgen_ty_1__bindgen_ty_1)
-        )
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_xen_vcpu_attr__bindgen_ty_1__bindgen_ty_1>(),
-        8usize,
-        concat!(
-            "Alignment of ",
-            stringify!(kvm_xen_vcpu_attr__bindgen_ty_1__bindgen_ty_1)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).state) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_xen_vcpu_attr__bindgen_ty_1__bindgen_ty_1),
-            "::",
-            stringify!(state)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).state_entry_time) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_xen_vcpu_attr__bindgen_ty_1__bindgen_ty_1),
-            "::",
-            stringify!(state_entry_time)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).time_running) as usize - ptr as usize },
-        16usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_xen_vcpu_attr__bindgen_ty_1__bindgen_ty_1),
-            "::",
-            stringify!(time_running)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).time_runnable) as usize - ptr as usize },
-        24usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_xen_vcpu_attr__bindgen_ty_1__bindgen_ty_1),
-            "::",
-            stringify!(time_runnable)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).time_blocked) as usize - ptr as usize },
-        32usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_xen_vcpu_attr__bindgen_ty_1__bindgen_ty_1),
-            "::",
-            stringify!(time_blocked)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).time_offline) as usize - ptr as usize },
-        40usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_xen_vcpu_attr__bindgen_ty_1__bindgen_ty_1),
-            "::",
-            stringify!(time_offline)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_xen_vcpu_attr__bindgen_ty_1__bindgen_ty_2 {
-    pub port: __u32,
-    pub priority: __u32,
-    pub expires_ns: __u64,
-}
-#[test]
-fn bindgen_test_layout_kvm_xen_vcpu_attr__bindgen_ty_1__bindgen_ty_2() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_xen_vcpu_attr__bindgen_ty_1__bindgen_ty_2> =
-        ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_xen_vcpu_attr__bindgen_ty_1__bindgen_ty_2>(),
-        16usize,
-        concat!(
-            "Size of: ",
-            stringify!(kvm_xen_vcpu_attr__bindgen_ty_1__bindgen_ty_2)
-        )
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_xen_vcpu_attr__bindgen_ty_1__bindgen_ty_2>(),
-        8usize,
-        concat!(
-            "Alignment of ",
-            stringify!(kvm_xen_vcpu_attr__bindgen_ty_1__bindgen_ty_2)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).port) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_xen_vcpu_attr__bindgen_ty_1__bindgen_ty_2),
-            "::",
-            stringify!(port)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).priority) as usize - ptr as usize },
-        4usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_xen_vcpu_attr__bindgen_ty_1__bindgen_ty_2),
-            "::",
-            stringify!(priority)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).expires_ns) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_xen_vcpu_attr__bindgen_ty_1__bindgen_ty_2),
-            "::",
-            stringify!(expires_ns)
-        )
-    );
-}
-#[test]
-fn bindgen_test_layout_kvm_xen_vcpu_attr__bindgen_ty_1() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_xen_vcpu_attr__bindgen_ty_1> =
-        ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_xen_vcpu_attr__bindgen_ty_1>(),
-        64usize,
-        concat!("Size of: ", stringify!(kvm_xen_vcpu_attr__bindgen_ty_1))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_xen_vcpu_attr__bindgen_ty_1>(),
-        8usize,
-        concat!("Alignment of ", stringify!(kvm_xen_vcpu_attr__bindgen_ty_1))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).gpa) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_xen_vcpu_attr__bindgen_ty_1),
-            "::",
-            stringify!(gpa)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).pad) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_xen_vcpu_attr__bindgen_ty_1),
-            "::",
-            stringify!(pad)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).runstate) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_xen_vcpu_attr__bindgen_ty_1),
-            "::",
-            stringify!(runstate)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).vcpu_id) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_xen_vcpu_attr__bindgen_ty_1),
-            "::",
-            stringify!(vcpu_id)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).timer) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_xen_vcpu_attr__bindgen_ty_1),
-            "::",
-            stringify!(timer)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).vector) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_xen_vcpu_attr__bindgen_ty_1),
-            "::",
-            stringify!(vector)
-        )
-    );
-}
-impl Default for kvm_xen_vcpu_attr__bindgen_ty_1 {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-impl ::std::fmt::Debug for kvm_xen_vcpu_attr__bindgen_ty_1 {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        write!(f, "kvm_xen_vcpu_attr__bindgen_ty_1 {{ union }}")
-    }
-}
-#[test]
-fn bindgen_test_layout_kvm_xen_vcpu_attr() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_xen_vcpu_attr> = ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_xen_vcpu_attr>(),
-        72usize,
-        concat!("Size of: ", stringify!(kvm_xen_vcpu_attr))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_xen_vcpu_attr>(),
-        8usize,
-        concat!("Alignment of ", stringify!(kvm_xen_vcpu_attr))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).type_) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_xen_vcpu_attr),
-            "::",
-            stringify!(type_)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).pad) as usize - ptr as usize },
-        2usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_xen_vcpu_attr),
-            "::",
-            stringify!(pad)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).u) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_xen_vcpu_attr),
-            "::",
-            stringify!(u)
-        )
-    );
-}
-impl Default for kvm_xen_vcpu_attr {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-impl ::std::fmt::Debug for kvm_xen_vcpu_attr {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        write!(
-            f,
-            "kvm_xen_vcpu_attr {{ type: {:?}, pad: {:?}, u: {:?} }}",
-            self.type_, self.pad, self.u
-        )
-    }
-}
-pub const sev_cmd_id_KVM_SEV_INIT: sev_cmd_id = 0;
-pub const sev_cmd_id_KVM_SEV_ES_INIT: sev_cmd_id = 1;
-pub const sev_cmd_id_KVM_SEV_LAUNCH_START: sev_cmd_id = 2;
-pub const sev_cmd_id_KVM_SEV_LAUNCH_UPDATE_DATA: sev_cmd_id = 3;
-pub const sev_cmd_id_KVM_SEV_LAUNCH_UPDATE_VMSA: sev_cmd_id = 4;
-pub const sev_cmd_id_KVM_SEV_LAUNCH_SECRET: sev_cmd_id = 5;
-pub const sev_cmd_id_KVM_SEV_LAUNCH_MEASURE: sev_cmd_id = 6;
-pub const sev_cmd_id_KVM_SEV_LAUNCH_FINISH: sev_cmd_id = 7;
-pub const sev_cmd_id_KVM_SEV_SEND_START: sev_cmd_id = 8;
-pub const sev_cmd_id_KVM_SEV_SEND_UPDATE_DATA: sev_cmd_id = 9;
-pub const sev_cmd_id_KVM_SEV_SEND_UPDATE_VMSA: sev_cmd_id = 10;
-pub const sev_cmd_id_KVM_SEV_SEND_FINISH: sev_cmd_id = 11;
-pub const sev_cmd_id_KVM_SEV_RECEIVE_START: sev_cmd_id = 12;
-pub const sev_cmd_id_KVM_SEV_RECEIVE_UPDATE_DATA: sev_cmd_id = 13;
-pub const sev_cmd_id_KVM_SEV_RECEIVE_UPDATE_VMSA: sev_cmd_id = 14;
-pub const sev_cmd_id_KVM_SEV_RECEIVE_FINISH: sev_cmd_id = 15;
-pub const sev_cmd_id_KVM_SEV_GUEST_STATUS: sev_cmd_id = 16;
-pub const sev_cmd_id_KVM_SEV_DBG_DECRYPT: sev_cmd_id = 17;
-pub const sev_cmd_id_KVM_SEV_DBG_ENCRYPT: sev_cmd_id = 18;
-pub const sev_cmd_id_KVM_SEV_CERT_EXPORT: sev_cmd_id = 19;
-pub const sev_cmd_id_KVM_SEV_GET_ATTESTATION_REPORT: sev_cmd_id = 20;
-pub const sev_cmd_id_KVM_SEV_SEND_CANCEL: sev_cmd_id = 21;
-pub const sev_cmd_id_KVM_SEV_NR_MAX: sev_cmd_id = 22;
-pub type sev_cmd_id = ::std::os::raw::c_uint;
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_sev_cmd {
-    pub id: __u32,
-    pub data: __u64,
-    pub error: __u32,
-    pub sev_fd: __u32,
-}
-#[test]
-fn bindgen_test_layout_kvm_sev_cmd() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_sev_cmd> = ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_sev_cmd>(),
-        24usize,
-        concat!("Size of: ", stringify!(kvm_sev_cmd))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_sev_cmd>(),
-        8usize,
-        concat!("Alignment of ", stringify!(kvm_sev_cmd))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).id) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_cmd),
-            "::",
-            stringify!(id)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).data) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_cmd),
-            "::",
-            stringify!(data)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).error) as usize - ptr as usize },
-        16usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_cmd),
-            "::",
-            stringify!(error)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).sev_fd) as usize - ptr as usize },
-        20usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_cmd),
-            "::",
-            stringify!(sev_fd)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_sev_launch_start {
-    pub handle: __u32,
-    pub policy: __u32,
-    pub dh_uaddr: __u64,
-    pub dh_len: __u32,
-    pub session_uaddr: __u64,
-    pub session_len: __u32,
-}
-#[test]
-fn bindgen_test_layout_kvm_sev_launch_start() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_sev_launch_start> = ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_sev_launch_start>(),
-        40usize,
-        concat!("Size of: ", stringify!(kvm_sev_launch_start))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_sev_launch_start>(),
-        8usize,
-        concat!("Alignment of ", stringify!(kvm_sev_launch_start))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).handle) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_launch_start),
-            "::",
-            stringify!(handle)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).policy) as usize - ptr as usize },
-        4usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_launch_start),
-            "::",
-            stringify!(policy)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).dh_uaddr) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_launch_start),
-            "::",
-            stringify!(dh_uaddr)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).dh_len) as usize - ptr as usize },
-        16usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_launch_start),
-            "::",
-            stringify!(dh_len)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).session_uaddr) as usize - ptr as usize },
-        24usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_launch_start),
-            "::",
-            stringify!(session_uaddr)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).session_len) as usize - ptr as usize },
-        32usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_launch_start),
-            "::",
-            stringify!(session_len)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_sev_launch_update_data {
-    pub uaddr: __u64,
-    pub len: __u32,
-}
-#[test]
-fn bindgen_test_layout_kvm_sev_launch_update_data() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_sev_launch_update_data> =
-        ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_sev_launch_update_data>(),
-        16usize,
-        concat!("Size of: ", stringify!(kvm_sev_launch_update_data))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_sev_launch_update_data>(),
-        8usize,
-        concat!("Alignment of ", stringify!(kvm_sev_launch_update_data))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).uaddr) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_launch_update_data),
-            "::",
-            stringify!(uaddr)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).len) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_launch_update_data),
-            "::",
-            stringify!(len)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_sev_launch_secret {
-    pub hdr_uaddr: __u64,
-    pub hdr_len: __u32,
-    pub guest_uaddr: __u64,
-    pub guest_len: __u32,
-    pub trans_uaddr: __u64,
-    pub trans_len: __u32,
-}
-#[test]
-fn bindgen_test_layout_kvm_sev_launch_secret() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_sev_launch_secret> =
-        ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_sev_launch_secret>(),
-        48usize,
-        concat!("Size of: ", stringify!(kvm_sev_launch_secret))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_sev_launch_secret>(),
-        8usize,
-        concat!("Alignment of ", stringify!(kvm_sev_launch_secret))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).hdr_uaddr) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_launch_secret),
-            "::",
-            stringify!(hdr_uaddr)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).hdr_len) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_launch_secret),
-            "::",
-            stringify!(hdr_len)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).guest_uaddr) as usize - ptr as usize },
-        16usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_launch_secret),
-            "::",
-            stringify!(guest_uaddr)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).guest_len) as usize - ptr as usize },
-        24usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_launch_secret),
-            "::",
-            stringify!(guest_len)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).trans_uaddr) as usize - ptr as usize },
-        32usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_launch_secret),
-            "::",
-            stringify!(trans_uaddr)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).trans_len) as usize - ptr as usize },
-        40usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_launch_secret),
-            "::",
-            stringify!(trans_len)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_sev_launch_measure {
-    pub uaddr: __u64,
-    pub len: __u32,
-}
-#[test]
-fn bindgen_test_layout_kvm_sev_launch_measure() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_sev_launch_measure> =
-        ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_sev_launch_measure>(),
-        16usize,
-        concat!("Size of: ", stringify!(kvm_sev_launch_measure))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_sev_launch_measure>(),
-        8usize,
-        concat!("Alignment of ", stringify!(kvm_sev_launch_measure))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).uaddr) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_launch_measure),
-            "::",
-            stringify!(uaddr)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).len) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_launch_measure),
-            "::",
-            stringify!(len)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_sev_guest_status {
-    pub handle: __u32,
-    pub policy: __u32,
-    pub state: __u32,
-}
-#[test]
-fn bindgen_test_layout_kvm_sev_guest_status() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_sev_guest_status> = ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_sev_guest_status>(),
-        12usize,
-        concat!("Size of: ", stringify!(kvm_sev_guest_status))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_sev_guest_status>(),
-        4usize,
-        concat!("Alignment of ", stringify!(kvm_sev_guest_status))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).handle) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_guest_status),
-            "::",
-            stringify!(handle)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).policy) as usize - ptr as usize },
-        4usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_guest_status),
-            "::",
-            stringify!(policy)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).state) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_guest_status),
-            "::",
-            stringify!(state)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_sev_dbg {
-    pub src_uaddr: __u64,
-    pub dst_uaddr: __u64,
-    pub len: __u32,
-}
-#[test]
-fn bindgen_test_layout_kvm_sev_dbg() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_sev_dbg> = ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_sev_dbg>(),
-        24usize,
-        concat!("Size of: ", stringify!(kvm_sev_dbg))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_sev_dbg>(),
-        8usize,
-        concat!("Alignment of ", stringify!(kvm_sev_dbg))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).src_uaddr) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_dbg),
-            "::",
-            stringify!(src_uaddr)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).dst_uaddr) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_dbg),
-            "::",
-            stringify!(dst_uaddr)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).len) as usize - ptr as usize },
-        16usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_dbg),
-            "::",
-            stringify!(len)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_sev_attestation_report {
-    pub mnonce: [__u8; 16usize],
-    pub uaddr: __u64,
-    pub len: __u32,
-}
-#[test]
-fn bindgen_test_layout_kvm_sev_attestation_report() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_sev_attestation_report> =
-        ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_sev_attestation_report>(),
-        32usize,
-        concat!("Size of: ", stringify!(kvm_sev_attestation_report))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_sev_attestation_report>(),
-        8usize,
-        concat!("Alignment of ", stringify!(kvm_sev_attestation_report))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).mnonce) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_attestation_report),
-            "::",
-            stringify!(mnonce)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).uaddr) as usize - ptr as usize },
-        16usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_attestation_report),
-            "::",
-            stringify!(uaddr)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).len) as usize - ptr as usize },
-        24usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_attestation_report),
-            "::",
-            stringify!(len)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_sev_send_start {
-    pub policy: __u32,
-    pub pdh_cert_uaddr: __u64,
-    pub pdh_cert_len: __u32,
-    pub plat_certs_uaddr: __u64,
-    pub plat_certs_len: __u32,
-    pub amd_certs_uaddr: __u64,
-    pub amd_certs_len: __u32,
-    pub session_uaddr: __u64,
-    pub session_len: __u32,
-}
-#[test]
-fn bindgen_test_layout_kvm_sev_send_start() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_sev_send_start> = ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_sev_send_start>(),
-        72usize,
-        concat!("Size of: ", stringify!(kvm_sev_send_start))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_sev_send_start>(),
-        8usize,
-        concat!("Alignment of ", stringify!(kvm_sev_send_start))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).policy) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_send_start),
-            "::",
-            stringify!(policy)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).pdh_cert_uaddr) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_send_start),
-            "::",
-            stringify!(pdh_cert_uaddr)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).pdh_cert_len) as usize - ptr as usize },
-        16usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_send_start),
-            "::",
-            stringify!(pdh_cert_len)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).plat_certs_uaddr) as usize - ptr as usize },
-        24usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_send_start),
-            "::",
-            stringify!(plat_certs_uaddr)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).plat_certs_len) as usize - ptr as usize },
-        32usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_send_start),
-            "::",
-            stringify!(plat_certs_len)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).amd_certs_uaddr) as usize - ptr as usize },
-        40usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_send_start),
-            "::",
-            stringify!(amd_certs_uaddr)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).amd_certs_len) as usize - ptr as usize },
-        48usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_send_start),
-            "::",
-            stringify!(amd_certs_len)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).session_uaddr) as usize - ptr as usize },
-        56usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_send_start),
-            "::",
-            stringify!(session_uaddr)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).session_len) as usize - ptr as usize },
-        64usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_send_start),
-            "::",
-            stringify!(session_len)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_sev_send_update_data {
-    pub hdr_uaddr: __u64,
-    pub hdr_len: __u32,
-    pub guest_uaddr: __u64,
-    pub guest_len: __u32,
-    pub trans_uaddr: __u64,
-    pub trans_len: __u32,
-}
-#[test]
-fn bindgen_test_layout_kvm_sev_send_update_data() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_sev_send_update_data> =
-        ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_sev_send_update_data>(),
-        48usize,
-        concat!("Size of: ", stringify!(kvm_sev_send_update_data))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_sev_send_update_data>(),
-        8usize,
-        concat!("Alignment of ", stringify!(kvm_sev_send_update_data))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).hdr_uaddr) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_send_update_data),
-            "::",
-            stringify!(hdr_uaddr)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).hdr_len) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_send_update_data),
-            "::",
-            stringify!(hdr_len)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).guest_uaddr) as usize - ptr as usize },
-        16usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_send_update_data),
-            "::",
-            stringify!(guest_uaddr)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).guest_len) as usize - ptr as usize },
-        24usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_send_update_data),
-            "::",
-            stringify!(guest_len)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).trans_uaddr) as usize - ptr as usize },
-        32usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_send_update_data),
-            "::",
-            stringify!(trans_uaddr)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).trans_len) as usize - ptr as usize },
-        40usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_send_update_data),
-            "::",
-            stringify!(trans_len)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_sev_receive_start {
-    pub handle: __u32,
-    pub policy: __u32,
-    pub pdh_uaddr: __u64,
-    pub pdh_len: __u32,
-    pub session_uaddr: __u64,
-    pub session_len: __u32,
-}
-#[test]
-fn bindgen_test_layout_kvm_sev_receive_start() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_sev_receive_start> =
-        ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_sev_receive_start>(),
-        40usize,
-        concat!("Size of: ", stringify!(kvm_sev_receive_start))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_sev_receive_start>(),
-        8usize,
-        concat!("Alignment of ", stringify!(kvm_sev_receive_start))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).handle) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_receive_start),
-            "::",
-            stringify!(handle)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).policy) as usize - ptr as usize },
-        4usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_receive_start),
-            "::",
-            stringify!(policy)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).pdh_uaddr) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_receive_start),
-            "::",
-            stringify!(pdh_uaddr)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).pdh_len) as usize - ptr as usize },
-        16usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_receive_start),
-            "::",
-            stringify!(pdh_len)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).session_uaddr) as usize - ptr as usize },
-        24usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_receive_start),
-            "::",
-            stringify!(session_uaddr)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).session_len) as usize - ptr as usize },
-        32usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_receive_start),
-            "::",
-            stringify!(session_len)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_sev_receive_update_data {
-    pub hdr_uaddr: __u64,
-    pub hdr_len: __u32,
-    pub guest_uaddr: __u64,
-    pub guest_len: __u32,
-    pub trans_uaddr: __u64,
-    pub trans_len: __u32,
-}
-#[test]
-fn bindgen_test_layout_kvm_sev_receive_update_data() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_sev_receive_update_data> =
-        ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_sev_receive_update_data>(),
-        48usize,
-        concat!("Size of: ", stringify!(kvm_sev_receive_update_data))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_sev_receive_update_data>(),
-        8usize,
-        concat!("Alignment of ", stringify!(kvm_sev_receive_update_data))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).hdr_uaddr) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_receive_update_data),
-            "::",
-            stringify!(hdr_uaddr)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).hdr_len) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_receive_update_data),
-            "::",
-            stringify!(hdr_len)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).guest_uaddr) as usize - ptr as usize },
-        16usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_receive_update_data),
-            "::",
-            stringify!(guest_uaddr)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).guest_len) as usize - ptr as usize },
-        24usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_receive_update_data),
-            "::",
-            stringify!(guest_len)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).trans_uaddr) as usize - ptr as usize },
-        32usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_receive_update_data),
-            "::",
-            stringify!(trans_uaddr)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).trans_len) as usize - ptr as usize },
-        40usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_sev_receive_update_data),
-            "::",
-            stringify!(trans_len)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct kvm_assigned_pci_dev {
-    pub assigned_dev_id: __u32,
-    pub busnr: __u32,
-    pub devfn: __u32,
-    pub flags: __u32,
-    pub segnr: __u32,
-    pub __bindgen_anon_1: kvm_assigned_pci_dev__bindgen_ty_1,
-}
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub union kvm_assigned_pci_dev__bindgen_ty_1 {
-    pub reserved: [__u32; 11usize],
-}
-#[test]
-fn bindgen_test_layout_kvm_assigned_pci_dev__bindgen_ty_1() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_assigned_pci_dev__bindgen_ty_1> =
-        ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_assigned_pci_dev__bindgen_ty_1>(),
-        44usize,
-        concat!("Size of: ", stringify!(kvm_assigned_pci_dev__bindgen_ty_1))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_assigned_pci_dev__bindgen_ty_1>(),
-        4usize,
-        concat!(
-            "Alignment of ",
-            stringify!(kvm_assigned_pci_dev__bindgen_ty_1)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).reserved) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_assigned_pci_dev__bindgen_ty_1),
-            "::",
-            stringify!(reserved)
-        )
-    );
-}
-impl Default for kvm_assigned_pci_dev__bindgen_ty_1 {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-impl ::std::fmt::Debug for kvm_assigned_pci_dev__bindgen_ty_1 {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        write!(f, "kvm_assigned_pci_dev__bindgen_ty_1 {{ union }}")
-    }
-}
-#[test]
-fn bindgen_test_layout_kvm_assigned_pci_dev() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_assigned_pci_dev> = ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_assigned_pci_dev>(),
-        64usize,
-        concat!("Size of: ", stringify!(kvm_assigned_pci_dev))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_assigned_pci_dev>(),
-        4usize,
-        concat!("Alignment of ", stringify!(kvm_assigned_pci_dev))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).assigned_dev_id) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_assigned_pci_dev),
-            "::",
-            stringify!(assigned_dev_id)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).busnr) as usize - ptr as usize },
-        4usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_assigned_pci_dev),
-            "::",
-            stringify!(busnr)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).devfn) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_assigned_pci_dev),
-            "::",
-            stringify!(devfn)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).flags) as usize - ptr as usize },
-        12usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_assigned_pci_dev),
-            "::",
-            stringify!(flags)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).segnr) as usize - ptr as usize },
-        16usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_assigned_pci_dev),
-            "::",
-            stringify!(segnr)
-        )
-    );
-}
-impl Default for kvm_assigned_pci_dev {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-impl ::std::fmt::Debug for kvm_assigned_pci_dev {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        write ! (f , "kvm_assigned_pci_dev {{ assigned_dev_id: {:?}, busnr: {:?}, devfn: {:?}, flags: {:?}, segnr: {:?}, __bindgen_anon_1: {:?} }}" , self . assigned_dev_id , self . busnr , self . devfn , self . flags , self . segnr , self . __bindgen_anon_1)
-    }
-}
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct kvm_assigned_irq {
-    pub assigned_dev_id: __u32,
-    pub host_irq: __u32,
-    pub guest_irq: __u32,
-    pub flags: __u32,
-    pub __bindgen_anon_1: kvm_assigned_irq__bindgen_ty_1,
-}
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub union kvm_assigned_irq__bindgen_ty_1 {
-    pub reserved: [__u32; 12usize],
-}
-#[test]
-fn bindgen_test_layout_kvm_assigned_irq__bindgen_ty_1() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_assigned_irq__bindgen_ty_1> =
-        ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_assigned_irq__bindgen_ty_1>(),
-        48usize,
-        concat!("Size of: ", stringify!(kvm_assigned_irq__bindgen_ty_1))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_assigned_irq__bindgen_ty_1>(),
-        4usize,
-        concat!("Alignment of ", stringify!(kvm_assigned_irq__bindgen_ty_1))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).reserved) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_assigned_irq__bindgen_ty_1),
-            "::",
-            stringify!(reserved)
-        )
-    );
-}
-impl Default for kvm_assigned_irq__bindgen_ty_1 {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-impl ::std::fmt::Debug for kvm_assigned_irq__bindgen_ty_1 {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        write!(f, "kvm_assigned_irq__bindgen_ty_1 {{ union }}")
-    }
-}
-#[test]
-fn bindgen_test_layout_kvm_assigned_irq() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_assigned_irq> = ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_assigned_irq>(),
-        64usize,
-        concat!("Size of: ", stringify!(kvm_assigned_irq))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_assigned_irq>(),
-        4usize,
-        concat!("Alignment of ", stringify!(kvm_assigned_irq))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).assigned_dev_id) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_assigned_irq),
-            "::",
-            stringify!(assigned_dev_id)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).host_irq) as usize - ptr as usize },
-        4usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_assigned_irq),
-            "::",
-            stringify!(host_irq)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).guest_irq) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_assigned_irq),
-            "::",
-            stringify!(guest_irq)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).flags) as usize - ptr as usize },
-        12usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_assigned_irq),
-            "::",
-            stringify!(flags)
-        )
-    );
-}
-impl Default for kvm_assigned_irq {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-impl ::std::fmt::Debug for kvm_assigned_irq {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        write ! (f , "kvm_assigned_irq {{ assigned_dev_id: {:?}, host_irq: {:?}, guest_irq: {:?}, flags: {:?}, __bindgen_anon_1: {:?} }}" , self . assigned_dev_id , self . host_irq , self . guest_irq , self . flags , self . __bindgen_anon_1)
-    }
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_assigned_msix_nr {
-    pub assigned_dev_id: __u32,
-    pub entry_nr: __u16,
-    pub padding: __u16,
-}
-#[test]
-fn bindgen_test_layout_kvm_assigned_msix_nr() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_assigned_msix_nr> = ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_assigned_msix_nr>(),
-        8usize,
-        concat!("Size of: ", stringify!(kvm_assigned_msix_nr))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_assigned_msix_nr>(),
-        4usize,
-        concat!("Alignment of ", stringify!(kvm_assigned_msix_nr))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).assigned_dev_id) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_assigned_msix_nr),
-            "::",
-            stringify!(assigned_dev_id)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).entry_nr) as usize - ptr as usize },
-        4usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_assigned_msix_nr),
-            "::",
-            stringify!(entry_nr)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).padding) as usize - ptr as usize },
-        6usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_assigned_msix_nr),
-            "::",
-            stringify!(padding)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_assigned_msix_entry {
-    pub assigned_dev_id: __u32,
-    pub gsi: __u32,
-    pub entry: __u16,
-    pub padding: [__u16; 3usize],
-}
-#[test]
-fn bindgen_test_layout_kvm_assigned_msix_entry() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_assigned_msix_entry> =
-        ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_assigned_msix_entry>(),
-        16usize,
-        concat!("Size of: ", stringify!(kvm_assigned_msix_entry))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_assigned_msix_entry>(),
-        4usize,
-        concat!("Alignment of ", stringify!(kvm_assigned_msix_entry))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).assigned_dev_id) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_assigned_msix_entry),
-            "::",
-            stringify!(assigned_dev_id)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).gsi) as usize - ptr as usize },
-        4usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_assigned_msix_entry),
-            "::",
-            stringify!(gsi)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).entry) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_assigned_msix_entry),
-            "::",
-            stringify!(entry)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).padding) as usize - ptr as usize },
-        10usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_assigned_msix_entry),
-            "::",
-            stringify!(padding)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_hyperv_eventfd {
-    pub conn_id: __u32,
-    pub fd: __s32,
-    pub flags: __u32,
-    pub padding: [__u32; 3usize],
-}
-#[test]
-fn bindgen_test_layout_kvm_hyperv_eventfd() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_hyperv_eventfd> = ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_hyperv_eventfd>(),
-        24usize,
-        concat!("Size of: ", stringify!(kvm_hyperv_eventfd))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_hyperv_eventfd>(),
-        4usize,
-        concat!("Alignment of ", stringify!(kvm_hyperv_eventfd))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).conn_id) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_hyperv_eventfd),
-            "::",
-            stringify!(conn_id)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).fd) as usize - ptr as usize },
-        4usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_hyperv_eventfd),
-            "::",
-            stringify!(fd)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).flags) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_hyperv_eventfd),
-            "::",
-            stringify!(flags)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).padding) as usize - ptr as usize },
-        12usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_hyperv_eventfd),
-            "::",
-            stringify!(padding)
         )
     );
 }
@@ -15109,242 +13128,119 @@ fn bindgen_test_layout_kvm_stats_desc() {
     );
 }
 #[repr(C)]
-#[derive(Copy, Clone)]
-pub struct kvm_s390_zpci_op {
-    pub fh: __u32,
-    pub op: __u8,
-    pub pad: [__u8; 3usize],
-    pub u: kvm_s390_zpci_op__bindgen_ty_1,
-}
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub union kvm_s390_zpci_op__bindgen_ty_1 {
-    pub reg_aen: kvm_s390_zpci_op__bindgen_ty_1__bindgen_ty_1,
-    pub reserved: [__u64; 8usize],
-}
-#[repr(C)]
 #[derive(Debug, Default, Copy, Clone, PartialEq)]
-pub struct kvm_s390_zpci_op__bindgen_ty_1__bindgen_ty_1 {
-    pub ibv: __u64,
-    pub sb: __u64,
-    pub flags: __u32,
-    pub noi: __u32,
-    pub isc: __u8,
-    pub sbo: __u8,
-    pub pad: __u16,
+pub struct kvm_memory_attributes {
+    pub address: __u64,
+    pub size: __u64,
+    pub attributes: __u64,
+    pub flags: __u64,
 }
 #[test]
-fn bindgen_test_layout_kvm_s390_zpci_op__bindgen_ty_1__bindgen_ty_1() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_s390_zpci_op__bindgen_ty_1__bindgen_ty_1> =
+fn bindgen_test_layout_kvm_memory_attributes() {
+    const UNINIT: ::std::mem::MaybeUninit<kvm_memory_attributes> =
         ::std::mem::MaybeUninit::uninit();
     let ptr = UNINIT.as_ptr();
     assert_eq!(
-        ::std::mem::size_of::<kvm_s390_zpci_op__bindgen_ty_1__bindgen_ty_1>(),
+        ::std::mem::size_of::<kvm_memory_attributes>(),
         32usize,
-        concat!(
-            "Size of: ",
-            stringify!(kvm_s390_zpci_op__bindgen_ty_1__bindgen_ty_1)
-        )
+        concat!("Size of: ", stringify!(kvm_memory_attributes))
     );
     assert_eq!(
-        ::std::mem::align_of::<kvm_s390_zpci_op__bindgen_ty_1__bindgen_ty_1>(),
+        ::std::mem::align_of::<kvm_memory_attributes>(),
         8usize,
-        concat!(
-            "Alignment of ",
-            stringify!(kvm_s390_zpci_op__bindgen_ty_1__bindgen_ty_1)
-        )
+        concat!("Alignment of ", stringify!(kvm_memory_attributes))
     );
     assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).ibv) as usize - ptr as usize },
+        unsafe { ::std::ptr::addr_of!((*ptr).address) as usize - ptr as usize },
         0usize,
         concat!(
             "Offset of field: ",
-            stringify!(kvm_s390_zpci_op__bindgen_ty_1__bindgen_ty_1),
+            stringify!(kvm_memory_attributes),
             "::",
-            stringify!(ibv)
+            stringify!(address)
         )
     );
     assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).sb) as usize - ptr as usize },
+        unsafe { ::std::ptr::addr_of!((*ptr).size) as usize - ptr as usize },
         8usize,
         concat!(
             "Offset of field: ",
-            stringify!(kvm_s390_zpci_op__bindgen_ty_1__bindgen_ty_1),
+            stringify!(kvm_memory_attributes),
             "::",
-            stringify!(sb)
+            stringify!(size)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).attributes) as usize - ptr as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_memory_attributes),
+            "::",
+            stringify!(attributes)
         )
     );
     assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).flags) as usize - ptr as usize },
-        16usize,
+        24usize,
         concat!(
             "Offset of field: ",
-            stringify!(kvm_s390_zpci_op__bindgen_ty_1__bindgen_ty_1),
+            stringify!(kvm_memory_attributes),
+            "::",
+            stringify!(flags)
+        )
+    );
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
+pub struct kvm_create_guest_memfd {
+    pub size: __u64,
+    pub flags: __u64,
+    pub reserved: [__u64; 6usize],
+}
+#[test]
+fn bindgen_test_layout_kvm_create_guest_memfd() {
+    const UNINIT: ::std::mem::MaybeUninit<kvm_create_guest_memfd> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<kvm_create_guest_memfd>(),
+        64usize,
+        concat!("Size of: ", stringify!(kvm_create_guest_memfd))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<kvm_create_guest_memfd>(),
+        8usize,
+        concat!("Alignment of ", stringify!(kvm_create_guest_memfd))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).size) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_create_guest_memfd),
+            "::",
+            stringify!(size)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).flags) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(kvm_create_guest_memfd),
             "::",
             stringify!(flags)
         )
     );
     assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).noi) as usize - ptr as usize },
-        20usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_zpci_op__bindgen_ty_1__bindgen_ty_1),
-            "::",
-            stringify!(noi)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).isc) as usize - ptr as usize },
-        24usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_zpci_op__bindgen_ty_1__bindgen_ty_1),
-            "::",
-            stringify!(isc)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).sbo) as usize - ptr as usize },
-        25usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_zpci_op__bindgen_ty_1__bindgen_ty_1),
-            "::",
-            stringify!(sbo)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).pad) as usize - ptr as usize },
-        26usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_zpci_op__bindgen_ty_1__bindgen_ty_1),
-            "::",
-            stringify!(pad)
-        )
-    );
-}
-#[test]
-fn bindgen_test_layout_kvm_s390_zpci_op__bindgen_ty_1() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_s390_zpci_op__bindgen_ty_1> =
-        ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_s390_zpci_op__bindgen_ty_1>(),
-        64usize,
-        concat!("Size of: ", stringify!(kvm_s390_zpci_op__bindgen_ty_1))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_s390_zpci_op__bindgen_ty_1>(),
-        8usize,
-        concat!("Alignment of ", stringify!(kvm_s390_zpci_op__bindgen_ty_1))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).reg_aen) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_zpci_op__bindgen_ty_1),
-            "::",
-            stringify!(reg_aen)
-        )
-    );
-    assert_eq!(
         unsafe { ::std::ptr::addr_of!((*ptr).reserved) as usize - ptr as usize },
-        0usize,
+        16usize,
         concat!(
             "Offset of field: ",
-            stringify!(kvm_s390_zpci_op__bindgen_ty_1),
+            stringify!(kvm_create_guest_memfd),
             "::",
             stringify!(reserved)
         )
     );
-}
-impl Default for kvm_s390_zpci_op__bindgen_ty_1 {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-impl ::std::fmt::Debug for kvm_s390_zpci_op__bindgen_ty_1 {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        write!(f, "kvm_s390_zpci_op__bindgen_ty_1 {{ union }}")
-    }
-}
-#[test]
-fn bindgen_test_layout_kvm_s390_zpci_op() {
-    const UNINIT: ::std::mem::MaybeUninit<kvm_s390_zpci_op> = ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<kvm_s390_zpci_op>(),
-        72usize,
-        concat!("Size of: ", stringify!(kvm_s390_zpci_op))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<kvm_s390_zpci_op>(),
-        8usize,
-        concat!("Alignment of ", stringify!(kvm_s390_zpci_op))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).fh) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_zpci_op),
-            "::",
-            stringify!(fh)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).op) as usize - ptr as usize },
-        4usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_zpci_op),
-            "::",
-            stringify!(op)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).pad) as usize - ptr as usize },
-        5usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_zpci_op),
-            "::",
-            stringify!(pad)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).u) as usize - ptr as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(kvm_s390_zpci_op),
-            "::",
-            stringify!(u)
-        )
-    );
-}
-impl Default for kvm_s390_zpci_op {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-impl ::std::fmt::Debug for kvm_s390_zpci_op {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        write!(
-            f,
-            "kvm_s390_zpci_op {{ fh: {:?}, op: {:?}, pad: {:?}, u: {:?} }}",
-            self.fh, self.op, self.pad, self.u
-        )
-    }
 }

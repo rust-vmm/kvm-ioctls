@@ -22,7 +22,7 @@ git clone https://github.com/torvalds/linux.git
 When adding a new architecture, the bindings must be generated for all existing
 versions for consistency reasons.
 
-### Example for arm64 and kernel version 6.2
+### Example for arm64 and kernel version 6.9
 
 For this example we assume that you have both linux and kvm-bindings
 repositories in your root.
@@ -36,7 +36,7 @@ popd
 # linux is the repository that you cloned at the previous step.
 pushd linux
 # Step 2: Checkout the version you want to generate the bindings for.
-git checkout v6.2
+git checkout v6.9
 
 # Step 3: Generate the bindings.
 # This will generate the headers for the targeted architecture and place them
