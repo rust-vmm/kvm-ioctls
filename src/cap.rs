@@ -93,6 +93,8 @@ pub enum Cap {
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     Xsave = KVM_CAP_XSAVE,
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    Xsave2 = KVM_CAP_XSAVE2,
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     Xcrs = KVM_CAP_XCRS,
     PpcGetPvinfo = KVM_CAP_PPC_GET_PVINFO,
     PpcIrqLevel = KVM_CAP_PPC_IRQ_LEVEL,

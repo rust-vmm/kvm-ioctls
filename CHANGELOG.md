@@ -4,6 +4,9 @@
 
 ### Added
 
+- [[#261](https://github.com/rust-vmm/kvm-ioctls/pull/261)]: Add support
+  for `KVM_CAP_XSAVE2` and the `KVM_GET_XSAVE2` ioctl.
+
 ### Changed
 
 ## v0.17.0
