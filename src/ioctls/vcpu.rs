@@ -3198,6 +3198,103 @@ mod tests {
 
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     #[test]
+    fn test_userspace_hypercall_exit() {
+        use std::io::Write;
+
+        let kvm = Kvm::new().unwrap();
+        let vm = kvm.create_vm().unwrap();
+
+        // Use `vmcall` or `vmmcall` depending on what's supported.
+        let cpuid = kvm.get_supported_cpuid(KVM_MAX_CPUID_ENTRIES).unwrap();
+        let supports_vmcall = cpuid
+            .as_slice()
+            .iter()
+            .find(|entry| entry.function == 1)
+            .map_or(false, |entry| entry.ecx & (1 << 5) != 0);
+        let supports_vmmcall = cpuid
+            .as_slice()
+            .iter()
+            .find(|entry| entry.function == 0x8000_0001)
+            .map_or(false, |entry| entry.ecx & (1 << 2) != 0);
+        #[rustfmt::skip]
+        let code = if supports_vmcall {
+            [
+                0x0F, 0x01, 0xC1, /* vmcall */
+                0xF4              /* hlt */
+            ]
+        } else if supports_vmmcall {
+            [
+                0x0F, 0x01, 0xD9, /* vmmcall */
+                0xF4              /* hlt */
+            ]
+        } else {
+            return;
+        };
+
+        if !vm.check_extension(Cap::ExitHypercall) {
+            return;
+        }
+        const KVM_HC_MAP_GPA_RANGE: u64 = 12;
+        let cap = kvm_enable_cap {
+            cap: Cap::ExitHypercall as u32,
+            args: [1 << KVM_HC_MAP_GPA_RANGE, 0, 0, 0],
+            ..Default::default()
+        };
+        vm.enable_cap(&cap).unwrap();
+
+        let mem_size = 0x4000;
+        let load_addr = mmap_anonymous(mem_size).as_ptr();
+        let guest_addr: u64 = 0x1000;
+        let slot: u32 = 0;
+        let mem_region = kvm_userspace_memory_region {
+            slot,
+            guest_phys_addr: guest_addr,
+            memory_size: mem_size as u64,
+            userspace_addr: load_addr as u64,
+            flags: 0,
+        };
+        unsafe {
+            vm.set_user_memory_region(mem_region).unwrap();
+
+            // Get a mutable slice of `mem_size` from `load_addr`.
+            // This is safe because we mapped it before.
+            let mut slice = std::slice::from_raw_parts_mut(load_addr, mem_size);
+            slice.write_all(&code).unwrap();
+        }
+
+        let mut vcpu = vm.create_vcpu(0).unwrap();
+
+        // Set up special registers
+        let mut vcpu_sregs = vcpu.get_sregs().unwrap();
+        assert_ne!(vcpu_sregs.cs.base, 0);
+        assert_ne!(vcpu_sregs.cs.selector, 0);
+        vcpu_sregs.cs.base = 0;
+        vcpu_sregs.cs.selector = 0;
+        vcpu.set_sregs(&vcpu_sregs).unwrap();
+
+        // Set the Instruction Pointer to the guest address where we loaded
+        // the code, and RCX to the MSR to be read.
+        let mut vcpu_regs = vcpu.get_regs().unwrap();
+        vcpu_regs.rip = guest_addr;
+        vcpu_regs.rax = KVM_HC_MAP_GPA_RANGE;
+        vcpu_regs.rbx = 0x1234000;
+        vcpu_regs.rcx = 1;
+        vcpu_regs.rdx = 0;
+        vcpu.set_regs(&vcpu_regs).unwrap();
+
+        match vcpu.run().unwrap() {
+            VcpuExit::Hypercall(exit) => {
+                assert_eq!(exit.nr, KVM_HC_MAP_GPA_RANGE);
+                assert_eq!(exit.args[0], 0x1234000);
+                assert_eq!(exit.args[1], 1);
+                assert_eq!(exit.args[2], 0);
+            }
+            e => panic!("Unexpected exit: {:?}", e),
+        }
+    }
+
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[test]
     fn test_userspace_wrmsr_exit() {
         use std::io::Write;
 
