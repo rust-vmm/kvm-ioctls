@@ -167,4 +167,5 @@ pub enum Cap {
     ArmPtrAuthGeneric = KVM_CAP_ARM_PTRAUTH_GENERIC,
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     X86UserSpaceMsr = KVM_CAP_X86_USER_SPACE_MSR,
+    ExitHypercall = KVM_CAP_EXIT_HYPERCALL,
 }
