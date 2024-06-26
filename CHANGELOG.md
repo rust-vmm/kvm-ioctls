@@ -4,6 +4,8 @@
 
 ### Added
 
+- [[#267](https://github.com/rust-vmm/kvm-ioctls/pull/267)]: Added `HypercallExit` field to `VcpuExit::Hypercall` and added `ExitHypercall` to `Cap`.
+
 ### Changed
 
 ## v0.17.0
