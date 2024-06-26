@@ -23,6 +23,19 @@ pub fn reg_size(reg_id: u64) -> usize {
     2_usize.pow(((reg_id & KVM_REG_SIZE_MASK) >> KVM_REG_SIZE_SHIFT) as u32)
 }
 
+/// Information about a [`VcpuExit`] triggered by an Hypercall (`KVM_EXIT_HYPERCALL`).
+#[derive(Debug)]
+pub struct HypercallExit<'a> {
+    /// The hypercall number.
+    pub nr: u64,
+    /// The arguments for the hypercall.
+    pub args: [u64; 6],
+    /// The return code to be indicated to the guest.
+    pub ret: &'a mut u64,
+    /// Whether the hypercall was executed in long mode.
+    pub longmode: u32,
+}
+
 /// Information about a [`VcpuExit`] triggered by an MSR read (`KVM_EXIT_X86_RDMSR`).
 #[derive(Debug)]
 pub struct ReadMsrExit<'a> {
@@ -97,7 +110,7 @@ pub enum VcpuExit<'a> {
     /// Corresponds to KVM_EXIT_EXCEPTION.
     Exception,
     /// Corresponds to KVM_EXIT_HYPERCALL.
-    Hypercall,
+    Hypercall(HypercallExit<'a>),
     /// Corresponds to KVM_EXIT_DEBUG.
     ///
     /// Provides architecture specific information for the debug event.
@@ -1454,7 +1467,17 @@ impl VcpuFd {
                         _ => Err(errno::Error::new(EINVAL)),
                     }
                 }
-                KVM_EXIT_HYPERCALL => Ok(VcpuExit::Hypercall),
+                KVM_EXIT_HYPERCALL => {
+                    // SAFETY: Safe because the exit_reason (which comes from the kernel) told us
+                    // which union field to use.
+                    let hypercall = unsafe { &mut run.__bindgen_anon_1.hypercall };
+                    Ok(VcpuExit::Hypercall(HypercallExit {
+                        nr: hypercall.nr,
+                        args: hypercall.args,
+                        ret: &mut hypercall.ret,
+                        longmode: hypercall.longmode,
+                    }))
+                }
                 KVM_EXIT_DEBUG => {
                     // SAFETY: Safe because the exit_reason (which comes from the kernel) told us
                     // which union field to use.
