@@ -38,12 +38,24 @@ ioctl_iow_nr!(
     0x46,
     kvm_userspace_memory_region
 );
+ioctl_iow_nr!(
+    KVM_SET_USER_MEMORY_REGION2,
+    KVMIO,
+    0x49,
+    kvm_userspace_memory_region2
+);
 /* Available with KVM_CAP_SET_TSS_ADDR */
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 ioctl_io_nr!(KVM_SET_TSS_ADDR, KVMIO, 0x47);
 /* Available with KVM_CAP_SET_IDENTITY_MAP_ADDR */
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 ioctl_iow_nr!(KVM_SET_IDENTITY_MAP_ADDR, KVMIO, 0x48, u64);
+#[cfg(any(
+    target_arch = "x86",
+    target_arch = "x86_64",
+    target_arch = "aarch64"
+))]
+ioctl_iowr_nr!(KVM_CREATE_GUEST_MEMFD, KVMIO, 0xd4, kvm_create_guest_memfd);
 /* Available with KVM_CAP_IRQCHIP */
 #[cfg(any(
     target_arch = "x86",
@@ -267,6 +279,13 @@ ioctl_iow_nr!(KVM_ARM_VCPU_FINALIZE, KVMIO, 0xc2, std::os::raw::c_int);
 
 /* Available with KVM_CAP_SET_GUEST_DEBUG */
 ioctl_iow_nr!(KVM_SET_GUEST_DEBUG, KVMIO, 0x9b, kvm_guest_debug);
+
+#[cfg(any(
+    target_arch = "x86",
+    target_arch = "x86_64",
+    target_arch = "aarch64"
+))]
+ioctl_iow_nr!(KVM_SET_MEMORY_ATTRIBUTES, KVMIO, 0xd2, kvm_memory_attributes);
 
 // Device ioctls.
 
