@@ -5,6 +5,12 @@
 
 ### Changed
 
+### Removed
+
+## [0.9.0]
+
+### Changed
+
 - Replaced the v6.2 bindings of arm64, x86\_64 with the v6.9 ones.
 
 ### Removed
