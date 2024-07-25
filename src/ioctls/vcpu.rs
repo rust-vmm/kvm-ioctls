@@ -1475,7 +1475,9 @@ impl VcpuFd {
                         nr: hypercall.nr,
                         args: hypercall.args,
                         ret: &mut hypercall.ret,
-                        longmode: hypercall.longmode,
+                        // SAFETY: Safe because the exit_reason (which comes from the kernel) told us
+                        // which union field to use.
+                        longmode: unsafe { hypercall.__bindgen_anon_1.longmode },
                     }))
                 }
                 KVM_EXIT_DEBUG => {
