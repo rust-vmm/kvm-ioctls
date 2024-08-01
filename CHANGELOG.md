@@ -4,14 +4,18 @@
 
 ### Added
 
+### Changed
+
+## v0.18.0
+
+### Added
+
 - [[#264](https://github.com/rust-vmm/kvm-ioctls/pull/264)]: Added `KVM_SET_USER_MEMORY_REGION2`,
   `KVM_CREATE_GUEST_MEMFD` and `KVM_SET_MEMORY_ATTRIBUTES` ioctls.
 - [[#267](https://github.com/rust-vmm/kvm-ioctls/pull/267)]: Added `HypercallExit` field to
   `VcpuExit::Hypercall` and added `ExitHypercall` to `Cap`.
 - [[#270](https://github.com/rust-vmm/kvm-ioctls/pull/270)]: Added `MemoryFaultInfo` to `Cap` and
   propagated `MemoryFault` exit reason in `KVM_RUN`.
-
-### Changed
 
 ## v0.17.0
 
