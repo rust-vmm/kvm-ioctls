@@ -169,4 +169,6 @@ pub enum Cap {
     X86UserSpaceMsr = KVM_CAP_X86_USER_SPACE_MSR,
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     ExitHypercall = KVM_CAP_EXIT_HYPERCALL,
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    MemoryFaultInfo = KVM_CAP_MEMORY_FAULT_INFO,
 }
