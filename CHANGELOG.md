@@ -5,6 +5,7 @@
 ### Added
 
 - [[#267](https://github.com/rust-vmm/kvm-ioctls/pull/267)]: Added `HypercallExit` field to `VcpuExit::Hypercall` and added `ExitHypercall` to `Cap`.
+- [[#270](https://github.com/rust-vmm/kvm-ioctls/pull/270)]: Added `MemoryFaultInfo` to `Cap` and propagated `MemoryFault` exit reason in `KVM_RUN`.
 
 ### Changed
 
