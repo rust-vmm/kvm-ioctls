@@ -166,6 +166,15 @@ pub enum VcpuExit<'a> {
     X86Rdmsr(ReadMsrExit<'a>),
     /// Corresponds to KVM_EXIT_X86_WRMSR.
     X86Wrmsr(WriteMsrExit<'a>),
+    /// Corresponds to KVM_EXIT_MEMORY_FAULT.
+    MemoryFault {
+        /// flags
+        flags: u64,
+        /// gpa
+        gpa: u64,
+        /// size
+        size: u64,
+    },
     /// Corresponds to an exit reason that is unknown from the current version
     /// of the kvm-ioctls crate. Let the consumer decide about what to do with
     /// it.
@@ -1569,7 +1578,30 @@ impl VcpuFd {
                 r => Ok(VcpuExit::Unsupported(r)),
             }
         } else {
-            Err(errno::Error::last())
+            let errno = errno::Error::last();
+            let run = self.kvm_run_ptr.as_mut_ref();
+            // From https://docs.kernel.org/virt/kvm/api.html#kvm-run :
+            //
+            // KVM_EXIT_MEMORY_FAULT is unique among all KVM exit reasons in that it accompanies
+            // a return code of ‘-1’, not ‘0’! errno will always be set to EFAULT or EHWPOISON
+            // when KVM exits with KVM_EXIT_MEMORY_FAULT, userspace should assume kvm_run.exit_reason
+            // is stale/undefined for all other error numbers.
+            if ret == -1
+                && (errno == errno::Error::new(libc::EFAULT)
+                    || errno == errno::Error::new(libc::EHWPOISON))
+                && run.exit_reason == KVM_EXIT_MEMORY_FAULT
+            {
+                // SAFETY: Safe because the exit_reason (which comes from the kernel) told us
+                // which union field to use.
+                let fault = unsafe { &mut run.__bindgen_anon_1.memory_fault };
+                Ok(VcpuExit::MemoryFault {
+                    flags: fault.flags,
+                    gpa: fault.gpa,
+                    size: fault.size,
+                })
+            } else {
+                Err(errno)
+            }
         }
     }
 
