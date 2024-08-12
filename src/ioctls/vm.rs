@@ -1949,7 +1949,7 @@ mod tests {
     use crate::Kvm;
 
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-    use std::{fs::OpenOptions, ptr::null_mut};
+    use std::{fs::OpenOptions, os::fd::IntoRawFd, ptr::null_mut};
 
     use libc::EFD_NONBLOCK;
 
@@ -2395,6 +2395,10 @@ mod tests {
             faulty_vm_fd.get_dirty_log(0, 0).unwrap_err().errno(),
             badf_errno
         );
+
+        // Don't drop the File object, or it'll notice the file it's trying to close is
+        // invalid and abort the process.
+        faulty_vm_fd.vm.into_raw_fd();
     }
 
     #[test]
