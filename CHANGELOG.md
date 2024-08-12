@@ -6,6 +6,9 @@
 
 ### Changed
 
+- [[#273](https://github.com/rust-vmm/kvm-ioctls/pull/273)]: `DeviceFd::get_device_attr` is now
+  marked as unsafe.
+
 ## v0.18.0
 
 ### Added
