@@ -730,6 +730,7 @@ mod tests {
     #![allow(clippy::undocumented_unsafe_blocks)]
     use super::*;
     use libc::{fcntl, FD_CLOEXEC, F_GETFD};
+    use std::os::fd::IntoRawFd;
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     use vmm_sys_util::fam::FamStruct;
 
@@ -978,5 +979,9 @@ mod tests {
             );
         }
         assert_eq!(faulty_kvm.create_vm().err().unwrap().errno(), badf_errno);
+
+        // Don't drop the File object, or it'll notice the file it's trying to close is
+        // invalid and abort the process.
+        faulty_kvm.kvm.into_raw_fd();
     }
 }

@@ -2543,7 +2543,7 @@ mod tests {
         target_arch = "aarch64"
     ))]
     fn test_faulty_vcpu_fd() {
-        use std::os::unix::io::FromRawFd;
+        use std::os::unix::io::{FromRawFd, IntoRawFd};
 
         let badf_errno = libc::EBADF;
 
@@ -2579,12 +2579,16 @@ mod tests {
             badf_errno
         );
         assert_eq!(faulty_vcpu_fd.run().unwrap_err().errno(), badf_errno);
+
+        // Don't drop the File object, or it'll notice the file it's trying to close is
+        // invalid and abort the process.
+        faulty_vcpu_fd.vcpu.into_raw_fd();
     }
 
     #[test]
     #[cfg(target_arch = "x86_64")]
     fn test_faulty_vcpu_fd_x86_64() {
-        use std::os::unix::io::FromRawFd;
+        use std::os::unix::io::{FromRawFd, IntoRawFd};
 
         let badf_errno = libc::EBADF;
 
@@ -2699,6 +2703,10 @@ mod tests {
         assert!(faulty_vcpu_fd.get_tsc_khz().is_err());
         assert!(faulty_vcpu_fd.set_tsc_khz(1000000).is_err());
         assert!(faulty_vcpu_fd.translate_gva(u64::MAX).is_err());
+
+        // Don't drop the File object, or it'll notice the file it's trying to close is
+        // invalid and abort the process.
+        faulty_vcpu_fd.vcpu.into_raw_fd();
     }
 
     #[test]
@@ -2721,7 +2729,7 @@ mod tests {
     #[test]
     #[cfg(target_arch = "aarch64")]
     fn test_faulty_vcpu_fd_aarch64() {
-        use std::os::unix::io::FromRawFd;
+        use std::os::unix::io::{FromRawFd, IntoRawFd};
 
         let badf_errno = libc::EBADF;
 
@@ -2793,6 +2801,10 @@ mod tests {
                 .errno(),
             badf_errno
         );
+
+        // Don't drop the File object, or it'll notice the file it's trying to close is
+        // invalid and abort the process.
+        faulty_vcpu_fd.vcpu.into_raw_fd();
     }
 
     #[test]
