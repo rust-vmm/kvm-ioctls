@@ -102,6 +102,11 @@ impl DeviceFd {
     /// * `device_attr` - The `addr` field of the `device_attr` structure will point to
     ///                   the device attribute data.
     ///
+    /// # Safety
+    ///
+    /// The caller is responsible for the validity of the `device_attr` argument,
+    /// including that it is safe to write to the `addr` member.
+    ///
     /// # Examples
     /// ```rust
     /// # extern crate kvm_ioctls;
@@ -138,14 +143,16 @@ impl DeviceFd {
     ///     let mut data: u32 = 0;
     ///     let mut gic_attr = kvm_bindings::kvm_device_attr::default();
     ///     gic_attr.group = KVM_DEV_ARM_VGIC_GRP_NR_IRQS;
-    ///     gic_attr.addr = &mut data as *const u32 as u64;
+    ///     gic_attr.addr = &mut data as *mut u32 as u64;
     ///
-    ///     device_fd.get_device_attr(&mut gic_attr).unwrap();
+    ///     // SAFETY: gic_attr.addr is safe to write to.
+    ///     unsafe { device_fd.get_device_attr(&mut gic_attr) }.unwrap();
     /// }
     /// ```
-    pub fn get_device_attr(&self, device_attr: &mut kvm_device_attr) -> Result<()> {
-        // SAFETY: We are calling this function with a Device fd, and we trust the kernel.
-        let ret = unsafe { ioctl_with_mut_ref(self, KVM_GET_DEVICE_ATTR(), device_attr) };
+    pub unsafe fn get_device_attr(&self, device_attr: &mut kvm_device_attr) -> Result<()> {
+        // SAFETY: Caller has ensured device_attr.addr is safe to write to.
+        // We are calling this function with a Device fd,  we trust the kernel.
+        let ret = ioctl_with_mut_ref(self, KVM_GET_DEVICE_ATTR(), device_attr);
         if ret != 0 {
             return Err(errno::Error::last());
         }
@@ -234,7 +241,7 @@ mod tests {
         // We are just creating a test device. Creating a real device would make the CI dependent
         // on host configuration (like having /dev/vfio). We expect this to fail.
         assert!(device_fd.has_device_attr(&dist_attr).is_err());
-        assert!(device_fd.get_device_attr(&mut dist_attr_mut).is_err());
+        assert!(unsafe { device_fd.get_device_attr(&mut dist_attr_mut) }.is_err());
         assert!(device_fd.set_device_attr(&dist_attr).is_err());
         assert_eq!(errno::Error::last().errno(), 25);
     }
@@ -307,11 +314,11 @@ mod tests {
 
         // Without properly providing the address to where the
         // value will be stored, the ioctl fails with EFAULT.
-        let res = device_fd.get_device_attr(&mut gic_attr);
+        let res = unsafe { device_fd.get_device_attr(&mut gic_attr) };
         assert_eq!(res, Err(Error::new(libc::EFAULT)));
 
-        gic_attr.addr = &mut data as *const u32 as u64;
-        assert!(device_fd.get_device_attr(&mut gic_attr).is_ok());
+        gic_attr.addr = &mut data as *mut u32 as u64;
+        assert!(unsafe { device_fd.get_device_attr(&mut gic_attr) }.is_ok());
         // The maximum supported number of IRQs should be 128, same as the value
         // when we initialize the GIC.
         assert_eq!(data, 128);
