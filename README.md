@@ -18,10 +18,7 @@ as the code documentation.
 
 ## Supported Platforms
 
-The kvm-ioctls can be used on x86_64 and aarch64. Right now the aarch64 support
-is considered experimental. For a production ready version, please check the
-progress in the corresponding
-[GitHub issue](https://github.com/rust-vmm/kvm-ioctls/issues/8).
+The kvm-ioctls can be used on x86_64 and aarch64.
 
 ## Running the tests
 
