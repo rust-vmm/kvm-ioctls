@@ -123,4 +123,34 @@ mod tests {
         is_serde::<kvm_irqchip>();
         is_serde::<kvm_mp_state>();
     }
+
+    fn is_serde_json<T: Serialize + for<'de> Deserialize<'de> + Default>() {
+        let serialized = serde_json::to_string(&T::default()).unwrap();
+        let deserialized = serde_json::from_str::<T>(serialized.as_ref()).unwrap();
+        let serialized_again = serde_json::to_string(&deserialized).unwrap();
+        // Compare the serialized state after a roundtrip, to work around issues with
+        // bindings not implementing `PartialEq`.
+        assert_eq!(serialized, serialized_again);
+    }
+
+    #[test]
+    fn test_json_serde() {
+        is_serde_json::<kvm_clock_data>();
+        is_serde_json::<kvm_regs>();
+        is_serde_json::<kvm_segment>();
+        is_serde_json::<kvm_dtable>();
+        is_serde_json::<kvm_sregs>();
+        is_serde_json::<kvm_msr_entry>();
+        is_serde_json::<kvm_msrs>();
+        is_serde_json::<kvm_cpuid_entry2>();
+        is_serde_json::<kvm_cpuid2>();
+        is_serde_json::<kvm_pit_channel_state>();
+        is_serde_json::<kvm_pit_state2>();
+        is_serde_json::<kvm_vcpu_events>();
+        is_serde_json::<kvm_debugregs>();
+        is_serde_json::<kvm_xcr>();
+        is_serde_json::<kvm_xcrs>();
+        is_serde_json::<kvm_irqchip>();
+        is_serde_json::<kvm_mp_state>();
+    }
 }

@@ -57,4 +57,23 @@ mod tests {
         is_serde::<kvm_mp_state>();
         is_serde::<kvm_one_reg>();
     }
+
+    fn is_serde_json<T: Serialize + for<'de> Deserialize<'de> + Default>() {
+        let serialized = serde_json::to_string(&T::default()).unwrap();
+        let deserialized = serde_json::from_str::<T>(serialized.as_ref()).unwrap();
+        let serialized_again = serde_json::to_string(&deserialized).unwrap();
+        // Compare the serialized state after a roundtrip, to work around issues with
+        // bindings not implementing `PartialEq`.
+        assert_eq!(serialized, serialized_again);
+    }
+
+    #[test]
+    fn test_json_serde() {
+        is_serde_json::<user_pt_regs>();
+        is_serde_json::<user_fpsimd_state>();
+        is_serde_json::<kvm_regs>();
+        is_serde_json::<kvm_vcpu_init>();
+        is_serde_json::<kvm_mp_state>();
+        is_serde_json::<kvm_one_reg>();
+    }
 }
