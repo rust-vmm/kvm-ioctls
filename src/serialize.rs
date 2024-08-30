@@ -42,6 +42,18 @@ macro_rules! serde_impls {
                             backing[..limit].copy_from_slice(&bytes[..limit]);
                             Ok(backing)
                         }
+
+                        fn visit_seq<A: serde::de::SeqAccess<'a>>(self, mut seq: A) -> Result<Self::Value, A::Error> {
+                            let mut backing = [0u8; std::mem::size_of::<$typ>()];
+
+                            for backing_byte in &mut backing {
+                                let Some(byte) = seq.next_element()? else { break };
+
+                                *backing_byte = byte;
+                            }
+
+                            Ok(backing)
+                        }
                     }
 
                     let backing = deserializer.deserialize_bytes(BytesVisitor)?;
