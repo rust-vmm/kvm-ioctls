@@ -7,6 +7,13 @@
 
 ### Removed
 
+## [0.9.1]
+
+### Changed
+
+- Fixed and validated manual (De)Serialize implementations to work with
+  `serde_json` crate.
+
 ## [0.9.0]
 
 ### Changed
