@@ -3,6 +3,8 @@
 
 ### Added
 
+- RISC-V KVM bindings for Linux kernel v6.9.
+
 ### Changed
 
 ### Removed

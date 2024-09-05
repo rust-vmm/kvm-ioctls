@@ -6,6 +6,7 @@ Rust FFI bindings to KVM, generated using
 following target architectures:
 - x86_64
 - arm64
+- riscv64
 
 The bindings exported by this crate are statically generated using header files
 associated with a specific kernel version, and are not automatically synced with

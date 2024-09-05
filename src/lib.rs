@@ -8,17 +8,17 @@
 #![allow(non_snake_case)]
 #![cfg_attr(docsrs, feature(doc_auto_cfg))]
 
+#[cfg(all(feature = "fam-wrappers", not(target_arch = "riscv64")))]
 #[macro_use]
-#[cfg(feature = "fam-wrappers")]
 extern crate vmm_sys_util;
 
-#[cfg(feature = "serde")]
+#[cfg(all(feature = "serde", not(target_arch = "riscv64")))]
 extern crate serde;
 
-#[cfg(feature = "serde")]
+#[cfg(all(feature = "serde", not(target_arch = "riscv64")))]
 extern crate zerocopy;
 
-#[cfg(feature = "serde")]
+#[cfg(all(feature = "serde", not(target_arch = "riscv64")))]
 #[macro_use]
 mod serialize;
 
@@ -31,3 +31,8 @@ pub use self::x86_64::*;
 mod arm64;
 #[cfg(any(target_arch = "aarch", target_arch = "aarch64"))]
 pub use self::arm64::*;
+
+#[cfg(target_arch = "riscv64")]
+mod riscv64;
+#[cfg(target_arch = "riscv64")]
+pub use self::riscv64::*;
