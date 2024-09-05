@@ -8,6 +8,7 @@
 
 - [[#273](https://github.com/rust-vmm/kvm-ioctls/pull/273)]: `DeviceFd::get_device_attr` is now
   marked as unsafe.
+- [[#277](https://github.com/rust-vmm/kvm-ioctls/pull/277)]: Updated kvm-bindings to 0.9.1.
 
 ## v0.18.0
 
