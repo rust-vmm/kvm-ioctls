@@ -8,7 +8,7 @@
 #![allow(non_snake_case)]
 #![cfg_attr(docsrs, feature(doc_auto_cfg))]
 
-#[cfg(all(feature = "fam-wrappers", not(target_arch = "riscv64")))]
+#[cfg(feature = "fam-wrappers")]
 #[macro_use]
 extern crate vmm_sys_util;
 
