@@ -8,6 +8,7 @@
 
 - [[#273](https://github.com/rust-vmm/kvm-ioctls/pull/273)]: `DeviceFd::get_device_attr` is now
   marked as unsafe.
+- [[#277](https://github.com/rust-vmm/kvm-ioctls/pull/277)]: Updated kvm-bindings to 0.9.1.
 
 ## v0.18.0
 
@@ -66,7 +67,7 @@ support for vCPU SVE feature.
   `KVM_GET_MSR_FEATURE_INDEX_LIST` and `KVM_GET_MSRS` system ioctls.
 - [[#221](https://github.com/rust-vmm/kvm-ioctls/pull/221)] Add
   `Cap::ArmPmuV3`.
-  
+
 ### Changed
 
 - [[#223](https://github.com/rust-vmm/kvm-ioctls/pull/223)] aarch64:
@@ -84,10 +85,10 @@ support for vCPU SVE feature.
 
 ### Added
 
-- [[#187](https://github.com/rust-vmm/kvm-ioctls/pull/187)] Support for 
+- [[#187](https://github.com/rust-vmm/kvm-ioctls/pull/187)] Support for
   `KVM_SET_IDENTITY_MAP_ADDR`
 - Derive Debug for all exported structs and enums
-- [[#189](https://github.com/rust-vmm/kvm-ioctls/pull/189)] Expose `KVM_SET_` and 
+- [[#189](https://github.com/rust-vmm/kvm-ioctls/pull/189)] Expose `KVM_SET_` and
   `KVM_HAS_DEVICE_ATTR` for vcpu
 - [[#191](https://github.com/rust-vmm/kvm-ioctls/pull/191)] Add `KVM_TRANSLATE` support and
   the `translate_gva` function that translates guest virtual address to the physical address
@@ -112,7 +113,7 @@ support for vCPU SVE feature.
 - [[#195](https://github.com/rust-vmm/kvm-ioctls/pull/195)] Do not panic on unsupported
   `KVM_EXIT` reason
 - [[#196](https://github.com/rust-vmm/kvm-ioctls/pull/196)] Expose a mutable reference
-  to the `kvm_run` structure to allow proper handling of unsupported exit reasons 
+  to the `kvm_run` structure to allow proper handling of unsupported exit reasons
 - [[#200](https://github.com/rust-vmm/kvm-ioctls/pull/200)] Fix wrong `target_arch` gate
   preventing `set_guest_debug` from being exported on ARM
 - [[#206](https://github.com/rust-vmm/kvm-ioctls/pull/206)] use `u128` in `get/set_on_reg`
