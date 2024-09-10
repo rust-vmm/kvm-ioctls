@@ -3,11 +3,15 @@
 
 ### Added
 
-- RISC-V KVM bindings for Linux kernel v6.9, including serialization support.
-
 ### Changed
 
 ### Removed
+
+## [0.10.0]
+
+### Added
+
+- RISC-V KVM bindings for Linux kernel v6.9, including serialization support.
 
 ## [0.9.1]
 
