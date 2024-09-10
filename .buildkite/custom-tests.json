@@ -5,7 +5,8 @@
             "command": "cargo build --release --features=fam-wrappers",
             "platform": [
                 "x86_64",
-                "aarch64"
+                "aarch64",
+                "riscv64"
             ]
         },
         {
@@ -21,7 +22,8 @@
             "command": "cargo build --release --features=serde",
             "platform": [
                 "x86_64",
-                "aarch64"
+                "aarch64",
+                "riscv64"
             ]
         },
         {
