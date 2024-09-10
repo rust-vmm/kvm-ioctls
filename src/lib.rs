@@ -12,13 +12,13 @@
 #[macro_use]
 extern crate vmm_sys_util;
 
-#[cfg(all(feature = "serde", not(target_arch = "riscv64")))]
+#[cfg(feature = "serde")]
 extern crate serde;
 
-#[cfg(all(feature = "serde", not(target_arch = "riscv64")))]
+#[cfg(feature = "serde")]
 extern crate zerocopy;
 
-#[cfg(all(feature = "serde", not(target_arch = "riscv64")))]
+#[cfg(feature = "serde")]
 #[macro_use]
 mod serialize;
 
