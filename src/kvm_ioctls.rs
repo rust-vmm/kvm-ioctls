@@ -58,7 +58,7 @@ ioctl_iowr_nr!(KVM_CREATE_GUEST_MEMFD, KVMIO, 0xd4, kvm_create_guest_memfd);
     target_arch = "x86_64",
     target_arch = "arm",
     target_arch = "aarch64",
-    target_arch = "s390"
+    target_arch = "s390x"
 ))]
 ioctl_io_nr!(KVM_CREATE_IRQCHIP, KVMIO, 0x60);
 /* Available with KVM_CAP_IRQCHIP */
@@ -97,7 +97,7 @@ ioctl_iow_nr!(KVM_SET_GSI_ROUTING, KVMIO, 0x6a, kvm_irq_routing);
     target_arch = "x86_64",
     target_arch = "arm",
     target_arch = "aarch64",
-    target_arch = "s390"
+    target_arch = "s390x"
 ))]
 ioctl_iow_nr!(KVM_IRQFD, KVMIO, 0x76, kvm_irqfd);
 /* Available with KVM_CAP_PIT2 */
@@ -182,7 +182,7 @@ ioctl_iowr_nr!(KVM_GET_CPUID2, KVMIO, 0x91, kvm_cpuid2);
     target_arch = "x86_64",
     target_arch = "arm",
     target_arch = "aarch64",
-    target_arch = "s390"
+    target_arch = "s390x"
 ))]
 ioctl_ior_nr!(KVM_GET_MP_STATE, KVMIO, 0x98, kvm_mp_state);
 /* Available with KVM_CAP_MP_STATE */
@@ -191,7 +191,7 @@ ioctl_ior_nr!(KVM_GET_MP_STATE, KVMIO, 0x98, kvm_mp_state);
     target_arch = "x86_64",
     target_arch = "arm",
     target_arch = "aarch64",
-    target_arch = "s390"
+    target_arch = "s390x"
 ))]
 ioctl_iow_nr!(KVM_SET_MP_STATE, KVMIO, 0x99, kvm_mp_state);
 /* Available with KVM_CAP_USER_NMI */

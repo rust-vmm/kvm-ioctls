@@ -796,7 +796,7 @@ impl VcpuFd {
         target_arch = "x86_64",
         target_arch = "arm",
         target_arch = "aarch64",
-        target_arch = "s390"
+        target_arch = "s390x"
     ))]
     pub fn get_mp_state(&self) -> Result<kvm_mp_state> {
         let mut mp_state = Default::default();
@@ -834,7 +834,7 @@ impl VcpuFd {
         target_arch = "x86_64",
         target_arch = "arm",
         target_arch = "aarch64",
-        target_arch = "s390"
+        target_arch = "s390x"
     ))]
     pub fn set_mp_state(&self, mp_state: kvm_mp_state) -> Result<()> {
         // SAFETY: Here we trust the kernel not to read past the end of the kvm_mp_state struct.
@@ -1279,8 +1279,8 @@ impl VcpuFd {
         target_arch = "x86",
         target_arch = "x86_64",
         target_arch = "aarch64",
-        target_arch = "s390",
-        target_arch = "ppc"
+        target_arch = "s390x",
+        target_arch = "powerpc"
     ))]
     pub fn set_guest_debug(&self, debug_struct: &kvm_guest_debug) -> Result<()> {
         // SAFETY: Safe because we allocated the structure and we trust the kernel.
@@ -2234,7 +2234,7 @@ mod tests {
         target_arch = "x86_64",
         target_arch = "arm",
         target_arch = "aarch64",
-        target_arch = "s390"
+        target_arch = "s390x"
     ))]
     #[test]
     fn mpstate_test() {
