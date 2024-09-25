@@ -46,7 +46,7 @@ pub enum Cap {
         target_arch = "x86_64",
         target_arch = "arm",
         target_arch = "aarch64",
-        target_arch = "s390"
+        target_arch = "s390x"
     ))]
     SetGuestDebug = KVM_CAP_SET_GUEST_DEBUG,
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
