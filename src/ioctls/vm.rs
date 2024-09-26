@@ -392,6 +392,7 @@ impl VmFd {
     ///
     /// let kvm = Kvm::new().unwrap();
     /// let vm = kvm.create_vm().unwrap();
+    /// vm.create_irq_chip().unwrap();
     /// let pit_config = kvm_pit_config::default();
     /// vm.create_pit2(pit_config).unwrap();
     /// ```
@@ -425,6 +426,7 @@ impl VmFd {
     /// # use kvm_ioctls::Kvm;
     /// let kvm = Kvm::new().unwrap();
     /// let vm = kvm.create_vm().unwrap();
+    /// vm.create_irq_chip().unwrap();
     ///
     /// let pit_config = kvm_pit_config::default();
     /// vm.create_pit2(pit_config).unwrap();
@@ -460,6 +462,7 @@ impl VmFd {
     /// # use kvm_ioctls::Kvm;
     /// let kvm = Kvm::new().unwrap();
     /// let vm = kvm.create_vm().unwrap();
+    /// vm.create_irq_chip().unwrap();
     ///
     /// let pit_config = kvm_pit_config::default();
     /// vm.create_pit2(pit_config).unwrap();
@@ -2063,6 +2066,9 @@ mod tests {
     fn test_pit2() {
         let kvm = Kvm::new().unwrap();
         let vm = kvm.create_vm().unwrap();
+        assert!(kvm.check_extension(Cap::Irqchip));
+        assert!(vm.create_irq_chip().is_ok());
+
         assert!(vm.create_pit2(kvm_pit_config::default()).is_ok());
 
         let pit2 = vm.get_pit2().unwrap();
