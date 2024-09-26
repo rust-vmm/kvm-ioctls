@@ -1952,6 +1952,61 @@ pub(crate) fn request_gic_init(vgic: &DeviceFd) {
     vgic.set_device_attr(&vgic_attr).unwrap();
 }
 
+/// Create a dummy AIA device.
+///
+/// # Arguments
+///
+/// * `vm` - The vm file descriptor.
+/// * `flags` - Flags to be passed to `KVM_CREATE_DEVICE`.
+#[cfg(test)]
+#[cfg(target_arch = "riscv64")]
+pub(crate) fn create_aia_device(vm: &VmFd, flags: u32) -> DeviceFd {
+    let mut aia_device = kvm_bindings::kvm_create_device {
+        type_: kvm_device_type_KVM_DEV_TYPE_RISCV_AIA,
+        fd: 0,
+        flags,
+    };
+    vm.create_device(&mut aia_device)
+        .expect("Cannot create KVM vAIA device")
+}
+
+/// Set supported number of IRQs for vAIA.
+///
+/// # Arguments
+///
+/// * `vaia` - The vAIA file descriptor.
+/// * `nr_irqs` - Number of IRQs.
+#[cfg(test)]
+#[cfg(target_arch = "riscv64")]
+pub(crate) fn set_supported_nr_irqs(vaia: &DeviceFd, nr_irqs: u32) {
+    let vaia_attr = kvm_bindings::kvm_device_attr {
+        group: kvm_bindings::KVM_DEV_RISCV_AIA_GRP_CONFIG,
+        attr: u64::from(kvm_bindings::KVM_DEV_RISCV_AIA_CONFIG_SRCS),
+        addr: &nr_irqs as *const u32 as u64,
+        flags: 0,
+    };
+    vaia.has_device_attr(&vaia_attr).unwrap();
+    vaia.set_device_attr(&vaia_attr).unwrap();
+}
+
+/// Request the initialization of the vAIA.
+///
+/// # Arguments
+///
+/// * `vaia` - The vAIA file descriptor.
+#[cfg(test)]
+#[cfg(target_arch = "riscv64")]
+pub(crate) fn request_aia_init(vaia: &DeviceFd) {
+    let vaia_attr = kvm_bindings::kvm_device_attr {
+        group: kvm_bindings::KVM_DEV_RISCV_AIA_GRP_CTRL,
+        attr: u64::from(kvm_bindings::KVM_DEV_RISCV_AIA_CTRL_INIT),
+        addr: 0,
+        flags: 0,
+    };
+    vaia.has_device_attr(&vaia_attr).unwrap();
+    vaia.set_device_attr(&vaia_attr).unwrap();
+}
+
 #[cfg(test)]
 mod tests {
     #![allow(clippy::undocumented_unsafe_blocks)]
