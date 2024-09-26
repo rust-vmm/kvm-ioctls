@@ -1925,6 +1925,7 @@ pub(crate) fn set_supported_nr_irqs(vgic: &DeviceFd, nr_irqs: u32) {
         addr: &nr_irqs as *const u32 as u64,
         flags: 0,
     };
+    assert!(vgic.has_device_attr(&vgic_attr).is_ok());
     assert!(vgic.set_device_attr(&vgic_attr).is_ok());
 }
 
@@ -1942,6 +1943,7 @@ pub(crate) fn request_gic_init(vgic: &DeviceFd) {
         addr: 0,
         flags: 0,
     };
+    assert!(vgic.has_device_attr(&vgic_attr).is_ok());
     assert!(vgic.set_device_attr(&vgic_attr).is_ok());
 }
 
