@@ -196,10 +196,7 @@ mod tests {
         KVM_DEV_VFIO_GROUP, KVM_DEV_VFIO_GROUP_ADD,
     };
     #[cfg(target_arch = "aarch64")]
-    use kvm_bindings::{
-        KVM_DEV_ARM_VGIC_CTRL_INIT, KVM_DEV_ARM_VGIC_GRP_CTRL, KVM_DEV_VFIO_GROUP,
-        KVM_DEV_VFIO_GROUP_ADD,
-    };
+    use kvm_bindings::{KVM_DEV_VFIO_GROUP, KVM_DEV_VFIO_GROUP_ADD};
 
     use kvm_bindings::KVM_CREATE_DEVICE_TEST;
 
@@ -249,7 +246,7 @@ mod tests {
     #[test]
     #[cfg(target_arch = "aarch64")]
     fn test_create_device() {
-        use crate::ioctls::vm::{create_gic_device, set_supported_nr_irqs};
+        use crate::ioctls::vm::{create_gic_device, request_gic_init, set_supported_nr_irqs};
         use kvm_bindings::{
             kvm_device_type_KVM_DEV_TYPE_FSL_MPIC_20, KVM_DEV_ARM_VGIC_GRP_NR_IRQS,
         };
@@ -291,16 +288,8 @@ mod tests {
         // Set maximum supported number of IRQs of the vGIC device to 128.
         set_supported_nr_irqs(&device_fd, 128);
 
-        // Following attribute works with VGIC, they should be accepted.
-        let dist_attr = kvm_bindings::kvm_device_attr {
-            group: KVM_DEV_ARM_VGIC_GRP_CTRL,
-            attr: u64::from(KVM_DEV_ARM_VGIC_CTRL_INIT),
-            addr: 0x0,
-            flags: 0,
-        };
-
-        assert!(device_fd.has_device_attr(&dist_attr).is_ok());
-        assert!(device_fd.set_device_attr(&dist_attr).is_ok());
+        // Initialize valid vGIC device.
+        request_gic_init(&device_fd);
 
         // Test `get_device_attr`. Here we try to extract the maximum supported number of IRQs.
         // This value should be saved in the address provided to the ioctl.
