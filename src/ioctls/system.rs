@@ -193,7 +193,7 @@ impl Kvm {
     /// use kvm_ioctls::Cap;
     ///
     /// let kvm = Kvm::new().unwrap();
-    /// assert!(kvm.check_extension_raw(Cap::MaxVcpuId as c_ulong) > 0);
+    /// assert!(kvm.check_extension_raw(Cap::MaxVcpus as c_ulong) > 0);
     /// ```
     pub fn check_extension_raw(&self, c: c_ulong) -> i32 {
         // SAFETY: Safe because we know that our file is a KVM fd.
@@ -217,7 +217,7 @@ impl Kvm {
     /// use kvm_ioctls::Cap;
     ///
     /// let kvm = Kvm::new().unwrap();
-    /// assert!(kvm.check_extension_int(Cap::MaxVcpuId) > 0);
+    /// assert!(kvm.check_extension_int(Cap::MaxVcpus) > 0);
     /// ```
     pub fn check_extension_int(&self, c: Cap) -> i32 {
         self.check_extension_raw(c as c_ulong)
