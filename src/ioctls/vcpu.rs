@@ -220,7 +220,6 @@ impl VcpuFd {
     /// let kvm = Kvm::new().unwrap();
     /// let vm = kvm.create_vm().unwrap();
     /// let vcpu = vm.create_vcpu(0).unwrap();
-    /// #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
     /// let regs = vcpu.get_regs().unwrap();
     /// ```
     #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
@@ -333,14 +332,11 @@ impl VcpuFd {
     /// let vm = kvm.create_vm().unwrap();
     /// let vcpu = vm.create_vcpu(0).unwrap();
     ///
-    /// #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
-    /// {
-    ///     // Get the current vCPU registers.
-    ///     let mut regs = vcpu.get_regs().unwrap();
-    ///     // Set a new value for the Instruction Pointer.
-    ///     regs.rip = 0x100;
-    ///     vcpu.set_regs(&regs).unwrap();
-    /// }
+    /// // Get the current vCPU registers.
+    /// let mut regs = vcpu.get_regs().unwrap();
+    /// // Set a new value for the Instruction Pointer.
+    /// regs.rip = 0x100;
+    /// vcpu.set_regs(&regs).unwrap();
     /// ```
     #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
     pub fn set_regs(&self, regs: &kvm_regs) -> Result<()> {
@@ -367,7 +363,6 @@ impl VcpuFd {
     /// let kvm = Kvm::new().unwrap();
     /// let vm = kvm.create_vm().unwrap();
     /// let vcpu = vm.create_vcpu(0).unwrap();
-    /// #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
     /// let sregs = vcpu.get_sregs().unwrap();
     /// ```
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
@@ -397,14 +392,12 @@ impl VcpuFd {
     /// let kvm = Kvm::new().unwrap();
     /// let vm = kvm.create_vm().unwrap();
     /// let vcpu = vm.create_vcpu(0).unwrap();
-    /// #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
-    /// {
-    ///     let mut sregs = vcpu.get_sregs().unwrap();
-    ///     // Update the code segment (cs).
-    ///     sregs.cs.base = 0;
-    ///     sregs.cs.selector = 0;
-    ///     vcpu.set_sregs(&sregs).unwrap();
-    /// }
+    ///
+    /// let mut sregs = vcpu.get_sregs().unwrap();
+    /// // Update the code segment (cs).
+    /// sregs.cs.base = 0;
+    /// sregs.cs.selector = 0;
+    /// vcpu.set_sregs(&sregs).unwrap();
     /// ```
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     pub fn set_sregs(&self, sregs: &kvm_sregs) -> Result<()> {
