@@ -7,6 +7,7 @@
 #![deny(missing_docs)]
 #![deny(missing_copy_implementations)]
 #![deny(missing_debug_implementations)]
+#![warn(clippy::assertions_on_result_states)]
 
 //! A safe wrapper around the kernel's KVM interface.
 //!
