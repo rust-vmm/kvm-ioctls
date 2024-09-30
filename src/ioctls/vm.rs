@@ -1643,7 +1643,7 @@ impl VmFd {
     /// let vm = kvm.create_vm().unwrap();
     ///
     /// // Check whether SEV is enabled, optional.
-    /// assert!(unsafe { vm.encrypt_op(null_mut() as *mut c_void) }.is_ok());
+    /// unsafe { vm.encrypt_op(null_mut() as *mut c_void) }.unwrap();
     ///
     /// // Initialize the SEV platform context.
     /// let mut init: kvm_sev_cmd = Default::default();
@@ -1689,7 +1689,7 @@ impl VmFd {
     ///
     /// // Initialize the SEV platform context.
     /// let mut init: kvm_sev_cmd = Default::default();
-    /// assert!(vm.encrypt_op_sev(&mut init).is_ok());
+    /// vm.encrypt_op_sev(&mut init).unwrap();
     ///
     /// // Create the memory encryption context.
     /// let start_data: kvm_sev_launch_start = Default::default();
@@ -1699,7 +1699,7 @@ impl VmFd {
     ///     sev_fd: sev.as_raw_fd() as _,
     ///     ..Default::default()
     /// };
-    /// assert!(vm.encrypt_op_sev(&mut start).is_ok());
+    /// vm.encrypt_op_sev(&mut start).unwrap();
     ///
     /// let addr = unsafe {
     ///     libc::mmap(
@@ -1765,7 +1765,7 @@ impl VmFd {
     ///
     /// // Initialize the SEV platform context.
     /// let mut init: kvm_sev_cmd = Default::default();
-    /// assert!(vm.encrypt_op_sev(&mut init).is_ok());
+    /// vm.encrypt_op_sev(&mut init).unwrap();
     ///
     /// // Create the memory encryption context.
     /// let start_data: kvm_sev_launch_start = Default::default();
@@ -1775,7 +1775,7 @@ impl VmFd {
     ///     sev_fd: sev.as_raw_fd() as _,
     ///     ..Default::default()
     /// };
-    /// assert!(vm.encrypt_op_sev(&mut start).is_ok());
+    /// vm.encrypt_op_sev(&mut start).unwrap();
     ///
     /// let addr = unsafe {
     ///     libc::mmap(
@@ -1925,8 +1925,8 @@ pub(crate) fn set_supported_nr_irqs(vgic: &DeviceFd, nr_irqs: u32) {
         addr: &nr_irqs as *const u32 as u64,
         flags: 0,
     };
-    assert!(vgic.has_device_attr(&vgic_attr).is_ok());
-    assert!(vgic.set_device_attr(&vgic_attr).is_ok());
+    vgic.has_device_attr(&vgic_attr).unwrap();
+    vgic.set_device_attr(&vgic_attr).unwrap();
 }
 
 /// Request the initialization of the vGIC.
@@ -1943,8 +1943,8 @@ pub(crate) fn request_gic_init(vgic: &DeviceFd) {
         addr: 0,
         flags: 0,
     };
-    assert!(vgic.has_device_attr(&vgic_attr).is_ok());
-    assert!(vgic.set_device_attr(&vgic_attr).is_ok());
+    vgic.has_device_attr(&vgic_attr).unwrap();
+    vgic.set_device_attr(&vgic_attr).unwrap();
 }
 
 #[cfg(test)]
@@ -1969,7 +1969,7 @@ mod tests {
             userspace_addr: 0,
             flags: 0,
         };
-        assert!(unsafe { vm.set_user_memory_region(invalid_mem_region) }.is_err());
+        unsafe { vm.set_user_memory_region(invalid_mem_region) }.unwrap_err();
     }
 
     #[test]
@@ -1987,7 +1987,7 @@ mod tests {
             pad1: 0,
             pad2: [0; 14],
         };
-        assert!(unsafe { vm.set_user_memory_region2(invalid_mem_region) }.is_err());
+        unsafe { vm.set_user_memory_region2(invalid_mem_region) }.unwrap_err();
     }
 
     #[test]
@@ -1995,7 +1995,7 @@ mod tests {
     fn test_set_tss_address() {
         let kvm = Kvm::new().unwrap();
         let vm = kvm.create_vm().unwrap();
-        assert!(vm.set_tss_address(0xfffb_d000).is_ok());
+        vm.set_tss_address(0xfffb_d000).unwrap();
     }
 
     #[test]
@@ -2004,10 +2004,10 @@ mod tests {
         let kvm = Kvm::new().unwrap();
         if kvm.check_extension(Cap::SetIdentityMapAddr) {
             let vm = kvm.create_vm().unwrap();
-            assert!(vm.set_identity_map_address(0xfffb_c000).is_ok());
+            vm.set_identity_map_address(0xfffb_c000).unwrap();
             vm.create_vcpu(0).unwrap();
             // Setting the identity map after creating a vCPU must fail.
-            assert!(vm.set_identity_map_address(0xfffb_c000).is_err());
+            vm.set_identity_map_address(0xfffb_c000).unwrap_err();
         }
     }
 
@@ -2019,7 +2019,7 @@ mod tests {
         let kvm = Kvm::new().unwrap();
         assert!(kvm.check_extension(Cap::Irqchip));
         let vm = kvm.create_vm().unwrap();
-        assert!(vm.create_irq_chip().is_ok());
+        vm.create_irq_chip().unwrap();
 
         let mut irqchip = kvm_irqchip {
             chip_id: KVM_IRQCHIP_PIC_MASTER,
@@ -2027,7 +2027,7 @@ mod tests {
         };
         // Set the irq_base to a non-default value to check that set & get work.
         irqchip.chip.pic.irq_base = 10;
-        assert!(vm.set_irqchip(&irqchip).is_ok());
+        vm.set_irqchip(&irqchip).unwrap();
 
         // We initialize a dummy irq chip (`other_irqchip`) in which the
         // function `get_irqchip` returns its result.
@@ -2035,7 +2035,7 @@ mod tests {
             chip_id: KVM_IRQCHIP_PIC_MASTER,
             ..Default::default()
         };
-        assert!(vm.get_irqchip(&mut other_irqchip).is_ok());
+        vm.get_irqchip(&mut other_irqchip).unwrap();
 
         // Safe because we know that the irqchip type is PIC.
         unsafe { assert_eq!(irqchip.chip.pic, other_irqchip.chip.pic) };
@@ -2069,9 +2069,9 @@ mod tests {
         let kvm = Kvm::new().unwrap();
         let vm = kvm.create_vm().unwrap();
         assert!(kvm.check_extension(Cap::Irqchip));
-        assert!(vm.create_irq_chip().is_ok());
+        vm.create_irq_chip().unwrap();
 
-        assert!(vm.create_pit2(kvm_pit_config::default()).is_ok());
+        vm.create_pit2(kvm_pit_config::default()).unwrap();
 
         let pit2 = vm.get_pit2().unwrap();
         vm.set_pit2(&pit2).unwrap();
@@ -2114,24 +2114,24 @@ mod tests {
         let kvm = Kvm::new().unwrap();
         let vm_fd = kvm.create_vm().unwrap();
         let evtfd = EventFd::new(EFD_NONBLOCK).unwrap();
-        assert!(vm_fd
+        vm_fd
             .register_ioevent(&evtfd, &IoEventAddress::Pio(0xf4), NoDatamatch)
-            .is_ok());
-        assert!(vm_fd
+            .unwrap();
+        vm_fd
             .register_ioevent(&evtfd, &IoEventAddress::Mmio(0x1000), NoDatamatch)
-            .is_ok());
-        assert!(vm_fd
+            .unwrap();
+        vm_fd
             .register_ioevent(&evtfd, &IoEventAddress::Pio(0xc1), 0x7fu8)
-            .is_ok());
-        assert!(vm_fd
+            .unwrap();
+        vm_fd
             .register_ioevent(&evtfd, &IoEventAddress::Pio(0xc2), 0x1337u16)
-            .is_ok());
-        assert!(vm_fd
+            .unwrap();
+        vm_fd
             .register_ioevent(&evtfd, &IoEventAddress::Pio(0xc4), 0xdead_beefu32)
-            .is_ok());
-        assert!(vm_fd
+            .unwrap();
+        vm_fd
             .register_ioevent(&evtfd, &IoEventAddress::Pio(0xc8), 0xdead_beef_dead_beefu64)
-            .is_ok());
+            .unwrap()
     }
 
     #[test]
@@ -2145,29 +2145,29 @@ mod tests {
         let mmio_addr = IoEventAddress::Mmio(0x1000);
 
         // First try to unregister addresses which have not been registered.
-        assert!(vm_fd
+        vm_fd
             .unregister_ioevent(&evtfd, &pio_addr, NoDatamatch)
-            .is_err());
-        assert!(vm_fd
+            .unwrap_err();
+        vm_fd
             .unregister_ioevent(&evtfd, &mmio_addr, NoDatamatch)
-            .is_err());
+            .unwrap_err();
 
         // Now register the addresses
-        assert!(vm_fd
+        vm_fd
             .register_ioevent(&evtfd, &pio_addr, NoDatamatch)
-            .is_ok());
-        assert!(vm_fd
+            .unwrap();
+        vm_fd
             .register_ioevent(&evtfd, &mmio_addr, 0x1337u16)
-            .is_ok());
+            .unwrap();
 
         // Try again unregistering the addresses. This time it should work
         // since they have been previously registered.
-        assert!(vm_fd
+        vm_fd
             .unregister_ioevent(&evtfd, &pio_addr, NoDatamatch)
-            .is_ok());
-        assert!(vm_fd
+            .unwrap();
+        vm_fd
             .unregister_ioevent(&evtfd, &mmio_addr, 0x1337u16)
-            .is_ok());
+            .unwrap();
     }
 
     #[test]
@@ -2181,31 +2181,31 @@ mod tests {
         let evtfd4 = EventFd::new(EFD_NONBLOCK).unwrap();
         let resamplefd = EventFd::new(EFD_NONBLOCK).unwrap();
 
-        assert!(vm_fd.create_irq_chip().is_ok());
+        vm_fd.create_irq_chip().unwrap();
 
-        assert!(vm_fd.register_irqfd(&evtfd1, 4).is_ok());
-        assert!(vm_fd.register_irqfd(&evtfd2, 8).is_ok());
-        assert!(vm_fd.register_irqfd(&evtfd3, 4).is_ok());
-        assert!(vm_fd.unregister_irqfd(&evtfd2, 8).is_ok());
+        vm_fd.register_irqfd(&evtfd1, 4).unwrap();
+        vm_fd.register_irqfd(&evtfd2, 8).unwrap();
+        vm_fd.register_irqfd(&evtfd3, 4).unwrap();
+        vm_fd.unregister_irqfd(&evtfd2, 8).unwrap();
         // KVM irqfd doesn't report failure on this case:(
-        assert!(vm_fd.unregister_irqfd(&evtfd2, 8).is_ok());
+        vm_fd.unregister_irqfd(&evtfd2, 8).unwrap();
 
         // Duplicated eventfd registration.
         // On x86_64 this fails as the event fd was already matched with a GSI.
-        assert!(vm_fd.register_irqfd(&evtfd3, 4).is_err());
-        assert!(vm_fd.register_irqfd(&evtfd3, 5).is_err());
+        vm_fd.register_irqfd(&evtfd3, 4).unwrap_err();
+        vm_fd.register_irqfd(&evtfd3, 5).unwrap_err();
         // KVM irqfd doesn't report failure on this case:(
-        assert!(vm_fd.unregister_irqfd(&evtfd3, 5).is_ok());
+        vm_fd.unregister_irqfd(&evtfd3, 5).unwrap();
 
         if vm_fd.check_extension(Cap::IrqfdResample) {
-            assert!(vm_fd
+            vm_fd
                 .register_irqfd_with_resample(&evtfd4, &resamplefd, 6)
-                .is_ok());
-            assert!(vm_fd.unregister_irqfd(&evtfd4, 6).is_ok());
+                .unwrap();
+            vm_fd.unregister_irqfd(&evtfd4, 6).unwrap();
         } else {
-            assert!(vm_fd
+            vm_fd
                 .register_irqfd_with_resample(&evtfd4, &resamplefd, 6)
-                .is_err());
+                .unwrap_err();
         }
     }
 
@@ -2232,30 +2232,30 @@ mod tests {
         // Request the initialization of the vGIC.
         request_gic_init(&vgic_fd);
 
-        assert!(vm_fd.register_irqfd(&evtfd1, 4).is_ok());
-        assert!(vm_fd.register_irqfd(&evtfd2, 8).is_ok());
-        assert!(vm_fd.register_irqfd(&evtfd3, 4).is_ok());
-        assert!(vm_fd.unregister_irqfd(&evtfd2, 8).is_ok());
+        vm_fd.register_irqfd(&evtfd1, 4).unwrap();
+        vm_fd.register_irqfd(&evtfd2, 8).unwrap();
+        vm_fd.register_irqfd(&evtfd3, 4).unwrap();
+        vm_fd.unregister_irqfd(&evtfd2, 8).unwrap();
         // KVM irqfd doesn't report failure on this case:(
-        assert!(vm_fd.unregister_irqfd(&evtfd2, 8).is_ok());
+        vm_fd.unregister_irqfd(&evtfd2, 8).unwrap();
 
         // Duplicated eventfd registration.
         // On aarch64, this fails because setting up the interrupt controller is mandatory before
         // registering any IRQ.
-        assert!(vm_fd.register_irqfd(&evtfd3, 4).is_err());
-        assert!(vm_fd.register_irqfd(&evtfd3, 5).is_err());
+        vm_fd.register_irqfd(&evtfd3, 4).unwrap_err();
+        vm_fd.register_irqfd(&evtfd3, 5).unwrap_err();
         // KVM irqfd doesn't report failure on this case:(
-        assert!(vm_fd.unregister_irqfd(&evtfd3, 5).is_ok());
+        vm_fd.unregister_irqfd(&evtfd3, 5).unwrap();
 
         if vm_fd.check_extension(Cap::IrqfdResample) {
-            assert!(vm_fd
+            vm_fd
                 .register_irqfd_with_resample(&evtfd4, &resamplefd, 6)
-                .is_ok());
-            assert!(vm_fd.unregister_irqfd(&evtfd4, 6).is_ok());
+                .unwrap();
+            vm_fd.unregister_irqfd(&evtfd4, 6).unwrap();
         } else {
-            assert!(vm_fd
+            vm_fd
                 .register_irqfd_with_resample(&evtfd4, &resamplefd, 6)
-                .is_err());
+                .unwrap_err();
         }
     }
 
@@ -2265,11 +2265,11 @@ mod tests {
         let kvm = Kvm::new().unwrap();
         let vm_fd = kvm.create_vm().unwrap();
 
-        assert!(vm_fd.create_irq_chip().is_ok());
+        vm_fd.create_irq_chip().unwrap();
 
-        assert!(vm_fd.set_irq_line(4, true).is_ok());
-        assert!(vm_fd.set_irq_line(4, false).is_ok());
-        assert!(vm_fd.set_irq_line(4, true).is_ok());
+        vm_fd.set_irq_line(4, true).unwrap();
+        vm_fd.set_irq_line(4, false).unwrap();
+        vm_fd.set_irq_line(4, true).unwrap();
     }
 
     #[test]
@@ -2296,14 +2296,14 @@ mod tests {
         // - irq_type[1]: in-kernel GIC: SPI, irq_id between 32 and 1019 (incl.) (the vcpu_index field is ignored)
         // - irq_type[2]: in-kernel GIC: PPI, irq_id between 16 and 31 (incl.)
         // Hence, using irq_type = 1, irq_id = 32 (decimal), the irq field in hex is: 0x01_00_0020
-        assert!(vm_fd.set_irq_line(0x01_00_0020, true).is_ok());
-        assert!(vm_fd.set_irq_line(0x01_00_0020, false).is_ok());
-        assert!(vm_fd.set_irq_line(0x01_00_0020, true).is_ok());
+        vm_fd.set_irq_line(0x01_00_0020, true).unwrap();
+        vm_fd.set_irq_line(0x01_00_0020, false).unwrap();
+        vm_fd.set_irq_line(0x01_00_0020, true).unwrap();
 
         // Case 2: using irq_type = 2, vcpu_index = 0, irq_id = 16 (decimal), the irq field in hex is: 0x02_00_0010
-        assert!(vm_fd.set_irq_line(0x02_00_0010, true).is_ok());
-        assert!(vm_fd.set_irq_line(0x02_00_0010, false).is_ok());
-        assert!(vm_fd.set_irq_line(0x02_00_0010, true).is_ok());
+        vm_fd.set_irq_line(0x02_00_0010, true).unwrap();
+        vm_fd.set_irq_line(0x02_00_0010, false).unwrap();
+        vm_fd.set_irq_line(0x02_00_0010, true).unwrap();
     }
 
     #[test]
@@ -2415,7 +2415,7 @@ mod tests {
         let kvm = Kvm::new().unwrap();
         let vm = kvm.create_vm().unwrap();
         let mut kvi: kvm_bindings::kvm_vcpu_init = kvm_bindings::kvm_vcpu_init::default();
-        assert!(vm.get_preferred_target(&mut kvi).is_ok());
+        vm.get_preferred_target(&mut kvi).unwrap();
     }
 
     /// As explained in the example code related to signal_msi(), sending
@@ -2432,7 +2432,7 @@ mod tests {
         let kvm = Kvm::new().unwrap();
         let vm = kvm.create_vm().unwrap();
         let msi = kvm_msi::default();
-        assert!(vm.signal_msi(msi).is_err());
+        vm.signal_msi(msi).unwrap_err();
     }
 
     #[test]
@@ -2443,7 +2443,7 @@ mod tests {
         let cap: kvm_enable_cap = Default::default();
         // Providing the `kvm_enable_cap` structure filled with default() should
         // always result in a failure as it is not a valid capability.
-        assert!(vm.enable_cap(&cap).is_err());
+        vm.enable_cap(&cap).unwrap_err();
     }
 
     #[test]
@@ -2467,7 +2467,7 @@ mod tests {
         // Because an IOAPIC supports 24 pins, that's the reason why this test
         // picked this number as reference.
         cap.args[0] = 24;
-        assert!(vm.enable_cap(&cap).is_ok());
+        vm.enable_cap(&cap).unwrap();
     }
 
     #[test]
@@ -2483,11 +2483,11 @@ mod tests {
         if cfg!(target_arch = "x86") || cfg!(target_arch = "x86_64") {
             let irq_routing = kvm_irq_routing::default();
             // Expect failure for x86 since the irqchip is not created yet.
-            assert!(vm.set_gsi_routing(&irq_routing).is_err());
+            vm.set_gsi_routing(&irq_routing).unwrap_err();
             vm.create_irq_chip().unwrap();
         }
         let irq_routing = kvm_irq_routing::default();
-        assert!(vm.set_gsi_routing(&irq_routing).is_ok());
+        vm.set_gsi_routing(&irq_routing).unwrap();
     }
 
     #[test]
@@ -2501,8 +2501,8 @@ mod tests {
 
         // Fails when input `id` = `max_vcpu_id`
         let max_vcpu_id = kvm.get_max_vcpu_id();
-        let vcpu = vm.create_vcpu((max_vcpu_id - 1) as u64);
-        assert!(vcpu.is_ok());
+        vm.create_vcpu((max_vcpu_id - 1) as u64).unwrap();
+
         let vcpu_err = vm.create_vcpu(max_vcpu_id as u64).err();
         assert_eq!(vcpu_err.unwrap().errno(), libc::EINVAL);
     }
@@ -2522,7 +2522,7 @@ mod tests {
         let vm = kvm.create_vm().unwrap();
 
         let mut init: kvm_sev_cmd = Default::default();
-        assert!(vm.encrypt_op_sev(&mut init).is_ok());
+        vm.encrypt_op_sev(&mut init).unwrap();
     }
 
     #[test]
@@ -2542,7 +2542,7 @@ mod tests {
         // https://www.kernel.org/doc/Documentation/virtual/kvm/amd-memory-encryption.rst
 
         let mut init: kvm_sev_cmd = Default::default();
-        assert!(vm.encrypt_op_sev(&mut init).is_ok());
+        vm.encrypt_op_sev(&mut init).unwrap();
 
         let start_data: kvm_sev_launch_start = Default::default();
         let mut start = kvm_sev_cmd {
@@ -2551,7 +2551,7 @@ mod tests {
             sev_fd: sev.as_raw_fd() as _,
             ..Default::default()
         };
-        assert!(vm.encrypt_op_sev(&mut start).is_ok());
+        vm.encrypt_op_sev(&mut start).unwrap();
 
         let addr = unsafe {
             libc::mmap(
@@ -2588,7 +2588,7 @@ mod tests {
                 .errno(),
             libc::EINVAL
         );
-        assert!(vm.register_enc_memory_region(&memory_region).is_ok());
-        assert!(vm.unregister_enc_memory_region(&memory_region).is_ok());
+        vm.register_enc_memory_region(&memory_region).unwrap();
+        vm.unregister_enc_memory_region(&memory_region).unwrap();
     }
 }
