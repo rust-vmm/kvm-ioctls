@@ -2009,7 +2009,7 @@ mod tests {
         let kvm = Kvm::new().unwrap();
         let vm = kvm.create_vm().unwrap();
 
-        assert!(vm.create_vcpu(0).is_ok());
+        vm.create_vcpu(0).unwrap();
     }
 
     #[cfg(target_arch = "x86_64")]
@@ -2154,7 +2154,7 @@ mod tests {
         assert!(kvm.check_extension(Cap::Irqchip));
         let vm = kvm.create_vm().unwrap();
         // The get_lapic ioctl will fail if there is no irqchip created beforehand.
-        assert!(vm.create_irq_chip().is_ok());
+        vm.create_irq_chip().unwrap();
         let vcpu = vm.create_vcpu(0).unwrap();
         let mut klapic: kvm_lapic_state = vcpu.get_lapic().unwrap();
 
@@ -2636,7 +2636,7 @@ mod tests {
         );
         // `kvm_lapic_state` does not implement debug by default so we cannot
         // use unwrap_err here.
-        assert!(faulty_vcpu_fd.get_lapic().is_err());
+        faulty_vcpu_fd.get_lapic().unwrap_err();
         assert_eq!(
             faulty_vcpu_fd
                 .set_lapic(&unsafe { std::mem::zeroed() })
@@ -2693,9 +2693,9 @@ mod tests {
             faulty_vcpu_fd.kvmclock_ctrl().unwrap_err().errno(),
             badf_errno
         );
-        assert!(faulty_vcpu_fd.get_tsc_khz().is_err());
-        assert!(faulty_vcpu_fd.set_tsc_khz(1000000).is_err());
-        assert!(faulty_vcpu_fd.translate_gva(u64::MAX).is_err());
+        faulty_vcpu_fd.get_tsc_khz().unwrap_err();
+        faulty_vcpu_fd.set_tsc_khz(1000000).unwrap_err();
+        faulty_vcpu_fd.translate_gva(u64::MAX).unwrap_err();
 
         // Don't drop the File object, or it'll notice the file it's trying to close is
         // invalid and abort the process.
@@ -2716,7 +2716,7 @@ mod tests {
             ..Default::default()
         };
 
-        assert!(vcpu.vcpu_init(&kvi).is_err());
+        vcpu.vcpu_init(&kvi).unwrap_err();
     }
 
     #[test]
@@ -2811,7 +2811,7 @@ mod tests {
 
         vm.get_preferred_target(&mut kvi)
             .expect("Cannot get preferred target");
-        assert!(vcpu.vcpu_init(&kvi).is_ok());
+        vcpu.vcpu_init(&kvi).unwrap();
     }
 
     #[test]
@@ -2828,7 +2828,7 @@ mod tests {
         let data: u128 = 0;
         let reg_id: u64 = 0;
 
-        assert!(vcpu.set_one_reg(reg_id, &data.to_le_bytes()).is_err());
+        vcpu.set_one_reg(reg_id, &data.to_le_bytes()).unwrap_err();
         // Exercising KVM_SET_ONE_REG by trying to alter the data inside the PSTATE register (which is a
         // specific aarch64 register).
         // This regiseter is 64 bit wide (8 bytes).
@@ -2837,7 +2837,7 @@ mod tests {
             .expect("Failed to set pstate register");
 
         // Trying to set 8 byte register with 7 bytes must fail.
-        assert!(vcpu.set_one_reg(PSTATE_REG_ID, &[0_u8; 7]).is_err());
+        vcpu.set_one_reg(PSTATE_REG_ID, &[0_u8; 7]).unwrap_err();
     }
 
     #[test]
@@ -2873,7 +2873,7 @@ mod tests {
         assert_eq!(data, PSTATE_FAULT_BITS_64 as u128);
 
         // Trying to get 8 byte register with 7 bytes must fail.
-        assert!(vcpu.get_one_reg(PSTATE_REG_ID, &mut [0_u8; 7]).is_err());
+        vcpu.get_one_reg(PSTATE_REG_ID, &mut [0_u8; 7]).unwrap_err();
     }
 
     #[test]
@@ -2905,7 +2905,7 @@ mod tests {
         // SAFETY: This structure is a result from a specific vCPU ioctl
         let mut reg_list =
             RegList::new(unsafe { reg_list.as_mut_fam_struct() }.n as usize).unwrap();
-        assert!(vcpu.get_reg_list(&mut reg_list).is_ok());
+        vcpu.get_reg_list(&mut reg_list).unwrap()
     }
 
     #[test]
@@ -2957,7 +2957,7 @@ mod tests {
         let vcpu = vm.create_vcpu(0).unwrap();
 
         if !kvm.check_extension(Cap::GetTscKhz) {
-            assert!(vcpu.get_tsc_khz().is_err())
+            vcpu.get_tsc_khz().unwrap_err();
         } else {
             assert!(vcpu.get_tsc_khz().unwrap() > 0);
         }
@@ -2972,11 +2972,11 @@ mod tests {
         let freq = vcpu.get_tsc_khz().unwrap();
 
         if !(kvm.check_extension(Cap::GetTscKhz) && kvm.check_extension(Cap::TscControl)) {
-            assert!(vcpu.set_tsc_khz(0).is_err());
+            vcpu.set_tsc_khz(0).unwrap_err();
         } else {
-            assert!(vcpu.set_tsc_khz(freq - 500000).is_ok());
+            vcpu.set_tsc_khz(freq - 500000).unwrap();
             assert_eq!(vcpu.get_tsc_khz().unwrap(), freq - 500000);
-            assert!(vcpu.set_tsc_khz(freq + 500000).is_ok());
+            vcpu.set_tsc_khz(freq + 500000).unwrap();
             assert_eq!(vcpu.get_tsc_khz().unwrap(), freq + 500000);
         }
     }
@@ -3112,13 +3112,13 @@ mod tests {
         let kvm = Kvm::new().unwrap();
         let vm = kvm.create_vm().unwrap();
         let vcpu = vm.create_vcpu(0).unwrap();
-        assert!(vcpu.translate_gva(0x10000).is_ok());
+        vcpu.translate_gva(0x10000).unwrap();
         assert_eq!(vcpu.translate_gva(0x10000).unwrap().valid, 1);
         assert_eq!(
             vcpu.translate_gva(0x10000).unwrap().physical_address,
             0x10000
         );
-        assert!(vcpu.translate_gva(u64::MAX).is_ok());
+        vcpu.translate_gva(u64::MAX).unwrap();
         assert_eq!(vcpu.translate_gva(u64::MAX).unwrap().valid, 0);
     }
 
@@ -3136,15 +3136,15 @@ mod tests {
             flags: 0,
         };
 
-        assert!(vcpu.has_device_attr(&dist_attr).is_err());
-        assert!(vcpu.set_device_attr(&dist_attr).is_err());
+        vcpu.has_device_attr(&dist_attr).unwrap_err();
+        vcpu.set_device_attr(&dist_attr).unwrap_err();
         let mut kvi: kvm_bindings::kvm_vcpu_init = kvm_bindings::kvm_vcpu_init::default();
         vm.get_preferred_target(&mut kvi)
             .expect("Cannot get preferred target");
         kvi.features[0] |= 1 << kvm_bindings::KVM_ARM_VCPU_PSCI_0_2 | 1 << KVM_ARM_VCPU_PMU_V3;
-        assert!(vcpu.vcpu_init(&kvi).is_ok());
-        assert!(vcpu.has_device_attr(&dist_attr).is_ok());
-        assert!(vcpu.set_device_attr(&dist_attr).is_ok());
+        vcpu.vcpu_init(&kvi).unwrap();
+        vcpu.has_device_attr(&dist_attr).unwrap();
+        vcpu.set_device_attr(&dist_attr).unwrap();
     }
 
     #[test]
@@ -3163,7 +3163,7 @@ mod tests {
         if kvm.check_extension(Cap::ArmPtrAuthGeneric) {
             kvi.features[0] |= 1 << kvm_bindings::KVM_ARM_VCPU_PTRAUTH_GENERIC;
         }
-        assert!(vcpu.vcpu_init(&kvi).is_ok());
+        vcpu.vcpu_init(&kvi).unwrap();
     }
 
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]

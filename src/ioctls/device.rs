@@ -212,7 +212,7 @@ mod tests {
             flags: KVM_CREATE_DEVICE_TEST,
         };
         // This fails on x86_64 because there is no VGIC there.
-        assert!(vm.create_device(&mut gic_device).is_err());
+        vm.create_device(&mut gic_device).unwrap_err();
 
         gic_device.type_ = kvm_device_type_KVM_DEV_TYPE_VFIO;
 
@@ -237,9 +237,9 @@ mod tests {
 
         // We are just creating a test device. Creating a real device would make the CI dependent
         // on host configuration (like having /dev/vfio). We expect this to fail.
-        assert!(device_fd.has_device_attr(&dist_attr).is_err());
-        assert!(unsafe { device_fd.get_device_attr(&mut dist_attr_mut) }.is_err());
-        assert!(device_fd.set_device_attr(&dist_attr).is_err());
+        device_fd.has_device_attr(&dist_attr).unwrap_err();
+        unsafe { device_fd.get_device_attr(&mut dist_attr_mut) }.unwrap_err();
+        device_fd.set_device_attr(&dist_attr).unwrap_err();
         assert_eq!(errno::Error::last().errno(), 25);
     }
 
@@ -262,7 +262,7 @@ mod tests {
         };
         // This fails on aarch64 as it does not use MPIC (MultiProcessor Interrupt Controller),
         // it uses the VGIC.
-        assert!(vm.create_device(&mut gic_device).is_err());
+        vm.create_device(&mut gic_device).unwrap_err();
 
         let device_fd = create_gic_device(&vm, 0);
 
@@ -283,7 +283,7 @@ mod tests {
             addr: 0x0,
             flags: 0,
         };
-        assert!(device_fd.has_device_attr(&dist_attr).is_err());
+        device_fd.has_device_attr(&dist_attr).unwrap_err();
 
         // Set maximum supported number of IRQs of the vGIC device to 128.
         set_supported_nr_irqs(&device_fd, 128);
@@ -307,7 +307,7 @@ mod tests {
         assert_eq!(res, Err(Error::new(libc::EFAULT)));
 
         gic_attr.addr = &mut data as *mut u32 as u64;
-        assert!(unsafe { device_fd.get_device_attr(&mut gic_attr) }.is_ok());
+        unsafe { device_fd.get_device_attr(&mut gic_attr) }.unwrap();
         // The maximum supported number of IRQs should be 128, same as the value
         // when we initialize the GIC.
         assert_eq!(data, 128);

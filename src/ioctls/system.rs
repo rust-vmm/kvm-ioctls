@@ -857,14 +857,13 @@ mod tests {
             kvm.create_vm_with_ipa_size(host_ipa_limit as u32).unwrap();
             // Test invalid input values
             // Case 1: IPA size is smaller than 32.
-            assert!(kvm.create_vm_with_ipa_size(31).is_err());
+            kvm.create_vm_with_ipa_size(31).unwrap_err();
             // Case 2: IPA size is bigger than Host_IPA_Limit.
-            assert!(kvm
-                .create_vm_with_ipa_size((host_ipa_limit + 1) as u32)
-                .is_err());
+            kvm.create_vm_with_ipa_size((host_ipa_limit + 1) as u32)
+                .unwrap_err();
         } else {
             // Unsupported, we can't provide an IPA size. Only KVM type=0 works.
-            assert!(kvm.create_vm_with_type(0).is_err());
+            kvm.create_vm_with_type(0).unwrap_err();
         }
     }
 
@@ -879,7 +878,7 @@ mod tests {
 
         // Test case for more than MAX entries
         let cpuid_err = kvm.get_emulated_cpuid(KVM_MAX_CPUID_ENTRIES + 1_usize);
-        assert!(cpuid_err.is_err());
+        cpuid_err.unwrap_err();
     }
 
     #[test]
@@ -893,7 +892,7 @@ mod tests {
 
         // Test case for more than MAX entries
         let cpuid_err = kvm.get_emulated_cpuid(KVM_MAX_CPUID_ENTRIES + 1_usize);
-        assert!(cpuid_err.is_err());
+        cpuid_err.unwrap_err();
     }
 
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
