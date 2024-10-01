@@ -913,8 +913,7 @@ impl VmFd {
         // For ease of access we are saving the bitmap in a u64 vector. We are using ceil to
         // make sure we count all dirty pages even when `memory_size` is not a multiple of
         // `page_size * 64`.
-        let div_ceil = |dividend, divisor| (dividend + divisor - 1) / divisor;
-        let bitmap_size = div_ceil(memory_size, page_size * 64);
+        let bitmap_size = memory_size.div_ceil(page_size * 64);
         let mut bitmap = vec![0u64; bitmap_size];
         let dirtylog = kvm_dirty_log {
             slot,
@@ -2406,7 +2405,7 @@ mod tests {
 
         // Don't drop the File object, or it'll notice the file it's trying to close is
         // invalid and abort the process.
-        faulty_vm_fd.vm.into_raw_fd();
+        let _ = faulty_vm_fd.vm.into_raw_fd();
     }
 
     #[test]
