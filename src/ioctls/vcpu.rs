@@ -1088,7 +1088,6 @@ impl VcpuFd {
         target_arch = "arm",
         target_arch = "aarch64"
     ))]
-
     pub fn set_vcpu_events(&self, vcpu_events: &kvm_vcpu_events) -> Result<()> {
         // SAFETY: Here we trust the kernel not to read past the end of the kvm_vcpu_events struct.
         let ret = unsafe { ioctl_with_ref(self, KVM_SET_VCPU_EVENTS(), vcpu_events) };
@@ -1639,7 +1638,7 @@ impl VcpuFd {
     /// # Arguments
     ///
     /// * `freq` - The frequency unit is KHz as per the KVM API documentation
-    /// for `KVM_SET_TSC_KHZ`.
+    ///   for `KVM_SET_TSC_KHZ`.
     ///
     /// # Example
     ///
@@ -2575,7 +2574,7 @@ mod tests {
 
         // Don't drop the File object, or it'll notice the file it's trying to close is
         // invalid and abort the process.
-        faulty_vcpu_fd.vcpu.into_raw_fd();
+        let _ = faulty_vcpu_fd.vcpu.into_raw_fd();
     }
 
     #[test]
@@ -2699,7 +2698,7 @@ mod tests {
 
         // Don't drop the File object, or it'll notice the file it's trying to close is
         // invalid and abort the process.
-        faulty_vcpu_fd.vcpu.into_raw_fd();
+        let _ = faulty_vcpu_fd.vcpu.into_raw_fd();
     }
 
     #[test]

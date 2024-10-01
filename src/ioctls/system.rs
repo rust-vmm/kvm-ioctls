@@ -96,7 +96,7 @@ impl Kvm {
     /// ```
     pub fn open_with_cloexec(close_on_exec: bool) -> Result<RawFd> {
         // SAFETY: Safe because we give a constant nul-terminated string.
-        let kvm_path = unsafe { CStr::from_bytes_with_nul_unchecked(b"/dev/kvm\0") };
+        let kvm_path = c"/dev/kvm";
         Self::open_with_cloexec_at(kvm_path, close_on_exec)
     }
 
@@ -741,7 +741,7 @@ mod tests {
 
     #[test]
     fn test_kvm_new_with_path() {
-        let kvm_path = unsafe { CStr::from_bytes_with_nul_unchecked(b"/dev/kvm\0") };
+        let kvm_path = c"/dev/kvm";
         Kvm::new_with_path(kvm_path).unwrap();
     }
 
@@ -981,6 +981,6 @@ mod tests {
 
         // Don't drop the File object, or it'll notice the file it's trying to close is
         // invalid and abort the process.
-        faulty_kvm.kvm.into_raw_fd();
+        let _ = faulty_kvm.kvm.into_raw_fd();
     }
 }
