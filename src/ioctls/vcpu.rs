@@ -1212,12 +1212,23 @@ impl VcpuFd {
     /// let vm = kvm.create_vm().unwrap();
     /// let vcpu = vm.create_vcpu(0).unwrap();
     ///
-    /// // KVM_GET_REG_LIST demands that the vcpus be initalized.
-    /// let mut kvi: kvm_bindings::kvm_vcpu_init = kvm_bindings::kvm_vcpu_init::default();
-    /// vm.get_preferred_target(&mut kvi).unwrap();
-    /// vcpu.vcpu_init(&kvi).expect("Cannot initialize vcpu");
+    /// // KVM_GET_REG_LIST on Aarch64 demands that the vcpus be initalized.
+    /// #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
+    /// {
+    ///     let mut kvi: kvm_bindings::kvm_vcpu_init = kvm_bindings::kvm_vcpu_init::default();
+    ///     vm.get_preferred_target(&mut kvi).unwrap();
+    ///     vcpu.vcpu_init(&kvi).expect("Cannot initialize vcpu");
+    /// }
     ///
-    /// let mut reg_list = RegList::new(500).unwrap();
+    /// let nr_regs = if cfg!(any(target_arch = "arm", target_arch = "aarch64")) {
+    ///     500
+    /// } else if cfg!(target_arch = "riscv64") {
+    ///     200
+    /// } else {
+    ///     unreachable!();
+    /// };
+    ///
+    /// let mut reg_list = RegList::new(nr_regs).unwrap();
     /// vcpu.get_reg_list(&mut reg_list).unwrap();
     /// assert!(reg_list.as_fam_struct_ref().n > 0);
     /// ```
