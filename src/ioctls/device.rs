@@ -156,7 +156,7 @@ impl DeviceFd {
     /// let vm = kvm.create_vm().unwrap();
     ///
     /// // As on x86_64, `get_device_attr` is not necessarily needed. Therefore here
-    /// // the code example is only for AArch64.
+    /// // the code example is only for AArch64 and RISC-V 64-bit.
     /// #[cfg(any(target_arch = "aarch64"))]
     /// {
     ///     use kvm_bindings::{
@@ -186,6 +186,33 @@ impl DeviceFd {
     ///
     ///     // SAFETY: gic_attr.addr is safe to write to.
     ///     unsafe { device_fd.get_device_attr(&mut gic_attr) }.unwrap();
+    /// }
+    ///
+    /// #[cfg(target_arch = "riscv64")]
+    /// {
+    ///     use kvm_bindings::{
+    ///         kvm_device_type_KVM_DEV_TYPE_RISCV_AIA, KVM_DEV_RISCV_AIA_CONFIG_IDS,
+    ///         KVM_DEV_RISCV_AIA_GRP_CONFIG,
+    ///     };
+    ///
+    ///     // Create an AIA device.
+    ///     let mut aia_device = kvm_bindings::kvm_create_device {
+    ///         type_: kvm_device_type_KVM_DEV_TYPE_RISCV_AIA,
+    ///         fd: 0,
+    ///         flags: 0,
+    ///     };
+    ///     let device_fd = vm
+    ///         .create_device(&mut aia_device)
+    ///         .expect("Cannot create KVM vAIA device");
+    ///
+    ///     let mut data: u32 = 0;
+    ///     let mut aia_attr = kvm_bindings::kvm_device_attr::default();
+    ///     aia_attr.group = KVM_DEV_RISCV_AIA_GRP_CONFIG;
+    ///     aia_attr.attr = u64::from(KVM_DEV_RISCV_AIA_CONFIG_IDS);
+    ///     aia_attr.addr = &mut data as *mut u32 as u64;
+    ///
+    ///     // SAFETY: gic_attr.addr is safe to write to.
+    ///     unsafe { device_fd.get_device_attr(&mut aia_attr) }.unwrap();
     /// }
     /// ```
     pub unsafe fn get_device_attr(&self, device_attr: &mut kvm_device_attr) -> Result<()> {
