@@ -1259,7 +1259,8 @@ impl VmFd {
     /// # use kvm_ioctls::Kvm;
     /// use kvm_bindings::{
     ///     kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V2, kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V3,
-    ///     kvm_device_type_KVM_DEV_TYPE_VFIO, KVM_CREATE_DEVICE_TEST,
+    ///     kvm_device_type_KVM_DEV_TYPE_RISCV_AIA, kvm_device_type_KVM_DEV_TYPE_VFIO,
+    ///     KVM_CREATE_DEVICE_TEST,
     /// };
     /// let kvm = Kvm::new().unwrap();
     /// let vm = kvm.create_vm().unwrap();
@@ -1272,6 +1273,8 @@ impl VmFd {
     ///     type_: kvm_device_type_KVM_DEV_TYPE_VFIO,
     ///     #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
     ///     type_: kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V3,
+    ///     #[cfg(target_arch = "riscv64")]
+    ///     type_: kvm_device_type_KVM_DEV_TYPE_RISCV_AIA,
     ///     fd: 0,
     ///     flags: KVM_CREATE_DEVICE_TEST,
     /// };
@@ -1286,6 +1289,8 @@ impl VmFd {
     ///         vm.create_device(&mut device)
     ///             .expect("Cannot create vGIC device")
     ///     }
+    ///     #[cfg(target_arch = "riscv64")]
+    ///     panic!("Cannot create vAIA device.");
     /// });
     /// ```
     pub fn create_device(&self, device: &mut kvm_create_device) -> Result<DeviceFd> {
