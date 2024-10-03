@@ -855,6 +855,13 @@ impl VmFd {
     ///     0x00, 0x00, 0x00,
     ///     0x14, /* b <this address>; shouldn't get here, but if so loop forever */
     /// ];
+    /// #[cfg(target_arch = "riscv64")]
+    /// let asm_code = [
+    ///     0x17, 0x03, 0x00, 0x00, // auipc t1, 0;     <this address> -> t1
+    ///     0xa3, 0x23, 0x73, 0x00, // sw t2, t1 + 7;   dirty current page
+    ///     0x23, 0x20, 0x75, 0x00, // sw t2, a0;       trigger MMIO exit
+    ///     0x6f, 0x00, 0x00, 0x00, // j .;shouldn't get here, but if so loop forever
+    /// ];
     ///
     /// // Write the code in the guest memory. This will generate a dirty page.
     /// unsafe {
@@ -892,6 +899,14 @@ impl VmFd {
     ///     let mmio_addr: u64 = guest_addr + mem_size as u64;
     ///     vcpu_fd.set_one_reg(core_reg_base + 2 * 32, &guest_addr.to_le_bytes()); // set PC
     ///     vcpu_fd.set_one_reg(core_reg_base + 2 * 0, &mmio_addr.to_le_bytes()); // set X0
+    /// }
+    ///
+    /// #[cfg(target_arch = "riscv64")]
+    /// {
+    ///     let core_reg_base: u64 = 0x8030_0000_0200_0000;
+    ///     let mmio_addr: u64 = guest_addr + mem_size as u64;
+    ///     vcpu_fd.set_one_reg(core_reg_base, &guest_addr.to_le_bytes()); // set PC
+    ///     vcpu_fd.set_one_reg(core_reg_base + 10, &mmio_addr.to_le_bytes()); // set A0
     /// }
     ///
     /// loop {
