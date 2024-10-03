@@ -1,3 +1,5 @@
+// Copyright © 2024 Institute of Software, CAS. All rights reserved.
+//
 // Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 //
@@ -21,6 +23,7 @@
 //!
 //! - x86_64
 //! - arm64 (experimental)
+//! - riscv64 (experimental)
 //!
 //! **NOTE:** The list of available ioctls is not extensive.
 //!
@@ -30,6 +33,7 @@
 //! On the vCPU we are running machine specific code. This example is based on
 //! the [LWN article](https://lwn.net/Articles/658511/) on using the KVM API.
 //! The aarch64 example was modified accordingly.
+//! The riscv64 example was modified accordingly.
 //!
 //! To get code running on the vCPU we are going through the following steps:
 //!
@@ -91,6 +95,15 @@
 //!             0x02, 0x00, 0x00, 0xb9, /* str w2, [x0]; This generates a MMIO Write. */
 //!             0x00, 0x00, 0x00,
 //!             0x14, /* b <this address>; shouldn't get here, but if so loop forever */
+//!         ];
+//!     }
+//!     #[cfg(target_arch = "riscv64")]
+//!     {
+//!         asm_code = &[
+//!             0x17, 0x03, 0x00, 0x00, // auipc t1, 0;     <this address> -> t1
+//!             0xa3, 0x23, 0x73, 0x00, // sw t2, t1 + 7;   dirty current page
+//!             0x23, 0x20, 0x75, 0x00, // sw t2, a0;       trigger MMIO exit
+//!             0x6f, 0x00, 0x00, 0x00, // j .;shouldn't get here, but if so loop forever
 //!         ];
 //!     }
 //!
@@ -165,6 +178,17 @@
 //!         vcpu_fd.set_one_reg(core_reg_base + 2 * 0, &mmio_addr.to_le_bytes());
 //!     }
 //!
+//!     #[cfg(target_arch = "riscv64")]
+//!     {
+//!         // riscv64 specific register setup.
+//!         let core_reg_base: u64 = 0x8030_0000_0200_0000;
+//!         let mmio_addr: u64 = guest_addr + mem_size as u64;
+//!         // set PC
+//!         vcpu_fd.set_one_reg(core_reg_base, &guest_addr.to_le_bytes());
+//!         // set A0
+//!         vcpu_fd.set_one_reg(core_reg_base + 10, &mmio_addr.to_le_bytes());
+//!     }
+//!
 //!     // 6. Run code on the vCPU.
 //!     loop {
 //!         match vcpu_fd.run().expect("run failed") {
@@ -195,7 +219,7 @@
 //!                 // Since on aarch64 there is not halt instruction,
 //!                 // we break immediately after the last known instruction
 //!                 // of the asm code example so that we avoid an infinite loop.
-//!                 #[cfg(target_arch = "aarch64")]
+//!                 #[cfg(any(target_arch = "aarch64", target_arch = "riscv64"))]
 //!                 break;
 //!             }
 //!             VcpuExit::Hlt => {
