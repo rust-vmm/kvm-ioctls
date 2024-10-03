@@ -619,8 +619,17 @@ impl VmFd {
     ///
     /// let kvm = Kvm::new().unwrap();
     /// let vm = kvm.create_vm().unwrap();
+    ///
     /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     /// vm.create_irq_chip().unwrap();
+    ///
+    /// #[cfg(target_arch = "riscv64")]
+    /// vm.create_device(&mut kvm_bindings::kvm_create_device {
+    ///     type_: kvm_bindings::kvm_device_type_KVM_DEV_TYPE_RISCV_AIA,
+    ///     fd: 0,
+    ///     flags: 0,
+    /// })
+    /// .expect("Cannot create KVM vAIA device.");
     ///
     /// let irq_routing = kvm_irq_routing::default();
     /// vm.set_gsi_routing(&irq_routing).unwrap();
