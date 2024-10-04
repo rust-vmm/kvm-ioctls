@@ -1,3 +1,5 @@
+// Copyright © 2024 Institute of Software, CAS. All rights reserved.
+//
 // Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 //
@@ -2231,6 +2233,7 @@ mod tests {
         target_arch = "x86_64",
         target_arch = "arm",
         target_arch = "aarch64",
+        target_arch = "riscv64",
         target_arch = "s390x"
     ))]
     #[test]
@@ -2405,6 +2408,98 @@ mod tests {
         }
     }
 
+    #[cfg(target_arch = "riscv64")]
+    #[test]
+    fn test_run_code() {
+        use std::io::Write;
+
+        let kvm = Kvm::new().unwrap();
+        let vm = kvm.create_vm().unwrap();
+        #[rustfmt::skip]
+        let code = [
+            0x13, 0x05, 0x50, 0x40, // li   a0, 0x0405;
+            0x23, 0x20, 0xac, 0x00, // sw   a0, 0(s8);  test physical memory write
+            0x03, 0xa5, 0x0c, 0x00, // lw   a0, 0(s9);  test MMIO read
+            0x93, 0x05, 0x70, 0x60, // li   a1, 0x0607;
+            0x23, 0xa0, 0xbc, 0x00, // sw   a1, 0(s9);  test MMIO write
+            0x6f, 0x00, 0x00, 0x00, // j .; shouldn't get here, but if so loop forever
+        ];
+
+        let mem_size = 0x20000;
+        let load_addr = mmap_anonymous(mem_size).as_ptr();
+        let guest_addr: u64 = 0x10000;
+        let slot: u32 = 0;
+        let mem_region = kvm_userspace_memory_region {
+            slot,
+            guest_phys_addr: guest_addr,
+            memory_size: mem_size as u64,
+            userspace_addr: load_addr as u64,
+            flags: KVM_MEM_LOG_DIRTY_PAGES,
+        };
+        unsafe {
+            vm.set_user_memory_region(mem_region).unwrap();
+        }
+
+        unsafe {
+            // Get a mutable slice of `mem_size` from `load_addr`.
+            // This is safe because we mapped it before.
+            let mut slice = std::slice::from_raw_parts_mut(load_addr, mem_size);
+            slice.write_all(&code).unwrap();
+        }
+
+        let mut vcpu_fd = vm.create_vcpu(0).unwrap();
+
+        let core_reg_base: u64 = 0x8030_0000_0200_0000;
+        let mmio_addr: u64 = guest_addr + mem_size as u64;
+
+        // Set the PC to the guest address where we loaded the code.
+        vcpu_fd
+            .set_one_reg(core_reg_base, &(guest_addr as u128).to_le_bytes())
+            .unwrap();
+
+        // Set s8 and s9 to the addresses the guest test code needs
+        vcpu_fd
+            .set_one_reg(
+                core_reg_base + 24,
+                &(guest_addr as u128 + 0x10000).to_le_bytes(),
+            )
+            .unwrap();
+        vcpu_fd
+            .set_one_reg(core_reg_base + 25, &(mmio_addr as u128).to_le_bytes())
+            .unwrap();
+
+        loop {
+            match vcpu_fd.run().expect("run failed") {
+                VcpuExit::MmioRead(addr, data) => {
+                    assert_eq!(addr, mmio_addr);
+                    assert_eq!(data.len(), 4);
+                    data[3] = 0x0;
+                    data[2] = 0x0;
+                    data[1] = 0x5;
+                    data[0] = 0x6;
+                }
+                VcpuExit::MmioWrite(addr, data) => {
+                    assert_eq!(addr, mmio_addr);
+                    assert_eq!(data.len(), 4);
+                    assert_eq!(data[3], 0x0);
+                    assert_eq!(data[2], 0x0);
+                    assert_eq!(data[1], 0x6);
+                    assert_eq!(data[0], 0x7);
+                    // The code snippet dirties one page at guest_addr + 0x10000.
+                    // The code page should not be dirty, as it's not written by the guest.
+                    let dirty_pages_bitmap = vm.get_dirty_log(slot, mem_size).unwrap();
+                    let dirty_pages: u32 = dirty_pages_bitmap
+                        .into_iter()
+                        .map(|page| page.count_ones())
+                        .sum();
+                    assert_eq!(dirty_pages, 1);
+                    break;
+                }
+                r => panic!("unexpected exit reason: {:?}", r),
+            }
+        }
+    }
+
     #[cfg(target_arch = "x86_64")]
     #[test]
     fn test_run_code() {
@@ -2537,7 +2632,8 @@ mod tests {
         target_arch = "x86",
         target_arch = "x86_64",
         target_arch = "arm",
-        target_arch = "aarch64"
+        target_arch = "aarch64",
+        target_arch = "riscv64"
     ))]
     fn test_faulty_vcpu_fd() {
         use std::os::unix::io::{FromRawFd, IntoRawFd};
@@ -2564,10 +2660,22 @@ mod tests {
                 .errno(),
             badf_errno
         );
+        #[cfg(any(
+            target_arch = "x86",
+            target_arch = "x86_64",
+            target_arch = "arm",
+            target_arch = "aarch64"
+        ))]
         assert_eq!(
             faulty_vcpu_fd.get_vcpu_events().unwrap_err().errno(),
             badf_errno
         );
+        #[cfg(any(
+            target_arch = "x86",
+            target_arch = "x86_64",
+            target_arch = "arm",
+            target_arch = "aarch64"
+        ))]
         assert_eq!(
             faulty_vcpu_fd
                 .set_vcpu_events(&kvm_vcpu_events::default())
@@ -2805,6 +2913,52 @@ mod tests {
     }
 
     #[test]
+    #[cfg(target_arch = "riscv64")]
+    fn test_faulty_vcpu_fd_riscv64() {
+        use std::os::unix::io::{FromRawFd, IntoRawFd};
+
+        let badf_errno = libc::EBADF;
+
+        let faulty_vcpu_fd = VcpuFd {
+            vcpu: unsafe { File::from_raw_fd(-2) },
+            kvm_run_ptr: KvmRunWrapper {
+                kvm_run_ptr: mmap_anonymous(10).cast(),
+                mmap_size: 10,
+            },
+            coalesced_mmio_ring: None,
+        };
+
+        let reg_id = 0x8030_0000_0200_000a;
+        let mut reg_data = 0u128.to_le_bytes();
+
+        assert_eq!(
+            faulty_vcpu_fd
+                .get_reg_list(&mut RegList::new(200).unwrap())
+                .unwrap_err()
+                .errno(),
+            badf_errno
+        );
+        assert_eq!(
+            faulty_vcpu_fd
+                .set_one_reg(reg_id, &reg_data)
+                .unwrap_err()
+                .errno(),
+            badf_errno
+        );
+        assert_eq!(
+            faulty_vcpu_fd
+                .get_one_reg(reg_id, &mut reg_data)
+                .unwrap_err()
+                .errno(),
+            badf_errno
+        );
+
+        // Don't drop the File object, or it'll notice the file it's trying to close is
+        // invalid and abort the process.
+        faulty_vcpu_fd.vcpu.into_raw_fd();
+    }
+
+    #[test]
     #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
     fn test_get_preferred_target() {
         let kvm = Kvm::new().unwrap();
@@ -2910,6 +3064,79 @@ mod tests {
         let mut reg_list =
             RegList::new(unsafe { reg_list.as_mut_fam_struct() }.n as usize).unwrap();
         vcpu.get_reg_list(&mut reg_list).unwrap()
+    }
+
+    #[test]
+    #[cfg(target_arch = "riscv64")]
+    fn test_set_one_reg() {
+        let kvm = Kvm::new().unwrap();
+        let vm = kvm.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+
+        let data: u128 = 0;
+        let reg_id: u64 = 0;
+
+        vcpu.set_one_reg(reg_id, &data.to_le_bytes()).unwrap_err();
+        // Exercising KVM_SET_ONE_REG by trying to alter the data inside the A0
+        // register.
+        // This regiseter is 64 bit wide (8 bytes).
+        const A0_REG_ID: u64 = 0x8030_0000_0200_000a;
+        vcpu.set_one_reg(A0_REG_ID, &data.to_le_bytes())
+            .expect("Failed to set a0 register");
+
+        // Trying to set 8 byte register with 7 bytes must fail.
+        vcpu.set_one_reg(A0_REG_ID, &[0_u8; 7]).unwrap_err();
+    }
+
+    #[test]
+    #[cfg(target_arch = "riscv64")]
+    fn test_get_one_reg() {
+        let kvm = Kvm::new().unwrap();
+        let vm = kvm.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+
+        const PRESET: u64 = 0x7;
+        let data: u128 = PRESET as u128;
+        const A0_REG_ID: u64 = 0x8030_0000_0200_000a;
+        vcpu.set_one_reg(A0_REG_ID, &data.to_le_bytes())
+            .expect("Failed to set a0 register");
+
+        let mut bytes = [0_u8; 16];
+        vcpu.get_one_reg(A0_REG_ID, &mut bytes)
+            .expect("Failed to get a0 register");
+        let data = u128::from_le_bytes(bytes);
+        assert_eq!(data, PRESET as u128);
+
+        // Trying to get 8 byte register with 7 bytes must fail.
+        vcpu.get_one_reg(A0_REG_ID, &mut [0_u8; 7]).unwrap_err();
+    }
+
+    #[test]
+    #[cfg(target_arch = "riscv64")]
+    fn test_get_reg_list() {
+        let kvm = Kvm::new().unwrap();
+        let vm = kvm.create_vm().unwrap();
+        let vcpu = vm.create_vcpu(0).unwrap();
+
+        let mut reg_list = RegList::new(1).unwrap();
+
+        // KVM_GET_REG_LIST offers us a number of registers for which we have
+        // not allocated memory, so the first time it fails.
+        let err = vcpu.get_reg_list(&mut reg_list).unwrap_err();
+        assert!(err.errno() == libc::E2BIG);
+        // SAFETY: This structure is a result from a specific vCPU ioctl
+        assert!(unsafe { reg_list.as_mut_fam_struct() }.n > 0);
+
+        // We make use of the number of registers returned to allocate memory and
+        // try one more time.
+        // SAFETY: This structure is a result from a specific vCPU ioctl
+        let mut reg_list =
+            RegList::new(unsafe { reg_list.as_mut_fam_struct() }.n as usize).unwrap();
+        vcpu.get_reg_list(&mut reg_list).unwrap();
+
+        // Test get a register list contains 200 registers explicitly
+        let mut reg_list = RegList::new(200).unwrap();
+        vcpu.get_reg_list(&mut reg_list).unwrap();
     }
 
     #[test]
