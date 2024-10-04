@@ -1,3 +1,5 @@
+// Copyright © 2024 Institute of Software, CAS. All rights reserved.
+//
 // Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
@@ -320,6 +322,91 @@ mod tests {
         unsafe { device_fd.get_device_attr(&mut gic_attr) }.unwrap();
         // The maximum supported number of IRQs should be 128, same as the value
         // when we initialize the GIC.
+        assert_eq!(data, 128);
+    }
+
+    #[test]
+    #[cfg(target_arch = "riscv64")]
+    fn test_create_device() {
+        use crate::ioctls::vm::{create_aia_device, request_aia_init, set_supported_nr_irqs};
+        use kvm_bindings::{
+            kvm_device_attr, kvm_device_type_KVM_DEV_TYPE_FSL_MPIC_20,
+            KVM_DEV_RISCV_AIA_ADDR_APLIC, KVM_DEV_RISCV_AIA_CONFIG_SRCS,
+            KVM_DEV_RISCV_AIA_GRP_ADDR, KVM_DEV_RISCV_AIA_GRP_CONFIG,
+        };
+        use vmm_sys_util::errno::Error;
+
+        let kvm = Kvm::new().unwrap();
+        let vm = kvm.create_vm().unwrap();
+
+        let mut aia_device = kvm_bindings::kvm_create_device {
+            type_: kvm_device_type_KVM_DEV_TYPE_FSL_MPIC_20,
+            fd: 0,
+            flags: KVM_CREATE_DEVICE_TEST,
+        };
+        // This fails on riscv64 as it does not use MPIC (MultiProcessor Interrupt Controller),
+        // it uses the vAIA.
+        vm.create_device(&mut aia_device).unwrap_err();
+
+        let device_fd = create_aia_device(&vm, 0);
+
+        // AIA on riscv64 requires at least one online vCPU prior to setting
+        // device attributes. Otherwise it would fail when trying to set address
+        // of IMSIC.
+        vm.create_vcpu(0).unwrap();
+
+        // Following lines to re-construct device_fd are used to test
+        // DeviceFd::from_raw_fd() and DeviceFd::as_raw_fd().
+        let raw_fd = unsafe { libc::dup(device_fd.as_raw_fd()) };
+        assert!(raw_fd >= 0);
+        let device_fd = unsafe { DeviceFd::from_raw_fd(raw_fd) };
+
+        // Set maximum supported number of IRQs of the vAIA device to 128.
+        set_supported_nr_irqs(&device_fd, 128);
+
+        // Before request vAIA device to initialize, APLIC and IMSIC must be set
+        let aplic_addr: u64 = 0x4000;
+        device_fd
+            .set_device_attr(&kvm_device_attr {
+                group: KVM_DEV_RISCV_AIA_GRP_ADDR,
+                attr: u64::from(KVM_DEV_RISCV_AIA_ADDR_APLIC),
+                addr: &aplic_addr as *const u64 as u64,
+                flags: 0,
+            })
+            .unwrap();
+        let imsic_addr: u64 = 0x8000;
+        device_fd
+            .set_device_attr(&kvm_device_attr {
+                group: KVM_DEV_RISCV_AIA_GRP_ADDR,
+                attr: 1u64,
+                addr: &imsic_addr as *const u64 as u64,
+                flags: 0,
+            })
+            .unwrap();
+
+        // Initialize valid vAIA device.
+        request_aia_init(&device_fd);
+
+        // Test `get_device_attr`. Here we try to extract the maximum supported number of IRQs.
+        // This value should be saved in the address provided to the ioctl.
+        let mut data: u32 = 0;
+
+        let mut aia_attr = kvm_bindings::kvm_device_attr {
+            group: KVM_DEV_RISCV_AIA_GRP_CONFIG,
+            attr: u64::from(KVM_DEV_RISCV_AIA_CONFIG_SRCS),
+            addr: data as u64,
+            ..Default::default()
+        };
+
+        // Without properly providing the address to where the
+        // value will be stored, the ioctl fails with EFAULT.
+        let res = unsafe { device_fd.get_device_attr(&mut aia_attr) };
+        assert_eq!(res, Err(Error::new(libc::EFAULT)));
+
+        aia_attr.addr = &mut data as *mut u32 as u64;
+        unsafe { device_fd.get_device_attr(&mut aia_attr) }.unwrap();
+        // The maximum supported number of IRQs should be 128, same as the value
+        // when we initialize the AIA.
         assert_eq!(data, 128);
     }
 }
