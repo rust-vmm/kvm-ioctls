@@ -2678,16 +2678,19 @@ mod tests {
     fn test_set_gsi_routing() {
         let kvm = Kvm::new().unwrap();
         let vm = kvm.create_vm().unwrap();
-        if cfg!(target_arch = "x86") || cfg!(target_arch = "x86_64") {
-            let irq_routing = kvm_irq_routing::default();
-            // Expect failure for x86 since the irqchip is not created yet.
-            vm.set_gsi_routing(&irq_routing).unwrap_err();
-            vm.create_irq_chip().unwrap();
-        }
-        // RISC-V 64-bit expect an AIA device to be created in advance of committing irq_routing table.
+        let irq_routing = kvm_irq_routing::default();
+
+        // Expect failure for x86 since the irqchip is not created yet.
+        #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+        vm.set_gsi_routing(&irq_routing).unwrap_err();
+        #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+        vm.create_irq_chip().unwrap();
+
+        // RISC-V 64-bit expect an AIA device to be created in advance of
+        // committing irq_routing table.
         #[cfg(target_arch = "riscv64")]
         create_aia_device(&vm, 0);
-        let irq_routing = kvm_irq_routing::default();
+
         vm.set_gsi_routing(&irq_routing).unwrap();
     }
 
