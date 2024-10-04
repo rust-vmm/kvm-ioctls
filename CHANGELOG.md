@@ -4,6 +4,8 @@
 
 ### Added
 
+- [[#275](https://github.com/rust-vmm/kvm-ioctls/pull/275)]: Introduce `riscv64` ioctls.
+
 ### Changed
 
 - [[#273](https://github.com/rust-vmm/kvm-ioctls/pull/273)]: `DeviceFd::get_device_attr` is now
