@@ -18,7 +18,7 @@ as the code documentation.
 
 ## Supported Platforms
 
-The kvm-ioctls can be used on x86_64 and aarch64.
+The kvm-ioctls can be used on x86_64, aarch64 and riscv64 (experimental).
 
 ## Running the tests
 
@@ -28,14 +28,16 @@ For the complete list of tests, check our
 [CI pipeline](https://buildkite.com/rust-vmm/kvm-ioctls-ci).
 
 Each individual test runs in a container. To reproduce a test locally, you can
-use the dev-container on both x86 and arm64.
+use the dev-container on x86_64, arm64 and riscv64.
 
 ```bash
+# For running riscv64 tests, replace v47 with v47-riscv. This provides an
+# emulated riscv64 environment on a x86_64 host.
 docker run --device=/dev/kvm \
            -it \
            --security-opt seccomp=unconfined \
            --volume $(pwd)/kvm-ioctls:/kvm-ioctls \
-           rustvmm/dev:v16
+           rustvmm/dev:v47
 cd kvm-ioctls/
 cargo test
 ```
