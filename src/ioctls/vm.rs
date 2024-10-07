@@ -1,3 +1,5 @@
+// Copyright © 2024 Institute of Software, CAS. All rights reserved.
+//
 // Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 //
@@ -22,7 +24,14 @@ use vmm_sys_util::errno;
 use vmm_sys_util::eventfd::EventFd;
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 use vmm_sys_util::ioctl::ioctl_with_mut_ptr;
-use vmm_sys_util::ioctl::{ioctl, ioctl_with_mut_ref, ioctl_with_ref, ioctl_with_val};
+#[cfg(any(
+    target_arch = "x86",
+    target_arch = "x86_64",
+    target_arch = "arm",
+    target_arch = "aarch64"
+))]
+use vmm_sys_util::ioctl::{ioctl, ioctl_with_mut_ref};
+use vmm_sys_util::ioctl::{ioctl_with_ref, ioctl_with_val};
 
 /// An address either in programmable I/O space or in memory mapped I/O space.
 ///
@@ -581,7 +590,8 @@ impl VmFd {
         target_arch = "x86",
         target_arch = "x86_64",
         target_arch = "arm",
-        target_arch = "aarch64"
+        target_arch = "aarch64",
+        target_arch = "riscv64"
     ))]
     pub fn signal_msi(&self, msi: kvm_msi) -> Result<c_int> {
         // SAFETY: Safe because we allocated the structure and we know the kernel
@@ -618,8 +628,17 @@ impl VmFd {
     ///
     /// let kvm = Kvm::new().unwrap();
     /// let vm = kvm.create_vm().unwrap();
+    ///
     /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     /// vm.create_irq_chip().unwrap();
+    ///
+    /// #[cfg(target_arch = "riscv64")]
+    /// vm.create_device(&mut kvm_bindings::kvm_create_device {
+    ///     type_: kvm_bindings::kvm_device_type_KVM_DEV_TYPE_RISCV_AIA,
+    ///     fd: 0,
+    ///     flags: 0,
+    /// })
+    /// .expect("Cannot create KVM vAIA device.");
     ///
     /// let irq_routing = kvm_irq_routing::default();
     /// vm.set_gsi_routing(&irq_routing).unwrap();
@@ -628,7 +647,8 @@ impl VmFd {
         target_arch = "x86",
         target_arch = "x86_64",
         target_arch = "arm",
-        target_arch = "aarch64"
+        target_arch = "aarch64",
+        target_arch = "riscv64"
     ))]
     pub fn set_gsi_routing(&self, irq_routing: &kvm_irq_routing) -> Result<()> {
         // SAFETY: Safe because we allocated the structure and we know the kernel
@@ -844,6 +864,13 @@ impl VmFd {
     ///     0x00, 0x00, 0x00,
     ///     0x14, /* b <this address>; shouldn't get here, but if so loop forever */
     /// ];
+    /// #[cfg(target_arch = "riscv64")]
+    /// let asm_code = [
+    ///     0x17, 0x03, 0x00, 0x00, // auipc t1, 0;     <this address> -> t1
+    ///     0xa3, 0x23, 0x73, 0x00, // sw t2, t1 + 7;   dirty current page
+    ///     0x23, 0x20, 0x75, 0x00, // sw t2, a0;       trigger MMIO exit
+    ///     0x6f, 0x00, 0x00, 0x00, // j .;shouldn't get here, but if so loop forever
+    /// ];
     ///
     /// // Write the code in the guest memory. This will generate a dirty page.
     /// unsafe {
@@ -881,6 +908,14 @@ impl VmFd {
     ///     let mmio_addr: u64 = guest_addr + mem_size as u64;
     ///     vcpu_fd.set_one_reg(core_reg_base + 2 * 32, &guest_addr.to_le_bytes()); // set PC
     ///     vcpu_fd.set_one_reg(core_reg_base + 2 * 0, &mmio_addr.to_le_bytes()); // set X0
+    /// }
+    ///
+    /// #[cfg(target_arch = "riscv64")]
+    /// {
+    ///     let core_reg_base: u64 = 0x8030_0000_0200_0000;
+    ///     let mmio_addr: u64 = guest_addr + mem_size as u64;
+    ///     vcpu_fd.set_one_reg(core_reg_base, &guest_addr.to_le_bytes()); // set PC
+    ///     vcpu_fd.set_one_reg(core_reg_base + 10, &mmio_addr.to_le_bytes()); // set A0
     /// }
     ///
     /// loop {
@@ -961,7 +996,8 @@ impl VmFd {
         target_arch = "x86",
         target_arch = "x86_64",
         target_arch = "arm",
-        target_arch = "aarch64"
+        target_arch = "aarch64",
+        target_arch = "riscv64"
     ))]
     pub fn register_irqfd(&self, fd: &EventFd, gsi: u32) -> Result<()> {
         let irqfd = kvm_irqfd {
@@ -1013,7 +1049,8 @@ impl VmFd {
         target_arch = "x86",
         target_arch = "x86_64",
         target_arch = "arm",
-        target_arch = "aarch64"
+        target_arch = "aarch64",
+        target_arch = "riscv64"
     ))]
     pub fn register_irqfd_with_resample(
         &self,
@@ -1072,7 +1109,8 @@ impl VmFd {
         target_arch = "x86",
         target_arch = "x86_64",
         target_arch = "arm",
-        target_arch = "aarch64"
+        target_arch = "aarch64",
+        target_arch = "riscv64"
     ))]
     pub fn unregister_irqfd(&self, fd: &EventFd, gsi: u32) -> Result<()> {
         let irqfd = kvm_irqfd {
@@ -1143,7 +1181,8 @@ impl VmFd {
         target_arch = "x86",
         target_arch = "x86_64",
         target_arch = "arm",
-        target_arch = "aarch64"
+        target_arch = "aarch64",
+        target_arch = "riscv64"
     ))]
     pub fn set_irq_line(&self, irq: u32, active: bool) -> Result<()> {
         let mut irq_level = kvm_irq_level::default();
@@ -1253,7 +1292,8 @@ impl VmFd {
     /// # use kvm_ioctls::Kvm;
     /// use kvm_bindings::{
     ///     kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V2, kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V3,
-    ///     kvm_device_type_KVM_DEV_TYPE_VFIO, KVM_CREATE_DEVICE_TEST,
+    ///     kvm_device_type_KVM_DEV_TYPE_RISCV_AIA, kvm_device_type_KVM_DEV_TYPE_VFIO,
+    ///     KVM_CREATE_DEVICE_TEST,
     /// };
     /// let kvm = Kvm::new().unwrap();
     /// let vm = kvm.create_vm().unwrap();
@@ -1266,6 +1306,8 @@ impl VmFd {
     ///     type_: kvm_device_type_KVM_DEV_TYPE_VFIO,
     ///     #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
     ///     type_: kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V3,
+    ///     #[cfg(target_arch = "riscv64")]
+    ///     type_: kvm_device_type_KVM_DEV_TYPE_RISCV_AIA,
     ///     fd: 0,
     ///     flags: KVM_CREATE_DEVICE_TEST,
     /// };
@@ -1280,6 +1322,8 @@ impl VmFd {
     ///         vm.create_device(&mut device)
     ///             .expect("Cannot create vGIC device")
     ///     }
+    ///     #[cfg(target_arch = "riscv64")]
+    ///     panic!("Cannot create vAIA device.");
     /// });
     /// ```
     pub fn create_device(&self, device: &mut kvm_create_device) -> Result<DeviceFd> {
@@ -1370,7 +1414,7 @@ impl VmFd {
     ///     vm.enable_cap(&cap).unwrap();
     /// }
     /// ```
-    #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
+    #[cfg(not(any(target_arch = "arm", target_arch = "aarch64", target_arch = "riscv64")))]
     pub fn enable_cap(&self, cap: &kvm_enable_cap) -> Result<()> {
         // SAFETY: The ioctl is safe because we allocated the struct and we know the
         // kernel will write exactly the size of the struct.
@@ -1946,6 +1990,61 @@ pub(crate) fn request_gic_init(vgic: &DeviceFd) {
     vgic.set_device_attr(&vgic_attr).unwrap();
 }
 
+/// Create a dummy AIA device.
+///
+/// # Arguments
+///
+/// * `vm` - The vm file descriptor.
+/// * `flags` - Flags to be passed to `KVM_CREATE_DEVICE`.
+#[cfg(test)]
+#[cfg(target_arch = "riscv64")]
+pub(crate) fn create_aia_device(vm: &VmFd, flags: u32) -> DeviceFd {
+    let mut aia_device = kvm_bindings::kvm_create_device {
+        type_: kvm_device_type_KVM_DEV_TYPE_RISCV_AIA,
+        fd: 0,
+        flags,
+    };
+    vm.create_device(&mut aia_device)
+        .expect("Cannot create KVM vAIA device")
+}
+
+/// Set supported number of IRQs for vAIA.
+///
+/// # Arguments
+///
+/// * `vaia` - The vAIA file descriptor.
+/// * `nr_irqs` - Number of IRQs.
+#[cfg(test)]
+#[cfg(target_arch = "riscv64")]
+pub(crate) fn set_supported_nr_irqs(vaia: &DeviceFd, nr_irqs: u32) {
+    let vaia_attr = kvm_bindings::kvm_device_attr {
+        group: kvm_bindings::KVM_DEV_RISCV_AIA_GRP_CONFIG,
+        attr: u64::from(kvm_bindings::KVM_DEV_RISCV_AIA_CONFIG_SRCS),
+        addr: &nr_irqs as *const u32 as u64,
+        flags: 0,
+    };
+    vaia.has_device_attr(&vaia_attr).unwrap();
+    vaia.set_device_attr(&vaia_attr).unwrap();
+}
+
+/// Request the initialization of the vAIA.
+///
+/// # Arguments
+///
+/// * `vaia` - The vAIA file descriptor.
+#[cfg(test)]
+#[cfg(target_arch = "riscv64")]
+pub(crate) fn request_aia_init(vaia: &DeviceFd) {
+    let vaia_attr = kvm_bindings::kvm_device_attr {
+        group: kvm_bindings::KVM_DEV_RISCV_AIA_GRP_CTRL,
+        attr: u64::from(kvm_bindings::KVM_DEV_RISCV_AIA_CTRL_INIT),
+        addr: 0,
+        flags: 0,
+    };
+    vaia.has_device_attr(&vaia_attr).unwrap();
+    vaia.set_device_attr(&vaia_attr).unwrap();
+}
+
 #[cfg(test)]
 mod tests {
     #![allow(clippy::undocumented_unsafe_blocks)]
@@ -2259,6 +2358,64 @@ mod tests {
     }
 
     #[test]
+    #[cfg(target_arch = "riscv64")]
+    fn test_register_unregister_irqfd() {
+        let kvm = Kvm::new().unwrap();
+        let vm_fd = kvm.create_vm().unwrap();
+        let evtfd1 = EventFd::new(EFD_NONBLOCK).unwrap();
+        let evtfd2 = EventFd::new(EFD_NONBLOCK).unwrap();
+        let evtfd3 = EventFd::new(EFD_NONBLOCK).unwrap();
+
+        // Create the vAIA device.
+        let vaia_fd = create_aia_device(&vm_fd, 0);
+
+        // AIA on riscv64 requires at least one online vCPU prior to setting
+        // device attributes. Otherwise it would fail when trying ot set address
+        // of IMSIC.
+        vm_fd.create_vcpu(0).unwrap();
+
+        // Set maximum supported number of IRQs of the vAIA device to 128.
+        set_supported_nr_irqs(&vaia_fd, 128);
+
+        // Before request vAIA device to initialize, APLIC and IMSIC must be set
+        let aplic_addr: u64 = 0x4000;
+        vaia_fd
+            .set_device_attr(&kvm_device_attr {
+                group: KVM_DEV_RISCV_AIA_GRP_ADDR,
+                attr: u64::from(KVM_DEV_RISCV_AIA_ADDR_APLIC),
+                addr: &aplic_addr as *const u64 as u64,
+                flags: 0,
+            })
+            .unwrap();
+        let imsic_addr: u64 = 0x8000;
+        vaia_fd
+            .set_device_attr(&kvm_device_attr {
+                group: KVM_DEV_RISCV_AIA_GRP_ADDR,
+                attr: 1u64,
+                addr: &imsic_addr as *const u64 as u64,
+                flags: 0,
+            })
+            .unwrap();
+
+        // Initialize valid vAIA device.
+        request_aia_init(&vaia_fd);
+
+        vm_fd.register_irqfd(&evtfd1, 4).unwrap();
+        vm_fd.register_irqfd(&evtfd2, 8).unwrap();
+        vm_fd.register_irqfd(&evtfd3, 4).unwrap();
+        vm_fd.unregister_irqfd(&evtfd2, 8).unwrap();
+        // KVM irqfd doesn't report failure on this case:(
+        vm_fd.unregister_irqfd(&evtfd2, 8).unwrap();
+
+        // Duplicated eventfd registration.
+        // On riscv64 this fails as the event fd was already matched with a GSI.
+        vm_fd.register_irqfd(&evtfd3, 4).unwrap_err();
+        vm_fd.register_irqfd(&evtfd3, 5).unwrap_err();
+        // KVM irqfd doesn't report failure on this case:(
+        vm_fd.unregister_irqfd(&evtfd3, 5).unwrap();
+    }
+
+    #[test]
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     fn test_set_irq_line() {
         let kvm = Kvm::new().unwrap();
@@ -2303,6 +2460,47 @@ mod tests {
         vm_fd.set_irq_line(0x02_00_0010, true).unwrap();
         vm_fd.set_irq_line(0x02_00_0010, false).unwrap();
         vm_fd.set_irq_line(0x02_00_0010, true).unwrap();
+    }
+
+    #[test]
+    #[cfg(target_arch = "riscv64")]
+    #[allow(clippy::unusual_byte_groupings)]
+    fn test_set_irq_line() {
+        let kvm = Kvm::new().unwrap();
+        let vm_fd = kvm.create_vm().unwrap();
+        vm_fd.create_vcpu(0).unwrap();
+
+        // Create the vAIA device.
+        let vaia_fd = create_aia_device(&vm_fd, 0);
+        // Set maximum supported number of IRQs of the vAIA device to 128.
+        set_supported_nr_irqs(&vaia_fd, 128);
+
+        // Before request vAIA device to initialize, APLIC and IMSIC must be set
+        let aplic_addr: u64 = 0x4000;
+        vaia_fd
+            .set_device_attr(&kvm_device_attr {
+                group: KVM_DEV_RISCV_AIA_GRP_ADDR,
+                attr: u64::from(KVM_DEV_RISCV_AIA_ADDR_APLIC),
+                addr: &aplic_addr as *const u64 as u64,
+                flags: 0,
+            })
+            .unwrap();
+        let imsic_addr: u64 = 0x8000;
+        vaia_fd
+            .set_device_attr(&kvm_device_attr {
+                group: KVM_DEV_RISCV_AIA_GRP_ADDR,
+                attr: 1u64,
+                addr: &imsic_addr as *const u64 as u64,
+                flags: 0,
+            })
+            .unwrap();
+
+        // Initialize valid vAIA device.
+        request_aia_init(&vaia_fd);
+
+        vm_fd.set_irq_line(7, true).unwrap();
+        vm_fd.set_irq_line(7, false).unwrap();
+        vm_fd.set_irq_line(7, true).unwrap();
     }
 
     #[test]
@@ -2425,7 +2623,8 @@ mod tests {
         target_arch = "x86",
         target_arch = "x86_64",
         target_arch = "arm",
-        target_arch = "aarch64"
+        target_arch = "aarch64",
+        target_arch = "riscv64"
     ))]
     fn test_signal_msi_failure() {
         let kvm = Kvm::new().unwrap();
@@ -2435,7 +2634,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
+    #[cfg(not(any(target_arch = "arm", target_arch = "aarch64", target_arch = "riscv64")))]
     fn test_enable_cap_failure() {
         let kvm = Kvm::new().unwrap();
         let vm = kvm.create_vm().unwrap();
@@ -2474,18 +2673,25 @@ mod tests {
         target_arch = "x86",
         target_arch = "x86_64",
         target_arch = "arm",
-        target_arch = "aarch64"
+        target_arch = "aarch64",
+        target_arch = "riscv64"
     ))]
     fn test_set_gsi_routing() {
         let kvm = Kvm::new().unwrap();
         let vm = kvm.create_vm().unwrap();
-        if cfg!(target_arch = "x86") || cfg!(target_arch = "x86_64") {
-            let irq_routing = kvm_irq_routing::default();
-            // Expect failure for x86 since the irqchip is not created yet.
-            vm.set_gsi_routing(&irq_routing).unwrap_err();
-            vm.create_irq_chip().unwrap();
-        }
         let irq_routing = kvm_irq_routing::default();
+
+        // Expect failure for x86 since the irqchip is not created yet.
+        #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+        vm.set_gsi_routing(&irq_routing).unwrap_err();
+        #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+        vm.create_irq_chip().unwrap();
+
+        // RISC-V 64-bit expect an AIA device to be created in advance of
+        // committing irq_routing table.
+        #[cfg(target_arch = "riscv64")]
+        create_aia_device(&vm, 0);
+
         vm.set_gsi_routing(&irq_routing).unwrap();
     }
 
