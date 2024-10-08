@@ -222,6 +222,9 @@ ioctl_iow_nr!(KVM_SET_DEBUGREGS, KVMIO, 0xa2, kvm_debugregs);
 /* Available with KVM_CAP_XSAVE */
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 ioctl_ior_nr!(KVM_GET_XSAVE, KVMIO, 0xa4, kvm_xsave);
+/* Available with KVM_CAP_XSAVE2 */
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+ioctl_ior_nr!(KVM_GET_XSAVE2, KVMIO, 0xcf, kvm_xsave);
 /* Available with KVM_CAP_XSAVE */
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 ioctl_iow_nr!(KVM_SET_XSAVE, KVMIO, 0xa5, kvm_xsave);
