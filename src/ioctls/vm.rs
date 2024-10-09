@@ -1406,9 +1406,7 @@ impl VmFd {
     /// use kvm_ioctls::Cap;
     ///
     /// let kvm = Kvm::new().unwrap();
-    /// assert!(
-    ///     (kvm.check_extension_int(Cap::MemoryAttributes) as u32 & KVM_MEMORY_ATTRIBUTE_PRIVATE) == 0
-    /// );
+    /// assert!(kvm.check_extension_int(Cap::MaxVcpus) > 0);
     /// ```
     pub fn check_extension_int(&self, c: Cap) -> i32 {
         self.check_extension_raw(c as c_ulong)
@@ -1431,7 +1429,7 @@ impl VmFd {
     /// use kvm_ioctls::Cap;
     ///
     /// let kvm = Kvm::new().unwrap();
-    /// assert!(kvm.check_extension_raw(Cap::GuestMemfd as c_ulong) > 0);
+    /// assert!(kvm.check_extension_raw(Cap::MaxVcpus as c_ulong) > 0);
     /// ```
     pub fn check_extension_raw(&self, c: c_ulong) -> i32 {
         // SAFETY: Safe because we know that our file is a KVM fd.
