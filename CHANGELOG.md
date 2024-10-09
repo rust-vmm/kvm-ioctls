@@ -9,7 +9,7 @@
 - [[#273](https://github.com/rust-vmm/kvm-ioctls/pull/273)]: `DeviceFd::get_device_attr` is now
   marked as unsafe.
 - [[#277](https://github.com/rust-vmm/kvm-ioctls/pull/277)]: Updated kvm-bindings to 0.9.1.
-- [[#287](https://github.com/rust-vmm/kvm-ioctls/pull/287)]: Add kvm guest memfd related
+- [[#288](https://github.com/rust-vmm/kvm-ioctls/pull/288)]: Add kvm guest memfd related
   capabilities.
 
 ## v0.18.0
