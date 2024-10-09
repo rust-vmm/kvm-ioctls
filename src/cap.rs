@@ -171,4 +171,7 @@ pub enum Cap {
     ExitHypercall = KVM_CAP_EXIT_HYPERCALL,
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     MemoryFaultInfo = KVM_CAP_MEMORY_FAULT_INFO,
+    UserMemory2 = KVM_CAP_USER_MEMORY2,
+    GuestMemfd = KVM_CAP_GUEST_MEMFD,
+    MemoryAttributes = KVM_CAP_MEMORY_ATTRIBUTES,
 }
