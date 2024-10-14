@@ -4,9 +4,9 @@
 
 ### Bindgen
 The bindings are currently generated using
-[bindgen](https://crates.io/crates/bindgen) version 0.64.0:
+[bindgen](https://crates.io/crates/bindgen) version 0.70.1:
 ```bash
-cargo install bindgen-cli --vers 0.64.0
+cargo install bindgen-cli --vers 0.70.1
 ```
 
 ### Linux Kernel
