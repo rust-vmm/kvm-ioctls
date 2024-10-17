@@ -73,7 +73,7 @@
 //!     let asm_code: &[u8];
 //!
 //!     // Setting up architectural dependent values.
-//!     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+//!     #[cfg(target_arch = "x86_64")]
 //!     {
 //!         asm_code = &[
 //!             0xba, 0xf8, 0x03, /* mov $0x3f8, %dx */
@@ -147,7 +147,7 @@
 //!     let mut vcpu_fd = vm.create_vcpu(0).unwrap();
 //!
 //!     // 5. Initialize general purpose and special registers.
-//!     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+//!     #[cfg(target_arch = "x86_64")]
 //!     {
 //!         // x86_64 specific registry setup.
 //!         let mut vcpu_sregs = vcpu_fd.get_sregs().unwrap();
@@ -248,7 +248,7 @@ pub use ioctls::system::Kvm;
 pub use ioctls::vcpu::reg_size;
 pub use ioctls::vcpu::{HypercallExit, VcpuExit, VcpuFd};
 
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[cfg(target_arch = "x86_64")]
 pub use ioctls::vcpu::{MsrExitReason, ReadMsrExit, SyncReg, WriteMsrExit};
 
 pub use ioctls::vm::{IoEventAddress, NoDatamatch, VmFd};
@@ -257,7 +257,7 @@ pub use ioctls::vm::{IoEventAddress, NoDatamatch, VmFd};
 /// # Example
 ///
 /// ```
-/// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+/// #[cfg(target_arch = "x86_64")]
 /// use kvm_ioctls::{Error, KvmRunWrapper};
 /// ```
 pub use ioctls::KvmRunWrapper;

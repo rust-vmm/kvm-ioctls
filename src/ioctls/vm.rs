@@ -22,14 +22,9 @@ use crate::ioctls::{KvmRunWrapper, Result};
 use crate::kvm_ioctls::*;
 use vmm_sys_util::errno;
 use vmm_sys_util::eventfd::EventFd;
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[cfg(target_arch = "x86_64")]
 use vmm_sys_util::ioctl::ioctl_with_mut_ptr;
-#[cfg(any(
-    target_arch = "x86",
-    target_arch = "x86_64",
-    target_arch = "arm",
-    target_arch = "aarch64"
-))]
+#[cfg(any(target_arch = "x86_64", target_arch = "arm", target_arch = "aarch64"))]
 use vmm_sys_util::ioctl::{ioctl, ioctl_with_mut_ref};
 use vmm_sys_util::ioctl::{ioctl_with_ref, ioctl_with_val};
 
@@ -229,7 +224,7 @@ impl VmFd {
     /// let vm = kvm.create_vm().unwrap();
     /// vm.set_tss_address(0xfffb_d000).unwrap();
     /// ```
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     pub fn set_tss_address(&self, offset: usize) -> Result<()> {
         // SAFETY: Safe because we know that our file is a VM fd and we verify the return result.
         let ret = unsafe { ioctl_with_val(self, KVM_SET_TSS_ADDR(), offset as c_ulong) };
@@ -257,7 +252,7 @@ impl VmFd {
     /// let vm = kvm.create_vm().unwrap();
     /// vm.set_identity_map_address(0xfffb_c000).unwrap();
     /// ```
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     pub fn set_identity_map_address(&self, address: u64) -> Result<()> {
         // SAFETY: Safe because we know that our file is a VM fd and we verify the return result.
         let ret = unsafe { ioctl_with_ref(self, KVM_SET_IDENTITY_MAP_ADDR(), &address) };
@@ -281,7 +276,7 @@ impl VmFd {
     /// let kvm = Kvm::new().unwrap();
     /// let vm = kvm.create_vm().unwrap();
     ///
-    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    /// #[cfg(target_arch = "x86_64")]
     /// vm.create_irq_chip().unwrap();
     /// #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
     /// {
@@ -298,12 +293,7 @@ impl VmFd {
     ///     }
     /// }
     /// ```
-    #[cfg(any(
-        target_arch = "x86",
-        target_arch = "x86_64",
-        target_arch = "arm",
-        target_arch = "aarch64"
-    ))]
+    #[cfg(any(target_arch = "x86_64", target_arch = "arm", target_arch = "aarch64"))]
     pub fn create_irq_chip(&self) -> Result<()> {
         // SAFETY: Safe because we know that our file is a VM fd and we verify the return result.
         let ret = unsafe { ioctl(self, KVM_CREATE_IRQCHIP()) };
@@ -338,7 +328,7 @@ impl VmFd {
     /// irqchip.chip_id = KVM_IRQCHIP_PIC_MASTER;
     /// vm.get_irqchip(&mut irqchip).unwrap();
     /// ```
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     pub fn get_irqchip(&self, irqchip: &mut kvm_irqchip) -> Result<()> {
         // SAFETY: Here we trust the kernel not to read past the end of the kvm_irqchip struct.
         let ret = unsafe { ioctl_with_mut_ref(self, KVM_GET_IRQCHIP(), irqchip) };
@@ -374,7 +364,7 @@ impl VmFd {
     /// // Your `irqchip` manipulation here.
     /// vm.set_irqchip(&mut irqchip).unwrap();
     /// ```
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     pub fn set_irqchip(&self, irqchip: &kvm_irqchip) -> Result<()> {
         // SAFETY: Here we trust the kernel not to read past the end of the kvm_irqchip struct.
         let ret = unsafe { ioctl_with_ref(self, KVM_SET_IRQCHIP(), irqchip) };
@@ -405,7 +395,7 @@ impl VmFd {
     /// let pit_config = kvm_pit_config::default();
     /// vm.create_pit2(pit_config).unwrap();
     /// ```
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     pub fn create_pit2(&self, pit_config: kvm_pit_config) -> Result<()> {
         // SAFETY: Safe because we know that our file is a VM fd, we know the kernel will only read
         // the correct amount of memory from our pointer, and we verify the return result.
@@ -441,7 +431,7 @@ impl VmFd {
     /// vm.create_pit2(pit_config).unwrap();
     /// let pitstate = vm.get_pit2().unwrap();
     /// ```
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     pub fn get_pit2(&self) -> Result<kvm_pit_state2> {
         let mut pitstate = Default::default();
         // SAFETY: Here we trust the kernel not to read past the end of the kvm_pit_state2 struct.
@@ -479,7 +469,7 @@ impl VmFd {
     /// // Your `pitstate` manipulation here.
     /// vm.set_pit2(&mut pitstate).unwrap();
     /// ```
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     pub fn set_pit2(&self, pitstate: &kvm_pit_state2) -> Result<()> {
         // SAFETY: Here we trust the kernel not to read past the end of the kvm_pit_state2 struct.
         let ret = unsafe { ioctl_with_ref(self, KVM_SET_PIT2(), pitstate) };
@@ -508,7 +498,7 @@ impl VmFd {
     /// let vm = kvm.create_vm().unwrap();
     /// let clock = vm.get_clock().unwrap();
     /// ```
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     pub fn get_clock(&self) -> Result<kvm_clock_data> {
         let mut clock = Default::default();
         // SAFETY: Here we trust the kernel not to read past the end of the kvm_clock_data struct.
@@ -541,7 +531,7 @@ impl VmFd {
     /// let mut clock = kvm_clock_data::default();
     /// vm.set_clock(&mut clock).unwrap();
     /// ```
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     pub fn set_clock(&self, clock: &kvm_clock_data) -> Result<()> {
         // SAFETY: Here we trust the kernel not to read past the end of the kvm_clock_data struct.
         let ret = unsafe { ioctl_with_ref(self, KVM_SET_CLOCK(), clock) };
@@ -582,12 +572,11 @@ impl VmFd {
     /// let kvm = Kvm::new().unwrap();
     /// let vm = kvm.create_vm().unwrap();
     /// let msi = kvm_msi::default();
-    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    /// #[cfg(target_arch = "x86_64")]
     /// vm.create_irq_chip().unwrap();
     /// //vm.signal_msi(msi).unwrap();
     /// ```
     #[cfg(any(
-        target_arch = "x86",
         target_arch = "x86_64",
         target_arch = "arm",
         target_arch = "aarch64",
@@ -629,7 +618,7 @@ impl VmFd {
     /// let kvm = Kvm::new().unwrap();
     /// let vm = kvm.create_vm().unwrap();
     ///
-    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    /// #[cfg(target_arch = "x86_64")]
     /// vm.create_irq_chip().unwrap();
     ///
     /// #[cfg(target_arch = "riscv64")]
@@ -644,7 +633,6 @@ impl VmFd {
     /// vm.set_gsi_routing(&irq_routing).unwrap();
     /// ```
     #[cfg(any(
-        target_arch = "x86",
         target_arch = "x86_64",
         target_arch = "arm",
         target_arch = "aarch64",
@@ -853,7 +841,7 @@ impl VmFd {
     /// };
     /// unsafe { vm.set_user_memory_region(mem_region).unwrap() };
     ///
-    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    /// #[cfg(target_arch = "x86_64")]
     /// // ASM code that just forces a MMIO Write.
     /// let asm_code = [0xc6, 0x06, 0x00, 0x80, 0x00];
     /// #[cfg(target_arch = "aarch64")]
@@ -880,7 +868,7 @@ impl VmFd {
     ///
     /// let mut vcpu_fd = vm.create_vcpu(0).unwrap();
     ///
-    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    /// #[cfg(target_arch = "x86_64")]
     /// {
     ///     // x86_64 specific registry setup.
     ///     let mut vcpu_sregs = vcpu_fd.get_sregs().unwrap();
@@ -986,14 +974,13 @@ impl VmFd {
     /// let kvm = Kvm::new().unwrap();
     /// let vm = kvm.create_vm().unwrap();
     /// let evtfd = EventFd::new(EFD_NONBLOCK).unwrap();
-    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    /// #[cfg(target_arch = "x86_64")]
     /// {
     ///     vm.create_irq_chip().unwrap();
     ///     vm.register_irqfd(&evtfd, 0).unwrap();
     /// }
     /// ```
     #[cfg(any(
-        target_arch = "x86",
         target_arch = "x86_64",
         target_arch = "arm",
         target_arch = "aarch64",
@@ -1038,7 +1025,7 @@ impl VmFd {
     /// let vm = kvm.create_vm().unwrap();
     /// let evtfd = EventFd::new(EFD_NONBLOCK).unwrap();
     /// let resamplefd = EventFd::new(EFD_NONBLOCK).unwrap();
-    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    /// #[cfg(target_arch = "x86_64")]
     /// {
     ///     vm.create_irq_chip().unwrap();
     ///     vm.register_irqfd_with_resample(&evtfd, &resamplefd, 0)
@@ -1046,7 +1033,6 @@ impl VmFd {
     /// }
     /// ```
     #[cfg(any(
-        target_arch = "x86",
         target_arch = "x86_64",
         target_arch = "arm",
         target_arch = "aarch64",
@@ -1095,7 +1081,7 @@ impl VmFd {
     /// let vm = kvm.create_vm().unwrap();
     /// let evtfd = EventFd::new(EFD_NONBLOCK).unwrap();
     /// let resamplefd = EventFd::new(EFD_NONBLOCK).unwrap();
-    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    /// #[cfg(target_arch = "x86_64")]
     /// {
     ///     vm.create_irq_chip().unwrap();
     ///     vm.register_irqfd(&evtfd, 0).unwrap();
@@ -1106,7 +1092,6 @@ impl VmFd {
     /// }
     /// ```
     #[cfg(any(
-        target_arch = "x86",
         target_arch = "x86_64",
         target_arch = "arm",
         target_arch = "aarch64",
@@ -1152,7 +1137,7 @@ impl VmFd {
     /// fn arch_setup(vm_fd: &VmFd) {
     ///     // Arch-specific setup:
     ///     // For x86 architectures, it simply means calling vm.create_irq_chip().unwrap().
-    /// #   #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    /// #   #[cfg(target_arch = "x86_64")]
     /// #   vm_fd.create_irq_chip().unwrap();
     ///     // For Arm architectures, the IRQ controllers need to be setup first.
     ///     // Details please refer to the kernel documentation.
@@ -1166,7 +1151,7 @@ impl VmFd {
     /// let kvm = Kvm::new().unwrap();
     /// let vm = kvm.create_vm().unwrap();
     /// arch_setup(&vm);
-    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    /// #[cfg(target_arch = "x86_64")]
     /// {
     ///     vm.set_irq_line(4, true);
     ///     // ...
@@ -1178,7 +1163,6 @@ impl VmFd {
     /// }
     /// ```
     #[cfg(any(
-        target_arch = "x86",
         target_arch = "x86_64",
         target_arch = "arm",
         target_arch = "aarch64",
@@ -1302,7 +1286,7 @@ impl VmFd {
     /// // whether the device type is supported. This will not create the device.
     /// // To create the device the flag needs to be removed.
     /// let mut device = kvm_bindings::kvm_create_device {
-    ///     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    ///     #[cfg(target_arch = "x86_64")]
     ///     type_: kvm_device_type_KVM_DEV_TYPE_VFIO,
     ///     #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
     ///     type_: kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V3,
@@ -1314,7 +1298,7 @@ impl VmFd {
     /// // On ARM, creating VGICv3 may fail due to hardware dependency.
     /// // Retry to create VGICv2 in that case.
     /// let device_fd = vm.create_device(&mut device).unwrap_or_else(|_| {
-    ///     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    ///     #[cfg(target_arch = "x86_64")]
     ///     panic!("Cannot create VFIO device.");
     ///     #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
     ///     {
@@ -1397,7 +1381,7 @@ impl VmFd {
     /// let mut cap: kvm_enable_cap = Default::default();
     /// // This example cannot enable an arm/aarch64 capability since there
     /// // is no capability available for these architectures.
-    /// if cfg!(target_arch = "x86") || cfg!(target_arch = "x86_64") {
+    /// if cfg!(target_arch = "x86_64") {
     ///     cap.cap = KVM_CAP_SPLIT_IRQCHIP;
     ///     // As per the KVM documentation, KVM_CAP_SPLIT_IRQCHIP only emulates
     ///     // the local APIC in kernel, expecting that a userspace IOAPIC will
@@ -1650,7 +1634,7 @@ impl VmFd {
     /// let mut init: kvm_sev_cmd = Default::default();
     /// unsafe { vm.encrypt_op(&mut init).unwrap() };
     /// ```
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     pub unsafe fn encrypt_op<T>(&self, op: *mut T) -> Result<()> {
         let ret = ioctl_with_mut_ptr(self, KVM_MEMORY_ENCRYPT_OP(), op);
         if ret == 0 {
@@ -1692,7 +1676,7 @@ impl VmFd {
     /// let mut init: kvm_sev_cmd = Default::default();
     /// vm.encrypt_op_sev(&mut init).unwrap();
     /// ```
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     pub fn encrypt_op_sev(&self, op: &mut kvm_sev_cmd) -> Result<()> {
         // SAFETY: Safe because we know that kernel will only read the correct amount of memory
         // from our pointer and we know where it will write it (op.error).
@@ -1762,7 +1746,7 @@ impl VmFd {
     /// };
     /// vm.register_enc_memory_region(&memory_region).unwrap();
     /// ```
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     pub fn register_enc_memory_region(&self, memory_region: &kvm_enc_region) -> Result<()> {
         // SAFETY: Safe because we know that our file is a VM fd, we know the kernel will only read
         // the correct amount of memory from our pointer, and we verify the return result.
@@ -1839,7 +1823,7 @@ impl VmFd {
     /// vm.register_enc_memory_region(&memory_region).unwrap();
     /// vm.unregister_enc_memory_region(&memory_region).unwrap();
     /// ```
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     pub fn unregister_enc_memory_region(&self, memory_region: &kvm_enc_region) -> Result<()> {
         // SAFETY: Safe because we know that our file is a VM fd, we know the kernel will only read
         // the correct amount of memory from our pointer, and we verify the return result.
@@ -2051,7 +2035,7 @@ mod tests {
     use super::*;
     use crate::Kvm;
 
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     use std::{fs::OpenOptions, os::fd::IntoRawFd, ptr::null_mut};
 
     use libc::EFD_NONBLOCK;
@@ -2089,7 +2073,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     fn test_set_tss_address() {
         let kvm = Kvm::new().unwrap();
         let vm = kvm.create_vm().unwrap();
@@ -2097,7 +2081,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     fn test_set_identity_map_address() {
         let kvm = Kvm::new().unwrap();
         if kvm.check_extension(Cap::SetIdentityMapAddr) {
@@ -2110,7 +2094,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     fn test_irq_chip() {
         use Cap;
 
@@ -2162,7 +2146,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     fn test_pit2() {
         let kvm = Kvm::new().unwrap();
         let vm = kvm.create_vm().unwrap();
@@ -2181,7 +2165,7 @@ mod tests {
         assert_eq!(pit2, other_pit2);
     }
 
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     #[test]
     fn test_clock() {
         let kvm = Kvm::new().unwrap();
@@ -2269,7 +2253,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     fn test_register_unregister_irqfd() {
         let kvm = Kvm::new().unwrap();
         let vm_fd = kvm.create_vm().unwrap();
@@ -2416,7 +2400,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     fn test_set_irq_line() {
         let kvm = Kvm::new().unwrap();
         let vm_fd = kvm.create_vm().unwrap();
@@ -2503,7 +2487,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     fn test_faulty_vm_fd() {
         let badf_errno = libc::EBADF;
 
@@ -2619,7 +2603,6 @@ mod tests {
     /// previously allocated from the guest itself.
     #[test]
     #[cfg(any(
-        target_arch = "x86",
         target_arch = "x86_64",
         target_arch = "arm",
         target_arch = "aarch64",
@@ -2644,7 +2627,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     fn test_enable_split_irqchip_cap() {
         let kvm = Kvm::new().unwrap();
         let vm = kvm.create_vm().unwrap();
@@ -2669,7 +2652,6 @@ mod tests {
 
     #[test]
     #[cfg(any(
-        target_arch = "x86",
         target_arch = "x86_64",
         target_arch = "arm",
         target_arch = "aarch64",
@@ -2681,9 +2663,9 @@ mod tests {
         let irq_routing = kvm_irq_routing::default();
 
         // Expect failure for x86 since the irqchip is not created yet.
-        #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+        #[cfg(target_arch = "x86_64")]
         vm.set_gsi_routing(&irq_routing).unwrap_err();
-        #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+        #[cfg(target_arch = "x86_64")]
         vm.create_irq_chip().unwrap();
 
         // RISC-V 64-bit expect an AIA device to be created in advance of
@@ -2719,7 +2701,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     #[cfg_attr(not(has_sev), ignore)]
     fn test_encrypt_op_sev() {
         let kvm = Kvm::new().unwrap();
@@ -2730,7 +2712,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     #[cfg_attr(not(has_sev), ignore)]
     fn test_register_unregister_enc_memory_region() {
         let sev = OpenOptions::new()

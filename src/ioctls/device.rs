@@ -202,7 +202,7 @@ mod tests {
     #![allow(clippy::undocumented_unsafe_blocks)]
     use super::*;
     use crate::ioctls::system::Kvm;
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     use kvm_bindings::{
         kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V3, kvm_device_type_KVM_DEV_TYPE_VFIO,
         KVM_DEV_VFIO_GROUP, KVM_DEV_VFIO_GROUP_ADD,
@@ -213,7 +213,7 @@ mod tests {
     use kvm_bindings::KVM_CREATE_DEVICE_TEST;
 
     #[test]
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     fn test_create_device() {
         let kvm = Kvm::new().unwrap();
         let vm = kvm.create_vm().unwrap();

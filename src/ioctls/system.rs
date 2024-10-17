@@ -16,10 +16,10 @@ use crate::ioctls::Result;
 use crate::kvm_ioctls::*;
 #[cfg(target_arch = "aarch64")]
 use kvm_bindings::KVM_VM_TYPE_ARM_IPA_SIZE_MASK;
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[cfg(target_arch = "x86_64")]
 use kvm_bindings::{CpuId, MsrList, Msrs, KVM_MAX_CPUID_ENTRIES, KVM_MAX_MSR_ENTRIES};
 use vmm_sys_util::errno;
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[cfg(target_arch = "x86_64")]
 use vmm_sys_util::ioctl::ioctl_with_mut_ptr;
 use vmm_sys_util::ioctl::{ioctl, ioctl_with_val};
 
@@ -352,7 +352,7 @@ impl Kvm {
         }
     }
 
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     fn get_cpuid(&self, kind: u64, num_entries: usize) -> Result<CpuId> {
         if num_entries > KVM_MAX_CPUID_ENTRIES {
             // Returns the same error the underlying `ioctl` would have sent.
@@ -395,7 +395,7 @@ impl Kvm {
     /// let cpuid_entries = cpuid.as_mut_slice();
     /// assert!(cpuid_entries.len() <= KVM_MAX_CPUID_ENTRIES);
     /// ```
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     pub fn get_emulated_cpuid(&self, num_entries: usize) -> Result<CpuId> {
         self.get_cpuid(KVM_GET_EMULATED_CPUID(), num_entries)
     }
@@ -424,7 +424,7 @@ impl Kvm {
     /// let cpuid_entries = cpuid.as_mut_slice();
     /// assert!(cpuid_entries.len() <= KVM_MAX_CPUID_ENTRIES);
     /// ```
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     pub fn get_supported_cpuid(&self, num_entries: usize) -> Result<CpuId> {
         self.get_cpuid(KVM_GET_SUPPORTED_CPUID(), num_entries)
     }
@@ -441,7 +441,7 @@ impl Kvm {
     /// let kvm = Kvm::new().unwrap();
     /// let msr_index_list = kvm.get_msr_index_list().unwrap();
     /// ```
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     pub fn get_msr_index_list(&self) -> Result<MsrList> {
         let mut msr_list =
             MsrList::new(KVM_MAX_MSR_ENTRIES).map_err(|_| errno::Error::new(libc::ENOMEM))?;
@@ -477,7 +477,7 @@ impl Kvm {
     /// let kvm = Kvm::new().unwrap();
     /// let msr_feature_index_list = kvm.get_msr_feature_index_list().unwrap();
     /// ```
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     pub fn get_msr_feature_index_list(&self) -> Result<MsrList> {
         let mut msr_list =
             MsrList::new(KVM_MAX_MSR_ENTRIES).map_err(|_| errno::Error::new(libc::ENOMEM))?;
@@ -531,7 +531,7 @@ impl Kvm {
     /// .unwrap();
     /// let ret = kvm.get_msrs(&mut msrs).unwrap();
     /// ```
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     pub fn get_msrs(&self, msrs: &mut Msrs) -> Result<usize> {
         // SAFETY: Here we trust the kernel not to read past the end of the kvm_msrs struct.
         let ret = unsafe { ioctl_with_mut_ptr(self, KVM_GET_MSRS(), msrs.as_mut_fam_struct_ptr()) };
@@ -731,7 +731,7 @@ mod tests {
     use super::*;
     use libc::{fcntl, FD_CLOEXEC, F_GETFD};
     use std::os::fd::IntoRawFd;
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     use vmm_sys_util::fam::FamStruct;
 
     #[test]
@@ -867,7 +867,7 @@ mod tests {
         }
     }
 
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     #[test]
     fn test_get_supported_cpuid() {
         let kvm = Kvm::new().unwrap();
@@ -882,7 +882,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     fn test_get_emulated_cpuid() {
         let kvm = Kvm::new().unwrap();
         let mut cpuid = kvm.get_emulated_cpuid(KVM_MAX_CPUID_ENTRIES).unwrap();
@@ -895,7 +895,7 @@ mod tests {
         cpuid_err.unwrap_err();
     }
 
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     #[test]
     fn test_cpuid_clone() {
         let kvm = Kvm::new().unwrap();
@@ -910,7 +910,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     fn get_msr_index_list() {
         let kvm = Kvm::new().unwrap();
         let msr_list = kvm.get_msr_index_list().unwrap();
@@ -918,7 +918,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     fn get_msr_feature_index_list() {
         let kvm = Kvm::new().unwrap();
         let msr_feature_index_list = kvm.get_msr_feature_index_list().unwrap();
@@ -926,7 +926,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     fn get_msrs() {
         use kvm_bindings::kvm_msr_entry;
 
@@ -961,7 +961,7 @@ mod tests {
         );
         assert_eq!(faulty_kvm.get_nr_vcpus(), 4);
         assert_eq!(faulty_kvm.get_nr_memslots(), 32);
-        #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+        #[cfg(target_arch = "x86_64")]
         {
             assert_eq!(
                 faulty_kvm.get_emulated_cpuid(4).err().unwrap().errno(),
