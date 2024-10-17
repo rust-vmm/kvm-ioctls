@@ -42,39 +42,33 @@ pub enum Cap {
     DestroyMemoryRegionWorks = KVM_CAP_DESTROY_MEMORY_REGION_WORKS,
     UserNmi = KVM_CAP_USER_NMI,
     #[cfg(any(
-        target_arch = "x86",
         target_arch = "x86_64",
         target_arch = "arm",
         target_arch = "aarch64",
         target_arch = "s390x"
     ))]
     SetGuestDebug = KVM_CAP_SET_GUEST_DEBUG,
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     ReinjectControl = KVM_CAP_REINJECT_CONTROL,
     IrqRouting = KVM_CAP_IRQ_ROUTING,
     IrqInjectStatus = KVM_CAP_IRQ_INJECT_STATUS,
     AssignDevIrq = KVM_CAP_ASSIGN_DEV_IRQ,
     JoinMemoryRegionsWorks = KVM_CAP_JOIN_MEMORY_REGIONS_WORKS,
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     Mce = KVM_CAP_MCE,
     Irqfd = KVM_CAP_IRQFD,
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     Pit2 = KVM_CAP_PIT2,
     SetBootCpuId = KVM_CAP_SET_BOOT_CPU_ID,
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     PitState2 = KVM_CAP_PIT_STATE2,
     Ioeventfd = KVM_CAP_IOEVENTFD,
     SetIdentityMapAddr = KVM_CAP_SET_IDENTITY_MAP_ADDR,
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     XenHvm = KVM_CAP_XEN_HVM,
     AdjustClock = KVM_CAP_ADJUST_CLOCK,
     InternalErrorData = KVM_CAP_INTERNAL_ERROR_DATA,
-    #[cfg(any(
-        target_arch = "x86",
-        target_arch = "x86_64",
-        target_arch = "arm",
-        target_arch = "aarch64"
-    ))]
+    #[cfg(any(target_arch = "x86_64", target_arch = "arm", target_arch = "aarch64"))]
     VcpuEvents = KVM_CAP_VCPU_EVENTS,
     S390Psw = KVM_CAP_S390_PSW,
     PpcSegstate = KVM_CAP_PPC_SEGSTATE,
@@ -84,15 +78,15 @@ pub enum Cap {
     PciSegment = KVM_CAP_PCI_SEGMENT,
     PpcPairedSingles = KVM_CAP_PPC_PAIRED_SINGLES,
     IntrShadow = KVM_CAP_INTR_SHADOW,
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     Debugregs = KVM_CAP_DEBUGREGS,
     X86RobustSinglestep = KVM_CAP_X86_ROBUST_SINGLESTEP,
     PpcOsi = KVM_CAP_PPC_OSI,
     PpcUnsetIrq = KVM_CAP_PPC_UNSET_IRQ,
     EnableCap = KVM_CAP_ENABLE_CAP,
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     Xsave = KVM_CAP_XSAVE,
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     Xcrs = KVM_CAP_XCRS,
     PpcGetPvinfo = KVM_CAP_PPC_GET_PVINFO,
     PpcIrqLevel = KVM_CAP_PPC_IRQ_LEVEL,
@@ -145,9 +139,9 @@ pub enum Cap {
     PpcEnableHcall = KVM_CAP_PPC_ENABLE_HCALL,
     CheckExtensionVm = KVM_CAP_CHECK_EXTENSION_VM,
     S390UserSigp = KVM_CAP_S390_USER_SIGP,
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     X86Smm = KVM_CAP_X86_SMM,
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     SplitIrqchip = KVM_CAP_SPLIT_IRQCHIP,
     ArmPmuV3 = KVM_CAP_ARM_PMU_V3,
     ImmediateExit = KVM_CAP_IMMEDIATE_EXIT,
@@ -165,10 +159,10 @@ pub enum Cap {
     ArmPtrAuthAddress = KVM_CAP_ARM_PTRAUTH_ADDRESS,
     #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
     ArmPtrAuthGeneric = KVM_CAP_ARM_PTRAUTH_GENERIC,
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     X86UserSpaceMsr = KVM_CAP_X86_USER_SPACE_MSR,
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     ExitHypercall = KVM_CAP_EXIT_HYPERCALL,
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     MemoryFaultInfo = KVM_CAP_MEMORY_FAULT_INFO,
 }

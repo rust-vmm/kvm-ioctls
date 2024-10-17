@@ -13,18 +13,18 @@ use kvm_bindings::*;
 
 ioctl_io_nr!(KVM_GET_API_VERSION, KVMIO, 0x00);
 ioctl_io_nr!(KVM_CREATE_VM, KVMIO, 0x01);
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[cfg(target_arch = "x86_64")]
 ioctl_iowr_nr!(KVM_GET_MSR_INDEX_LIST, KVMIO, 0x02, kvm_msr_list);
 ioctl_io_nr!(KVM_CHECK_EXTENSION, KVMIO, 0x03);
 ioctl_io_nr!(KVM_GET_VCPU_MMAP_SIZE, KVMIO, 0x04);
 /* Available with KVM_CAP_EXT_CPUID */
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[cfg(target_arch = "x86_64")]
 ioctl_iowr_nr!(KVM_GET_SUPPORTED_CPUID, KVMIO, 0x05, kvm_cpuid2);
 /* Available with KVM_CAP_EXT_EMUL_CPUID */
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[cfg(target_arch = "x86_64")]
 ioctl_iowr_nr!(KVM_GET_EMULATED_CPUID, KVMIO, 0x09, kvm_cpuid2);
 /* Available with KVM_CAP_GET_MSR_FEATURES */
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[cfg(target_arch = "x86_64")]
 ioctl_iowr_nr!(KVM_GET_MSR_FEATURE_INDEX_LIST, KVMIO, 0x0a, kvm_msr_list);
 
 // Ioctls for VM fds.
@@ -45,16 +45,15 @@ ioctl_iow_nr!(
     kvm_userspace_memory_region2
 );
 /* Available with KVM_CAP_SET_TSS_ADDR */
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[cfg(target_arch = "x86_64")]
 ioctl_io_nr!(KVM_SET_TSS_ADDR, KVMIO, 0x47);
 /* Available with KVM_CAP_SET_IDENTITY_MAP_ADDR */
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[cfg(target_arch = "x86_64")]
 ioctl_iow_nr!(KVM_SET_IDENTITY_MAP_ADDR, KVMIO, 0x48, u64);
 #[cfg(any(target_arch = "x86_64", target_arch = "aarch64"))]
 ioctl_iowr_nr!(KVM_CREATE_GUEST_MEMFD, KVMIO, 0xd4, kvm_create_guest_memfd);
 /* Available with KVM_CAP_IRQCHIP */
 #[cfg(any(
-    target_arch = "x86",
     target_arch = "x86_64",
     target_arch = "arm",
     target_arch = "aarch64",
@@ -63,7 +62,6 @@ ioctl_iowr_nr!(KVM_CREATE_GUEST_MEMFD, KVMIO, 0xd4, kvm_create_guest_memfd);
 ioctl_io_nr!(KVM_CREATE_IRQCHIP, KVMIO, 0x60);
 /* Available with KVM_CAP_IRQCHIP */
 #[cfg(any(
-    target_arch = "x86",
     target_arch = "x86_64",
     target_arch = "arm",
     target_arch = "aarch64",
@@ -86,7 +84,6 @@ ioctl_iow_nr!(
 );
 /* Available with KVM_CAP_IRQ_ROUTING */
 #[cfg(any(
-    target_arch = "x86",
     target_arch = "x86_64",
     target_arch = "arm",
     target_arch = "aarch64",
@@ -95,7 +92,6 @@ ioctl_iow_nr!(
 ioctl_iow_nr!(KVM_SET_GSI_ROUTING, KVMIO, 0x6a, kvm_irq_routing);
 /* Available with KVM_CAP_IRQFD */
 #[cfg(any(
-    target_arch = "x86",
     target_arch = "x86_64",
     target_arch = "arm",
     target_arch = "aarch64",
@@ -104,36 +100,36 @@ ioctl_iow_nr!(KVM_SET_GSI_ROUTING, KVMIO, 0x6a, kvm_irq_routing);
 ))]
 ioctl_iow_nr!(KVM_IRQFD, KVMIO, 0x76, kvm_irqfd);
 /* Available with KVM_CAP_PIT2 */
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[cfg(target_arch = "x86_64")]
 ioctl_iow_nr!(KVM_CREATE_PIT2, KVMIO, 0x77, kvm_pit_config);
 /* Available with KVM_CAP_IOEVENTFD */
 ioctl_iow_nr!(KVM_IOEVENTFD, KVMIO, 0x79, kvm_ioeventfd);
 /* Available with KVM_CAP_IRQCHIP */
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[cfg(target_arch = "x86_64")]
 ioctl_iowr_nr!(KVM_GET_IRQCHIP, KVMIO, 0x62, kvm_irqchip);
 /* Available with KVM_CAP_IRQCHIP */
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[cfg(target_arch = "x86_64")]
 ioctl_ior_nr!(KVM_SET_IRQCHIP, KVMIO, 0x63, kvm_irqchip);
 /* Available with KVM_CAP_ADJUST_CLOCK */
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[cfg(target_arch = "x86_64")]
 ioctl_iow_nr!(KVM_SET_CLOCK, KVMIO, 0x7b, kvm_clock_data);
 /* Available with KVM_CAP_ADJUST_CLOCK */
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[cfg(target_arch = "x86_64")]
 ioctl_ior_nr!(KVM_GET_CLOCK, KVMIO, 0x7c, kvm_clock_data);
 /* Available with KVM_CAP_PIT_STATE2 */
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[cfg(target_arch = "x86_64")]
 ioctl_ior_nr!(KVM_GET_PIT2, KVMIO, 0x9f, kvm_pit_state2);
 /* Available with KVM_CAP_PIT_STATE2 */
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[cfg(target_arch = "x86_64")]
 ioctl_iow_nr!(KVM_SET_PIT2, KVMIO, 0xa0, kvm_pit_state2);
 /* KVM_MEMORY_ENCRYPT_OP. Takes opaque platform dependent type: i.e. TDX or SEV */
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[cfg(target_arch = "x86_64")]
 ioctl_iowr_nr!(KVM_MEMORY_ENCRYPT_OP, KVMIO, 0xba, std::os::raw::c_ulong);
 /* Available on SEV-enabled guests. */
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[cfg(target_arch = "x86_64")]
 ioctl_ior_nr!(KVM_MEMORY_ENCRYPT_REG_REGION, KVMIO, 0xbb, kvm_enc_region);
 /* Available on SEV-enabled guests. */
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[cfg(target_arch = "x86_64")]
 ioctl_ior_nr!(KVM_MEMORY_ENCRYPT_UNREG_REGION, KVMIO, 0xbc, kvm_enc_region);
 
 // Ioctls for VCPU fds.
@@ -144,44 +140,41 @@ ioctl_ior_nr!(KVM_GET_REGS, KVMIO, 0x81, kvm_regs);
 #[cfg(not(any(target_arch = "arm", target_arch = "aarch64", target_arch = "riscv64")))]
 ioctl_iow_nr!(KVM_SET_REGS, KVMIO, 0x82, kvm_regs);
 #[cfg(any(
-    target_arch = "x86",
     target_arch = "x86_64",
     target_arch = "powerpc",
     target_arch = "powerpc64"
 ))]
 ioctl_ior_nr!(KVM_GET_SREGS, KVMIO, 0x83, kvm_sregs);
 #[cfg(any(
-    target_arch = "x86",
     target_arch = "x86_64",
     target_arch = "powerpc",
     target_arch = "powerpc64"
 ))]
 ioctl_iow_nr!(KVM_SET_SREGS, KVMIO, 0x84, kvm_sregs);
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[cfg(target_arch = "x86_64")]
 ioctl_iowr_nr!(KVM_TRANSLATE, KVMIO, 0x85, kvm_translation);
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[cfg(target_arch = "x86_64")]
 ioctl_iowr_nr!(KVM_GET_MSRS, KVMIO, 0x88, kvm_msrs);
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[cfg(target_arch = "x86_64")]
 ioctl_iow_nr!(KVM_SET_MSRS, KVMIO, 0x89, kvm_msrs);
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[cfg(target_arch = "x86_64")]
 ioctl_ior_nr!(KVM_GET_FPU, KVMIO, 0x8c, kvm_fpu);
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[cfg(target_arch = "x86_64")]
 ioctl_iow_nr!(KVM_SET_FPU, KVMIO, 0x8d, kvm_fpu);
 /* Available with KVM_CAP_IRQCHIP */
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[cfg(target_arch = "x86_64")]
 ioctl_ior_nr!(KVM_GET_LAPIC, KVMIO, 0x8e, kvm_lapic_state);
 /* Available with KVM_CAP_IRQCHIP */
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[cfg(target_arch = "x86_64")]
 ioctl_iow_nr!(KVM_SET_LAPIC, KVMIO, 0x8f, kvm_lapic_state);
 /* Available with KVM_CAP_EXT_CPUID */
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[cfg(target_arch = "x86_64")]
 ioctl_iow_nr!(KVM_SET_CPUID2, KVMIO, 0x90, kvm_cpuid2);
 /* Available with KVM_CAP_EXT_CPUID */
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[cfg(target_arch = "x86_64")]
 ioctl_iowr_nr!(KVM_GET_CPUID2, KVMIO, 0x91, kvm_cpuid2);
 /* Available with KVM_CAP_MP_STATE */
 #[cfg(any(
-    target_arch = "x86",
     target_arch = "x86_64",
     target_arch = "arm",
     target_arch = "aarch64",
@@ -191,7 +184,6 @@ ioctl_iowr_nr!(KVM_GET_CPUID2, KVMIO, 0x91, kvm_cpuid2);
 ioctl_ior_nr!(KVM_GET_MP_STATE, KVMIO, 0x98, kvm_mp_state);
 /* Available with KVM_CAP_MP_STATE */
 #[cfg(any(
-    target_arch = "x86",
     target_arch = "x86_64",
     target_arch = "arm",
     target_arch = "aarch64",
@@ -200,51 +192,41 @@ ioctl_ior_nr!(KVM_GET_MP_STATE, KVMIO, 0x98, kvm_mp_state);
 ))]
 ioctl_iow_nr!(KVM_SET_MP_STATE, KVMIO, 0x99, kvm_mp_state);
 /* Available with KVM_CAP_USER_NMI */
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[cfg(target_arch = "x86_64")]
 ioctl_io_nr!(KVM_NMI, KVMIO, 0x9a);
 /* Available with KVM_CAP_VCPU_EVENTS */
-#[cfg(any(
-    target_arch = "x86",
-    target_arch = "x86_64",
-    target_arch = "arm",
-    target_arch = "aarch64"
-))]
+#[cfg(any(target_arch = "x86_64", target_arch = "arm", target_arch = "aarch64"))]
 ioctl_ior_nr!(KVM_GET_VCPU_EVENTS, KVMIO, 0x9f, kvm_vcpu_events);
 /* Available with KVM_CAP_VCPU_EVENTS */
-#[cfg(any(
-    target_arch = "x86",
-    target_arch = "x86_64",
-    target_arch = "arm",
-    target_arch = "aarch64"
-))]
+#[cfg(any(target_arch = "x86_64", target_arch = "arm", target_arch = "aarch64"))]
 ioctl_iow_nr!(KVM_SET_VCPU_EVENTS, KVMIO, 0xa0, kvm_vcpu_events);
 /* Available with KVM_CAP_DEBUGREGS */
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[cfg(target_arch = "x86_64")]
 ioctl_ior_nr!(KVM_GET_DEBUGREGS, KVMIO, 0xa1, kvm_debugregs);
 /* Available with KVM_CAP_DEBUGREGS */
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[cfg(target_arch = "x86_64")]
 ioctl_iow_nr!(KVM_SET_DEBUGREGS, KVMIO, 0xa2, kvm_debugregs);
 /* Available with KVM_CAP_XSAVE */
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[cfg(target_arch = "x86_64")]
 ioctl_ior_nr!(KVM_GET_XSAVE, KVMIO, 0xa4, kvm_xsave);
 /* Available with KVM_CAP_XSAVE */
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[cfg(target_arch = "x86_64")]
 ioctl_iow_nr!(KVM_SET_XSAVE, KVMIO, 0xa5, kvm_xsave);
 /* Available with KVM_CAP_XCRS */
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[cfg(target_arch = "x86_64")]
 ioctl_ior_nr!(KVM_GET_XCRS, KVMIO, 0xa6, kvm_xcrs);
 /* Available with KVM_CAP_XCRS */
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[cfg(target_arch = "x86_64")]
 ioctl_iow_nr!(KVM_SET_XCRS, KVMIO, 0xa7, kvm_xcrs);
 /* Available with KVM_CAP_KVMCLOCK_CTRL */
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[cfg(target_arch = "x86_64")]
 ioctl_io_nr!(KVM_KVMCLOCK_CTRL, KVMIO, 0xad);
 
 /* Available with KVM_CAP_TSC_CONTROL */
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[cfg(target_arch = "x86_64")]
 ioctl_io_nr!(KVM_SET_TSC_KHZ, KVMIO, 0xa2);
 /* Available with KVM_CAP_GET_TSC_KHZ */
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[cfg(target_arch = "x86_64")]
 ioctl_io_nr!(KVM_GET_TSC_KHZ, KVMIO, 0xa3);
 
 /* Available with KVM_CAP_ENABLE_CAP */
@@ -252,7 +234,6 @@ ioctl_io_nr!(KVM_GET_TSC_KHZ, KVMIO, 0xa3);
 ioctl_iow_nr!(KVM_ENABLE_CAP, KVMIO, 0xa3, kvm_enable_cap);
 /* Available with KVM_CAP_SIGNAL_MSI */
 #[cfg(any(
-    target_arch = "x86",
     target_arch = "x86_64",
     target_arch = "arm",
     target_arch = "aarch64",
@@ -272,7 +253,7 @@ ioctl_ior_nr!(KVM_ARM_PREFERRED_TARGET, KVMIO, 0xaf, kvm_vcpu_init);
 ioctl_iowr_nr!(KVM_GET_REG_LIST, KVMIO, 0xb0, kvm_reg_list);
 
 /* Available with KVM_CAP_X86_SMM */
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[cfg(target_arch = "x86_64")]
 ioctl_io_nr!(KVM_SMI, KVMIO, 0xb7);
 
 /* Available with KVM_CAP_ARM_SVE */

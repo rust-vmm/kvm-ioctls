@@ -16,7 +16,7 @@ use crate::ioctls::{KvmCoalescedIoRing, KvmRunWrapper, Result};
 use crate::kvm_ioctls::*;
 use vmm_sys_util::errno;
 use vmm_sys_util::ioctl::{ioctl, ioctl_with_mut_ref, ioctl_with_ref};
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[cfg(target_arch = "x86_64")]
 use vmm_sys_util::ioctl::{ioctl_with_mut_ptr, ioctl_with_ptr, ioctl_with_val};
 
 /// Helper method to obtain the size of the register through its id
@@ -195,7 +195,7 @@ pub struct VcpuFd {
 /// KVM Sync Registers used to tell KVM which registers to sync
 #[repr(u32)]
 #[derive(Debug, Copy, Clone)]
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[cfg(target_arch = "x86_64")]
 pub enum SyncReg {
     /// General purpose registers,
     Register = KVM_SYNC_X86_REGS,
@@ -367,7 +367,7 @@ impl VcpuFd {
     /// let vcpu = vm.create_vcpu(0).unwrap();
     /// let sregs = vcpu.get_sregs().unwrap();
     /// ```
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     pub fn get_sregs(&self) -> Result<kvm_sregs> {
         let mut regs = kvm_sregs::default();
         // SAFETY: Safe because we know that our file is a vCPU fd, we know the kernel will only
@@ -401,7 +401,7 @@ impl VcpuFd {
     /// sregs.cs.selector = 0;
     /// vcpu.set_sregs(&sregs).unwrap();
     /// ```
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     pub fn set_sregs(&self, sregs: &kvm_sregs) -> Result<()> {
         // SAFETY: Safe because we know that our file is a vCPU fd, we know the kernel will only
         // read the correct amount of memory from our pointer, and we verify the return result.
@@ -426,10 +426,10 @@ impl VcpuFd {
     /// let kvm = Kvm::new().unwrap();
     /// let vm = kvm.create_vm().unwrap();
     /// let vcpu = vm.create_vcpu(0).unwrap();
-    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    /// #[cfg(target_arch = "x86_64")]
     /// let fpu = vcpu.get_fpu().unwrap();
     /// ```
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     pub fn get_fpu(&self) -> Result<kvm_fpu> {
         let mut fpu = kvm_fpu::default();
         // SAFETY: Here we trust the kernel not to read past the end of the kvm_fpu struct.
@@ -457,7 +457,7 @@ impl VcpuFd {
     /// let kvm = Kvm::new().unwrap();
     /// let vm = kvm.create_vm().unwrap();
     /// let vcpu = vm.create_vcpu(0).unwrap();
-    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    /// #[cfg(target_arch = "x86_64")]
     /// {
     ///     let KVM_FPU_CWD: u16 = 0x37f;
     ///     let fpu = kvm_fpu {
@@ -467,7 +467,7 @@ impl VcpuFd {
     ///     vcpu.set_fpu(&fpu).unwrap();
     /// }
     /// ```
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     pub fn set_fpu(&self, fpu: &kvm_fpu) -> Result<()> {
         // SAFETY: Here we trust the kernel not to read past the end of the kvm_fpu struct.
         let ret = unsafe { ioctl_with_ref(self, KVM_SET_FPU(), fpu) };
@@ -512,7 +512,7 @@ impl VcpuFd {
     /// vcpu.set_cpuid2(&kvm_cpuid).unwrap();
     /// ```
     ///
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     pub fn set_cpuid2(&self, cpuid: &CpuId) -> Result<()> {
         // SAFETY: Here we trust the kernel not to read past the end of the kvm_cpuid2 struct.
         let ret = unsafe { ioctl_with_ptr(self, KVM_SET_CPUID2(), cpuid.as_fam_struct_ptr()) };
@@ -545,7 +545,7 @@ impl VcpuFd {
     /// let cpuid = vcpu.get_cpuid2(KVM_MAX_CPUID_ENTRIES).unwrap();
     /// ```
     ///
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     pub fn get_cpuid2(&self, num_entries: usize) -> Result<CpuId> {
         if num_entries > KVM_MAX_CPUID_ENTRIES {
             // Returns the same error the underlying `ioctl` would have sent.
@@ -581,7 +581,7 @@ impl VcpuFd {
     /// let kvm = Kvm::new().unwrap();
     /// let vm = kvm.create_vm().unwrap();
     /// let mut cap: kvm_enable_cap = Default::default();
-    /// if cfg!(target_arch = "x86") || cfg!(target_arch = "x86_64") {
+    /// if cfg!(target_arch = "x86_64") {
     ///     // KVM_CAP_HYPERV_SYNIC needs KVM_CAP_SPLIT_IRQCHIP enabled
     ///     cap.cap = KVM_CAP_SPLIT_IRQCHIP;
     ///     cap.args[0] = 24;
@@ -596,7 +596,7 @@ impl VcpuFd {
     /// }
     /// ```
     ///
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     pub fn enable_cap(&self, cap: &kvm_enable_cap) -> Result<()> {
         // SAFETY: The ioctl is safe because we allocated the struct and we know the
         // kernel will write exactly the size of the struct.
@@ -626,7 +626,7 @@ impl VcpuFd {
     /// let vcpu = vm.create_vcpu(0).unwrap();
     /// let lapic = vcpu.get_lapic().unwrap();
     /// ```
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     pub fn get_lapic(&self) -> Result<kvm_lapic_state> {
         let mut klapic = kvm_lapic_state::default();
 
@@ -671,7 +671,7 @@ impl VcpuFd {
     /// // Update the value of LAPIC.
     /// vcpu.set_lapic(&lapic).unwrap();
     /// ```
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     pub fn set_lapic(&self, klapic: &kvm_lapic_state) -> Result<()> {
         // SAFETY: The ioctl is safe because the kernel will only read from the klapic struct.
         let ret = unsafe { ioctl_with_ref(self, KVM_SET_LAPIC(), klapic) };
@@ -717,7 +717,7 @@ impl VcpuFd {
     /// let read = vcpu.get_msrs(&mut msrs).unwrap();
     /// assert_eq!(read, 2);
     /// ```
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     pub fn get_msrs(&self, msrs: &mut Msrs) -> Result<usize> {
         // SAFETY: Here we trust the kernel not to read past the end of the kvm_msrs struct.
         let ret = unsafe { ioctl_with_mut_ptr(self, KVM_GET_MSRS(), msrs.as_mut_fam_struct_ptr()) };
@@ -756,7 +756,7 @@ impl VcpuFd {
     /// let written = vcpu.set_msrs(&msrs).unwrap();
     /// assert_eq!(written, 1);
     /// ```
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     pub fn set_msrs(&self, msrs: &Msrs) -> Result<usize> {
         // SAFETY: Here we trust the kernel not to read past the end of the kvm_msrs struct.
         let ret = unsafe { ioctl_with_ptr(self, KVM_SET_MSRS(), msrs.as_fam_struct_ptr()) };
@@ -787,7 +787,6 @@ impl VcpuFd {
     /// let mp_state = vcpu.get_mp_state().unwrap();
     /// ```
     #[cfg(any(
-        target_arch = "x86",
         target_arch = "x86_64",
         target_arch = "arm",
         target_arch = "aarch64",
@@ -826,7 +825,6 @@ impl VcpuFd {
     /// vcpu.set_mp_state(mp_state).unwrap();
     /// ```
     #[cfg(any(
-        target_arch = "x86",
         target_arch = "x86_64",
         target_arch = "arm",
         target_arch = "aarch64",
@@ -861,7 +859,7 @@ impl VcpuFd {
     /// let vcpu = vm.create_vcpu(0).unwrap();
     /// let xsave = vcpu.get_xsave().unwrap();
     /// ```
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     pub fn get_xsave(&self) -> Result<kvm_xsave> {
         let mut xsave = Default::default();
         // SAFETY: Here we trust the kernel not to read past the end of the kvm_xsave struct.
@@ -893,7 +891,7 @@ impl VcpuFd {
     /// // Your `xsave` manipulation here.
     /// vcpu.set_xsave(&xsave).unwrap();
     /// ```
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     pub fn set_xsave(&self, xsave: &kvm_xsave) -> Result<()> {
         // SAFETY: Here we trust the kernel not to read past the end of the kvm_xsave struct.
         let ret = unsafe { ioctl_with_ref(self, KVM_SET_XSAVE(), xsave) };
@@ -922,7 +920,7 @@ impl VcpuFd {
     /// let vcpu = vm.create_vcpu(0).unwrap();
     /// let xcrs = vcpu.get_xcrs().unwrap();
     /// ```
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     pub fn get_xcrs(&self) -> Result<kvm_xcrs> {
         let mut xcrs = Default::default();
         // SAFETY: Here we trust the kernel not to read past the end of the kvm_xcrs struct.
@@ -954,7 +952,7 @@ impl VcpuFd {
     /// // Your `xcrs` manipulation here.
     /// vcpu.set_xcrs(&xcrs).unwrap();
     /// ```
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     pub fn set_xcrs(&self, xcrs: &kvm_xcrs) -> Result<()> {
         // SAFETY: Here we trust the kernel not to read past the end of the kvm_xcrs struct.
         let ret = unsafe { ioctl_with_ref(self, KVM_SET_XCRS(), xcrs) };
@@ -983,7 +981,7 @@ impl VcpuFd {
     /// let vcpu = vm.create_vcpu(0).unwrap();
     /// let debug_regs = vcpu.get_debug_regs().unwrap();
     /// ```
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     pub fn get_debug_regs(&self) -> Result<kvm_debugregs> {
         let mut debug_regs = Default::default();
         // SAFETY: Here we trust the kernel not to read past the end of the kvm_debugregs struct.
@@ -1015,7 +1013,7 @@ impl VcpuFd {
     /// // Your `debug_regs` manipulation here.
     /// vcpu.set_debug_regs(&debug_regs).unwrap();
     /// ```
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     pub fn set_debug_regs(&self, debug_regs: &kvm_debugregs) -> Result<()> {
         // SAFETY: Here we trust the kernel not to read past the end of the kvm_debugregs struct.
         let ret = unsafe { ioctl_with_ref(self, KVM_SET_DEBUGREGS(), debug_regs) };
@@ -1047,12 +1045,7 @@ impl VcpuFd {
     ///     let vcpu_events = vcpu.get_vcpu_events().unwrap();
     /// }
     /// ```
-    #[cfg(any(
-        target_arch = "x86",
-        target_arch = "x86_64",
-        target_arch = "arm",
-        target_arch = "aarch64"
-    ))]
+    #[cfg(any(target_arch = "x86_64", target_arch = "arm", target_arch = "aarch64"))]
     pub fn get_vcpu_events(&self) -> Result<kvm_vcpu_events> {
         let mut vcpu_events = Default::default();
         // SAFETY: Here we trust the kernel not to read past the end of the kvm_vcpu_events struct.
@@ -1086,12 +1079,7 @@ impl VcpuFd {
     ///     vcpu.set_vcpu_events(&vcpu_events).unwrap();
     /// }
     /// ```
-    #[cfg(any(
-        target_arch = "x86",
-        target_arch = "x86_64",
-        target_arch = "arm",
-        target_arch = "aarch64"
-    ))]
+    #[cfg(any(target_arch = "x86_64", target_arch = "arm", target_arch = "aarch64"))]
     pub fn set_vcpu_events(&self, vcpu_events: &kvm_vcpu_events) -> Result<()> {
         // SAFETY: Here we trust the kernel not to read past the end of the kvm_vcpu_events struct.
         let ret = unsafe { ioctl_with_ref(self, KVM_SET_VCPU_EVENTS(), vcpu_events) };
@@ -1260,7 +1248,7 @@ impl VcpuFd {
     /// let vm = kvm.create_vm().unwrap();
     /// let vcpu = vm.create_vcpu(0).unwrap();
     ///
-    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64", target_arch = "aarch64"))]
+    /// #[cfg(any(target_arch = "x86_64", target_arch = "aarch64"))]
     /// {
     ///     let debug_struct = kvm_guest_debug {
     ///         // Configure the vcpu so that a KVM_DEBUG_EXIT would be generated
@@ -1275,7 +1263,6 @@ impl VcpuFd {
     /// }
     /// ```
     #[cfg(any(
-        target_arch = "x86",
         target_arch = "x86_64",
         target_arch = "aarch64",
         target_arch = "s390x",
@@ -1359,7 +1346,7 @@ impl VcpuFd {
     ///
     /// See the documentation for `KVM_KVMCLOCK_CTRL` in the
     /// [KVM API documentation](https://www.kernel.org/doc/Documentation/virtual/kvm/api.txt).
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     pub fn kvmclock_ctrl(&self) -> Result<()> {
         // SAFETY: Safe because we know that our file is a KVM fd and that the request
         // is one of the ones defined by kernel.
@@ -1628,7 +1615,7 @@ impl VcpuFd {
     /// let tsc_khz = vcpu.get_tsc_khz().unwrap();
     /// ```
     ///
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     pub fn get_tsc_khz(&self) -> Result<u32> {
         // SAFETY:  Safe because we know that our file is a KVM fd and that the request is one of
         // the ones defined by kernel.
@@ -1660,7 +1647,7 @@ impl VcpuFd {
     /// }
     /// ```
     ///
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     pub fn set_tsc_khz(&self, freq: u32) -> Result<()> {
         // SAFETY: Safe because we know that our file is a KVM fd and that the request is one of
         // the ones defined by kernel.
@@ -1690,10 +1677,10 @@ impl VcpuFd {
     /// let kvm = Kvm::new().unwrap();
     /// let vm = kvm.create_vm().unwrap();
     /// let vcpu = vm.create_vcpu(0).unwrap();
-    /// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    /// #[cfg(target_arch = "x86_64")]
     /// let tr = vcpu.translate_gva(0x10000).unwrap();
     /// ```
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     pub fn translate_gva(&self, gva: u64) -> Result<kvm_translation> {
         let mut tr = kvm_translation {
             linear_address: gva,
@@ -1727,7 +1714,7 @@ impl VcpuFd {
     /// vcpu.set_sync_valid_reg(SyncReg::SystemRegister);
     /// vcpu.set_sync_valid_reg(SyncReg::VcpuEvents);
     /// ```
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     pub fn set_sync_valid_reg(&mut self, reg: SyncReg) {
         let kvm_run: &mut kvm_run = self.kvm_run_ptr.as_mut_ref();
         kvm_run.kvm_valid_regs |= reg as u64;
@@ -1749,7 +1736,7 @@ impl VcpuFd {
     /// let mut vcpu = vm.create_vcpu(0).unwrap();
     /// vcpu.set_sync_dirty_reg(SyncReg::Register);
     /// ```
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     pub fn set_sync_dirty_reg(&mut self, reg: SyncReg) {
         let kvm_run: &mut kvm_run = self.kvm_run_ptr.as_mut_ref();
         kvm_run.kvm_dirty_regs |= reg as u64;
@@ -1771,7 +1758,7 @@ impl VcpuFd {
     /// let mut vcpu = vm.create_vcpu(0).unwrap();
     /// vcpu.clear_sync_valid_reg(SyncReg::Register);
     /// ```
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     pub fn clear_sync_valid_reg(&mut self, reg: SyncReg) {
         let kvm_run: &mut kvm_run = self.kvm_run_ptr.as_mut_ref();
         kvm_run.kvm_valid_regs &= !(reg as u64);
@@ -1793,7 +1780,7 @@ impl VcpuFd {
     /// let mut vcpu = vm.create_vcpu(0).unwrap();
     /// vcpu.clear_sync_dirty_reg(SyncReg::Register);
     /// ```
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     pub fn clear_sync_dirty_reg(&mut self, reg: SyncReg) {
         let kvm_run: &mut kvm_run = self.kvm_run_ptr.as_mut_ref();
         kvm_run.kvm_dirty_regs &= !(reg as u64);
@@ -1815,7 +1802,7 @@ impl VcpuFd {
     ///     let guest_rax = vcpu.sync_regs().regs.rax;
     /// }
     /// ```
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     pub fn sync_regs(&self) -> kvm_sync_regs {
         let kvm_run = self.kvm_run_ptr.as_ref();
 
@@ -1844,7 +1831,7 @@ impl VcpuFd {
     ///     vcpu.run();
     /// }
     /// ```
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     pub fn sync_regs_mut(&mut self) -> &mut kvm_sync_regs {
         let kvm_run: &mut kvm_run = self.kvm_run_ptr.as_mut_ref();
 
@@ -1867,7 +1854,7 @@ impl VcpuFd {
     ///     vcpu.smi().unwrap();
     /// }
     /// ```
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     pub fn smi(&self) -> Result<()> {
         // SAFETY: Safe because we call this with a Vcpu fd and we trust the kernel.
         let ret = unsafe { ioctl(self, KVM_SMI()) };
@@ -1893,7 +1880,7 @@ impl VcpuFd {
     ///     vcpu.nmi().unwrap();
     /// }
     /// ```
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     pub fn nmi(&self) -> Result<()> {
         // SAFETY: Safe because we call this with a Vcpu fd and we trust the kernel.
         let ret = unsafe { ioctl(self, KVM_NMI()) };
@@ -1978,12 +1965,7 @@ mod tests {
     extern crate byteorder;
 
     use super::*;
-    #[cfg(any(
-        target_arch = "x86",
-        target_arch = "x86_64",
-        target_arch = "arm",
-        target_arch = "aarch64"
-    ))]
+    #[cfg(any(target_arch = "x86_64", target_arch = "arm", target_arch = "aarch64"))]
     use crate::cap::Cap;
     use crate::ioctls::system::Kvm;
     use std::ptr::NonNull;
@@ -2229,7 +2211,6 @@ mod tests {
     }
 
     #[cfg(any(
-        target_arch = "x86",
         target_arch = "x86_64",
         target_arch = "arm",
         target_arch = "aarch64",
@@ -2247,7 +2228,7 @@ mod tests {
         assert_eq!(mp_state, other_mp_state);
     }
 
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     #[test]
     fn xsave_test() {
         let kvm = Kvm::new().unwrap();
@@ -2259,7 +2240,7 @@ mod tests {
         assert_eq!(&xsave.region[..], &other_xsave.region[..]);
     }
 
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     #[test]
     fn xcrs_test() {
         let kvm = Kvm::new().unwrap();
@@ -2271,7 +2252,7 @@ mod tests {
         assert_eq!(xcrs, other_xcrs);
     }
 
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     #[test]
     fn debugregs_test() {
         let kvm = Kvm::new().unwrap();
@@ -2283,12 +2264,7 @@ mod tests {
         assert_eq!(debugregs, other_debugregs);
     }
 
-    #[cfg(any(
-        target_arch = "x86",
-        target_arch = "x86_64",
-        target_arch = "arm",
-        target_arch = "aarch64"
-    ))]
+    #[cfg(any(target_arch = "x86_64", target_arch = "arm", target_arch = "aarch64"))]
     #[test]
     fn vcpu_events_test() {
         let kvm = Kvm::new().unwrap();
@@ -2629,7 +2605,6 @@ mod tests {
 
     #[test]
     #[cfg(any(
-        target_arch = "x86",
         target_arch = "x86_64",
         target_arch = "arm",
         target_arch = "aarch64",
@@ -2660,22 +2635,12 @@ mod tests {
                 .errno(),
             badf_errno
         );
-        #[cfg(any(
-            target_arch = "x86",
-            target_arch = "x86_64",
-            target_arch = "arm",
-            target_arch = "aarch64"
-        ))]
+        #[cfg(any(target_arch = "x86_64", target_arch = "arm", target_arch = "aarch64"))]
         assert_eq!(
             faulty_vcpu_fd.get_vcpu_events().unwrap_err().errno(),
             badf_errno
         );
-        #[cfg(any(
-            target_arch = "x86",
-            target_arch = "x86_64",
-            target_arch = "arm",
-            target_arch = "aarch64"
-        ))]
+        #[cfg(any(target_arch = "x86_64", target_arch = "arm", target_arch = "aarch64"))]
         assert_eq!(
             faulty_vcpu_fd
                 .set_vcpu_events(&kvm_vcpu_events::default())
@@ -3397,7 +3362,7 @@ mod tests {
         vcpu.vcpu_init(&kvi).unwrap();
     }
 
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     #[test]
     fn test_userspace_rdmsr_exit() {
         use std::io::Write;
@@ -3466,7 +3431,7 @@ mod tests {
         }
     }
 
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     #[test]
     fn test_userspace_hypercall_exit() {
         use std::io::Write;
@@ -3563,7 +3528,7 @@ mod tests {
         }
     }
 
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     #[test]
     fn test_userspace_wrmsr_exit() {
         use std::io::Write;
