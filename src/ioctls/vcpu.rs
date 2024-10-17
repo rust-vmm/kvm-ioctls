@@ -20,7 +20,7 @@ use vmm_sys_util::ioctl::{ioctl, ioctl_with_mut_ref, ioctl_with_ref};
 use vmm_sys_util::ioctl::{ioctl_with_mut_ptr, ioctl_with_ptr, ioctl_with_val};
 
 /// Helper method to obtain the size of the register through its id
-#[cfg(any(target_arch = "arm", target_arch = "aarch64", target_arch = "riscv64"))]
+#[cfg(any(target_arch = "aarch64", target_arch = "riscv64"))]
 pub fn reg_size(reg_id: u64) -> usize {
     2_usize.pow(((reg_id & KVM_REG_SIZE_MASK) >> KVM_REG_SIZE_SHIFT) as u32)
 }
@@ -224,7 +224,7 @@ impl VcpuFd {
     /// let vcpu = vm.create_vcpu(0).unwrap();
     /// let regs = vcpu.get_regs().unwrap();
     /// ```
-    #[cfg(not(any(target_arch = "arm", target_arch = "aarch64", target_arch = "riscv64")))]
+    #[cfg(not(any(target_arch = "aarch64", target_arch = "riscv64")))]
     pub fn get_regs(&self) -> Result<kvm_regs> {
         let mut regs = kvm_regs::default();
         // SAFETY: Safe because we know that our file is a vCPU fd, we know the kernel will only
@@ -340,7 +340,7 @@ impl VcpuFd {
     /// regs.rip = 0x100;
     /// vcpu.set_regs(&regs).unwrap();
     /// ```
-    #[cfg(not(any(target_arch = "arm", target_arch = "aarch64", target_arch = "riscv64")))]
+    #[cfg(not(any(target_arch = "aarch64", target_arch = "riscv64")))]
     pub fn set_regs(&self, regs: &kvm_regs) -> Result<()> {
         // SAFETY: Safe because we know that our file is a vCPU fd, we know the kernel will only
         // read the correct amount of memory from our pointer, and we verify the return result.
@@ -788,7 +788,6 @@ impl VcpuFd {
     /// ```
     #[cfg(any(
         target_arch = "x86_64",
-        target_arch = "arm",
         target_arch = "aarch64",
         target_arch = "riscv64",
         target_arch = "s390x"
@@ -826,7 +825,6 @@ impl VcpuFd {
     /// ```
     #[cfg(any(
         target_arch = "x86_64",
-        target_arch = "arm",
         target_arch = "aarch64",
         target_arch = "riscv64",
         target_arch = "s390x"
@@ -1045,7 +1043,7 @@ impl VcpuFd {
     ///     let vcpu_events = vcpu.get_vcpu_events().unwrap();
     /// }
     /// ```
-    #[cfg(any(target_arch = "x86_64", target_arch = "arm", target_arch = "aarch64"))]
+    #[cfg(any(target_arch = "x86_64", target_arch = "aarch64"))]
     pub fn get_vcpu_events(&self) -> Result<kvm_vcpu_events> {
         let mut vcpu_events = Default::default();
         // SAFETY: Here we trust the kernel not to read past the end of the kvm_vcpu_events struct.
@@ -1079,7 +1077,7 @@ impl VcpuFd {
     ///     vcpu.set_vcpu_events(&vcpu_events).unwrap();
     /// }
     /// ```
-    #[cfg(any(target_arch = "x86_64", target_arch = "arm", target_arch = "aarch64"))]
+    #[cfg(any(target_arch = "x86_64", target_arch = "aarch64"))]
     pub fn set_vcpu_events(&self, vcpu_events: &kvm_vcpu_events) -> Result<()> {
         // SAFETY: Here we trust the kernel not to read past the end of the kvm_vcpu_events struct.
         let ret = unsafe { ioctl_with_ref(self, KVM_SET_VCPU_EVENTS(), vcpu_events) };
@@ -1115,7 +1113,7 @@ impl VcpuFd {
     /// vm.get_preferred_target(&mut kvi).unwrap();
     /// vcpu.vcpu_init(&kvi).unwrap();
     /// ```
-    #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
+    #[cfg(target_arch = "aarch64")]
     pub fn vcpu_init(&self, kvi: &kvm_vcpu_init) -> Result<()> {
         // SAFETY: This is safe because we allocated the struct and we know the kernel will read
         // exactly the size of the struct.
@@ -1203,7 +1201,7 @@ impl VcpuFd {
     /// let vcpu = vm.create_vcpu(0).unwrap();
     ///
     /// // KVM_GET_REG_LIST on Aarch64 demands that the vcpus be initialized.
-    /// #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
+    /// #[cfg(target_arch = "aarch64")]
     /// {
     ///     let mut kvi: kvm_bindings::kvm_vcpu_init = kvm_bindings::kvm_vcpu_init::default();
     ///     vm.get_preferred_target(&mut kvi).unwrap();
@@ -1214,7 +1212,7 @@ impl VcpuFd {
     ///     assert!(reg_list.as_fam_struct_ref().n > 0);
     /// }
     /// ```
-    #[cfg(any(target_arch = "arm", target_arch = "aarch64", target_arch = "riscv64"))]
+    #[cfg(any(target_arch = "aarch64", target_arch = "riscv64"))]
     pub fn get_reg_list(&self, reg_list: &mut RegList) -> Result<()> {
         let ret =
             // SAFETY: This is safe because we allocated the struct and we trust the kernel will read
@@ -1291,7 +1289,7 @@ impl VcpuFd {
     ///
     /// `data` should be equal or bigger then the register size
     /// oterwise function will return EINVAL error
-    #[cfg(any(target_arch = "arm", target_arch = "aarch64", target_arch = "riscv64"))]
+    #[cfg(any(target_arch = "aarch64", target_arch = "riscv64"))]
     pub fn set_one_reg(&self, reg_id: u64, data: &[u8]) -> Result<usize> {
         let reg_size = reg_size(reg_id);
         if data.len() < reg_size {
@@ -1323,7 +1321,7 @@ impl VcpuFd {
     ///
     /// `data` should be equal or bigger then the register size
     /// oterwise function will return EINVAL error
-    #[cfg(any(target_arch = "arm", target_arch = "aarch64", target_arch = "riscv64"))]
+    #[cfg(any(target_arch = "aarch64", target_arch = "riscv64"))]
     pub fn get_one_reg(&self, reg_id: u64, data: &mut [u8]) -> Result<usize> {
         let reg_size = reg_size(reg_id);
         if data.len() < reg_size {
@@ -1965,7 +1963,7 @@ mod tests {
     extern crate byteorder;
 
     use super::*;
-    #[cfg(any(target_arch = "x86_64", target_arch = "arm", target_arch = "aarch64"))]
+    #[cfg(any(target_arch = "x86_64", target_arch = "aarch64"))]
     use crate::cap::Cap;
     use crate::ioctls::system::Kvm;
     use std::ptr::NonNull;
@@ -2212,7 +2210,6 @@ mod tests {
 
     #[cfg(any(
         target_arch = "x86_64",
-        target_arch = "arm",
         target_arch = "aarch64",
         target_arch = "riscv64",
         target_arch = "s390x"
@@ -2264,7 +2261,7 @@ mod tests {
         assert_eq!(debugregs, other_debugregs);
     }
 
-    #[cfg(any(target_arch = "x86_64", target_arch = "arm", target_arch = "aarch64"))]
+    #[cfg(any(target_arch = "x86_64", target_arch = "aarch64"))]
     #[test]
     fn vcpu_events_test() {
         let kvm = Kvm::new().unwrap();
@@ -2606,7 +2603,6 @@ mod tests {
     #[test]
     #[cfg(any(
         target_arch = "x86_64",
-        target_arch = "arm",
         target_arch = "aarch64",
         target_arch = "riscv64"
     ))]
@@ -2635,12 +2631,12 @@ mod tests {
                 .errno(),
             badf_errno
         );
-        #[cfg(any(target_arch = "x86_64", target_arch = "arm", target_arch = "aarch64"))]
+        #[cfg(any(target_arch = "x86_64", target_arch = "aarch64"))]
         assert_eq!(
             faulty_vcpu_fd.get_vcpu_events().unwrap_err().errno(),
             badf_errno
         );
-        #[cfg(any(target_arch = "x86_64", target_arch = "arm", target_arch = "aarch64"))]
+        #[cfg(any(target_arch = "x86_64", target_arch = "aarch64"))]
         assert_eq!(
             faulty_vcpu_fd
                 .set_vcpu_events(&kvm_vcpu_events::default())
@@ -2924,7 +2920,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
+    #[cfg(target_arch = "aarch64")]
     fn test_get_preferred_target() {
         let kvm = Kvm::new().unwrap();
         let vm = kvm.create_vm().unwrap();
@@ -2938,7 +2934,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
+    #[cfg(target_arch = "aarch64")]
     fn test_set_one_reg() {
         let kvm = Kvm::new().unwrap();
         let vm = kvm.create_vm().unwrap();
@@ -2964,7 +2960,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
+    #[cfg(target_arch = "aarch64")]
     fn test_get_one_reg() {
         let kvm = Kvm::new().unwrap();
         let vm = kvm.create_vm().unwrap();
@@ -3000,7 +2996,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
+    #[cfg(target_arch = "aarch64")]
     fn test_get_reg_list() {
         let kvm = Kvm::new().unwrap();
         let vm = kvm.create_vm().unwrap();

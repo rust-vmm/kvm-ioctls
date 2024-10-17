@@ -41,12 +41,7 @@ pub enum Cap {
     Iommu = KVM_CAP_IOMMU,
     DestroyMemoryRegionWorks = KVM_CAP_DESTROY_MEMORY_REGION_WORKS,
     UserNmi = KVM_CAP_USER_NMI,
-    #[cfg(any(
-        target_arch = "x86_64",
-        target_arch = "arm",
-        target_arch = "aarch64",
-        target_arch = "s390x"
-    ))]
+    #[cfg(any(target_arch = "x86_64", target_arch = "aarch64", target_arch = "s390x"))]
     SetGuestDebug = KVM_CAP_SET_GUEST_DEBUG,
     #[cfg(target_arch = "x86_64")]
     ReinjectControl = KVM_CAP_REINJECT_CONTROL,
@@ -68,7 +63,7 @@ pub enum Cap {
     XenHvm = KVM_CAP_XEN_HVM,
     AdjustClock = KVM_CAP_ADJUST_CLOCK,
     InternalErrorData = KVM_CAP_INTERNAL_ERROR_DATA,
-    #[cfg(any(target_arch = "x86_64", target_arch = "arm", target_arch = "aarch64"))]
+    #[cfg(any(target_arch = "x86_64", target_arch = "aarch64"))]
     VcpuEvents = KVM_CAP_VCPU_EVENTS,
     S390Psw = KVM_CAP_S390_PSW,
     PpcSegstate = KVM_CAP_PPC_SEGSTATE,
@@ -155,9 +150,9 @@ pub enum Cap {
     CoalescedPio = KVM_CAP_COALESCED_PIO,
     #[cfg(target_arch = "aarch64")]
     ArmSve = KVM_CAP_ARM_SVE,
-    #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
+    #[cfg(target_arch = "aarch64")]
     ArmPtrAuthAddress = KVM_CAP_ARM_PTRAUTH_ADDRESS,
-    #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
+    #[cfg(target_arch = "aarch64")]
     ArmPtrAuthGeneric = KVM_CAP_ARM_PTRAUTH_GENERIC,
     #[cfg(target_arch = "x86_64")]
     X86UserSpaceMsr = KVM_CAP_X86_USER_SPACE_MSR,

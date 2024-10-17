@@ -24,7 +24,7 @@ use vmm_sys_util::errno;
 use vmm_sys_util::eventfd::EventFd;
 #[cfg(target_arch = "x86_64")]
 use vmm_sys_util::ioctl::ioctl_with_mut_ptr;
-#[cfg(any(target_arch = "x86_64", target_arch = "arm", target_arch = "aarch64"))]
+#[cfg(any(target_arch = "x86_64", target_arch = "aarch64"))]
 use vmm_sys_util::ioctl::{ioctl, ioctl_with_mut_ref};
 use vmm_sys_util::ioctl::{ioctl_with_ref, ioctl_with_val};
 
@@ -278,7 +278,7 @@ impl VmFd {
     ///
     /// #[cfg(target_arch = "x86_64")]
     /// vm.create_irq_chip().unwrap();
-    /// #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
+    /// #[cfg(target_arch = "aarch64")]
     /// {
     ///     use kvm_bindings::{
     ///         kvm_create_device, kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V2, KVM_CREATE_DEVICE_TEST,
@@ -293,7 +293,7 @@ impl VmFd {
     ///     }
     /// }
     /// ```
-    #[cfg(any(target_arch = "x86_64", target_arch = "arm", target_arch = "aarch64"))]
+    #[cfg(any(target_arch = "x86_64", target_arch = "aarch64"))]
     pub fn create_irq_chip(&self) -> Result<()> {
         // SAFETY: Safe because we know that our file is a VM fd and we verify the return result.
         let ret = unsafe { ioctl(self, KVM_CREATE_IRQCHIP()) };
@@ -578,7 +578,6 @@ impl VmFd {
     /// ```
     #[cfg(any(
         target_arch = "x86_64",
-        target_arch = "arm",
         target_arch = "aarch64",
         target_arch = "riscv64"
     ))]
@@ -634,7 +633,6 @@ impl VmFd {
     /// ```
     #[cfg(any(
         target_arch = "x86_64",
-        target_arch = "arm",
         target_arch = "aarch64",
         target_arch = "riscv64"
     ))]
@@ -982,7 +980,6 @@ impl VmFd {
     /// ```
     #[cfg(any(
         target_arch = "x86_64",
-        target_arch = "arm",
         target_arch = "aarch64",
         target_arch = "riscv64"
     ))]
@@ -1034,7 +1031,6 @@ impl VmFd {
     /// ```
     #[cfg(any(
         target_arch = "x86_64",
-        target_arch = "arm",
         target_arch = "aarch64",
         target_arch = "riscv64"
     ))]
@@ -1093,7 +1089,6 @@ impl VmFd {
     /// ```
     #[cfg(any(
         target_arch = "x86_64",
-        target_arch = "arm",
         target_arch = "aarch64",
         target_arch = "riscv64"
     ))]
@@ -1142,7 +1137,7 @@ impl VmFd {
     ///     // For Arm architectures, the IRQ controllers need to be setup first.
     ///     // Details please refer to the kernel documentation.
     ///     // https://www.kernel.org/doc/Documentation/virtual/kvm/api.txt
-    /// #   #[cfg(any(target_arch = "arm", target_arch = "aarch64"))] {
+    /// #   #[cfg(target_arch = "aarch64")] {
     /// #       vm_fd.create_vcpu(0).unwrap();
     /// #       // ... rest of setup for Arm goes here
     /// #   }
@@ -1156,7 +1151,7 @@ impl VmFd {
     ///     vm.set_irq_line(4, true);
     ///     // ...
     /// }
-    /// #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
+    /// #[cfg(target_arch = "aarch64")]
     /// {
     ///     vm.set_irq_line(0x01_00_0020, true);
     ///     // ....
@@ -1164,7 +1159,6 @@ impl VmFd {
     /// ```
     #[cfg(any(
         target_arch = "x86_64",
-        target_arch = "arm",
         target_arch = "aarch64",
         target_arch = "riscv64"
     ))]
@@ -1288,7 +1282,7 @@ impl VmFd {
     /// let mut device = kvm_bindings::kvm_create_device {
     ///     #[cfg(target_arch = "x86_64")]
     ///     type_: kvm_device_type_KVM_DEV_TYPE_VFIO,
-    ///     #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
+    ///     #[cfg(target_arch = "aarch64")]
     ///     type_: kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V3,
     ///     #[cfg(target_arch = "riscv64")]
     ///     type_: kvm_device_type_KVM_DEV_TYPE_RISCV_AIA,
@@ -1300,7 +1294,7 @@ impl VmFd {
     /// let device_fd = vm.create_device(&mut device).unwrap_or_else(|_| {
     ///     #[cfg(target_arch = "x86_64")]
     ///     panic!("Cannot create VFIO device.");
-    ///     #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
+    ///     #[cfg(target_arch = "aarch64")]
     ///     {
     ///         device.type_ = kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V2;
     ///         vm.create_device(&mut device)
@@ -1344,7 +1338,7 @@ impl VmFd {
     /// let mut kvi = kvm_vcpu_init::default();
     /// vm.get_preferred_target(&mut kvi).unwrap();
     /// ```
-    #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
+    #[cfg(target_arch = "aarch64")]
     pub fn get_preferred_target(&self, kvi: &mut kvm_vcpu_init) -> Result<()> {
         // SAFETY: The ioctl is safe because we allocated the struct and we know the
         // kernel will write exactly the size of the struct.
@@ -1398,7 +1392,7 @@ impl VmFd {
     ///     vm.enable_cap(&cap).unwrap();
     /// }
     /// ```
-    #[cfg(not(any(target_arch = "arm", target_arch = "aarch64", target_arch = "riscv64")))]
+    #[cfg(not(any(target_arch = "aarch64", target_arch = "riscv64")))]
     pub fn enable_cap(&self, cap: &kvm_enable_cap) -> Result<()> {
         // SAFETY: The ioctl is safe because we allocated the struct and we know the
         // kernel will write exactly the size of the struct.
@@ -1920,7 +1914,7 @@ impl AsRawFd for VmFd {
 /// * `vm` - The vm file descriptor.
 /// * `flags` - Flags to be passed to `KVM_CREATE_DEVICE`.
 #[cfg(test)]
-#[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
+#[cfg(target_arch = "aarch64")]
 pub(crate) fn create_gic_device(vm: &VmFd, flags: u32) -> DeviceFd {
     let mut gic_device = kvm_bindings::kvm_create_device {
         type_: kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V3,
@@ -1944,7 +1938,7 @@ pub(crate) fn create_gic_device(vm: &VmFd, flags: u32) -> DeviceFd {
 /// * `vgic` - The vGIC file descriptor.
 /// * `nr_irqs` - Number of IRQs.
 #[cfg(test)]
-#[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
+#[cfg(target_arch = "aarch64")]
 pub(crate) fn set_supported_nr_irqs(vgic: &DeviceFd, nr_irqs: u32) {
     let vgic_attr = kvm_bindings::kvm_device_attr {
         group: kvm_bindings::KVM_DEV_ARM_VGIC_GRP_NR_IRQS,
@@ -1962,7 +1956,7 @@ pub(crate) fn set_supported_nr_irqs(vgic: &DeviceFd, nr_irqs: u32) {
 ///
 /// * `vgic` - The vGIC file descriptor.
 #[cfg(test)]
-#[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
+#[cfg(target_arch = "aarch64")]
 pub(crate) fn request_gic_init(vgic: &DeviceFd) {
     let vgic_attr = kvm_bindings::kvm_device_attr {
         group: kvm_bindings::KVM_DEV_ARM_VGIC_GRP_CTRL,
@@ -2124,7 +2118,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
+    #[cfg(target_arch = "aarch64")]
     fn test_irq_chip() {
         use Cap;
 
@@ -2590,7 +2584,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
+    #[cfg(target_arch = "aarch64")]
     fn test_get_preferred_target() {
         let kvm = Kvm::new().unwrap();
         let vm = kvm.create_vm().unwrap();
@@ -2604,7 +2598,6 @@ mod tests {
     #[test]
     #[cfg(any(
         target_arch = "x86_64",
-        target_arch = "arm",
         target_arch = "aarch64",
         target_arch = "riscv64"
     ))]
@@ -2616,7 +2609,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(not(any(target_arch = "arm", target_arch = "aarch64", target_arch = "riscv64")))]
+    #[cfg(not(any(target_arch = "aarch64", target_arch = "riscv64")))]
     fn test_enable_cap_failure() {
         let kvm = Kvm::new().unwrap();
         let vm = kvm.create_vm().unwrap();
@@ -2653,7 +2646,6 @@ mod tests {
     #[test]
     #[cfg(any(
         target_arch = "x86_64",
-        target_arch = "arm",
         target_arch = "aarch64",
         target_arch = "riscv64"
     ))]
