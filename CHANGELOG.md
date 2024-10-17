@@ -2,10 +2,15 @@
 
 ## Upcoming Release
 
+## v0.19.0
+
 ### Added
 
-- [[#289](https://github.com/rust-vmm/kvm-ioctls/pull/289)]: Drop `x86` and `arm` support.
 - [[#275](https://github.com/rust-vmm/kvm-ioctls/pull/275)]: Introduce `riscv64` ioctls.
+
+### Removed
+
+- [[#289](https://github.com/rust-vmm/kvm-ioctls/pull/289)]: Drop `x86` and `arm` support.
 
 ### Changed
 

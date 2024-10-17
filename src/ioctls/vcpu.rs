@@ -1203,7 +1203,7 @@ impl VcpuFd {
     /// // KVM_GET_REG_LIST on Aarch64 demands that the vcpus be initialized.
     /// #[cfg(target_arch = "aarch64")]
     /// {
-    ///     let mut kvi: kvm_bindings::kvm_vcpu_init = kvm_bindings::kvm_vcpu_init::default();
+    ///     let mut kvi = kvm_bindings::kvm_vcpu_init::default();
     ///     vm.get_preferred_target(&mut kvi).unwrap();
     ///     vcpu.vcpu_init(&kvi).expect("Cannot initialize vcpu");
     ///
@@ -2321,7 +2321,7 @@ mod tests {
         }
 
         let mut vcpu_fd = vm.create_vcpu(0).unwrap();
-        let mut kvi = kvm_bindings::kvm_vcpu_init::default();
+        let mut kvi = kvm_vcpu_init::default();
         vm.get_preferred_target(&mut kvi).unwrap();
         kvi.features[0] |= 1 << KVM_ARM_VCPU_PSCI_0_2;
         vcpu_fd.vcpu_init(&kvi).unwrap();
@@ -2784,7 +2784,7 @@ mod tests {
 
         // KVM defines valid targets as 0 to KVM_ARM_NUM_TARGETS-1, so pick a big raw number
         // greater than that as target to be invalid
-        let kvi: kvm_bindings::kvm_vcpu_init = kvm_bindings::kvm_vcpu_init {
+        let kvi = kvm_vcpu_init {
             target: 300,
             ..Default::default()
         };
@@ -2808,7 +2808,7 @@ mod tests {
             coalesced_mmio_ring: None,
         };
 
-        let device_attr = kvm_bindings::kvm_device_attr {
+        let device_attr = kvm_device_attr {
             group: KVM_ARM_VCPU_PMU_V3_CTRL,
             attr: u64::from(KVM_ARM_VCPU_PMU_V3_INIT),
             addr: 0x0,
@@ -2926,7 +2926,7 @@ mod tests {
         let vm = kvm.create_vm().unwrap();
         let vcpu = vm.create_vcpu(0).unwrap();
 
-        let mut kvi: kvm_bindings::kvm_vcpu_init = kvm_bindings::kvm_vcpu_init::default();
+        let mut kvi = kvm_vcpu_init::default();
 
         vm.get_preferred_target(&mut kvi)
             .expect("Cannot get preferred target");
@@ -2940,7 +2940,7 @@ mod tests {
         let vm = kvm.create_vm().unwrap();
         let vcpu = vm.create_vcpu(0).unwrap();
 
-        let mut kvi: kvm_bindings::kvm_vcpu_init = kvm_bindings::kvm_vcpu_init::default();
+        let mut kvi = kvm_vcpu_init::default();
         vm.get_preferred_target(&mut kvi)
             .expect("Cannot get preferred target");
         vcpu.vcpu_init(&kvi).expect("Cannot initialize vcpu");
@@ -2966,7 +2966,7 @@ mod tests {
         let vm = kvm.create_vm().unwrap();
         let vcpu = vm.create_vcpu(0).unwrap();
 
-        let mut kvi: kvm_bindings::kvm_vcpu_init = kvm_bindings::kvm_vcpu_init::default();
+        let mut kvi = kvm_vcpu_init::default();
         vm.get_preferred_target(&mut kvi)
             .expect("Cannot get preferred target");
         vcpu.vcpu_init(&kvi).expect("Cannot initialize vcpu");
@@ -3007,7 +3007,7 @@ mod tests {
         let err = vcpu.get_reg_list(&mut reg_list).unwrap_err();
         assert!(err.errno() == libc::ENOEXEC);
 
-        let mut kvi: kvm_bindings::kvm_vcpu_init = kvm_bindings::kvm_vcpu_init::default();
+        let mut kvi = kvm_vcpu_init::default();
         vm.get_preferred_target(&mut kvi)
             .expect("Cannot get preferred target");
         vcpu.vcpu_init(&kvi).expect("Cannot initialize vcpu");
@@ -3321,7 +3321,7 @@ mod tests {
         let vm = kvm.create_vm().unwrap();
         let vcpu = vm.create_vcpu(0).unwrap();
 
-        let dist_attr = kvm_bindings::kvm_device_attr {
+        let dist_attr = kvm_device_attr {
             group: KVM_ARM_VCPU_PMU_V3_CTRL,
             attr: u64::from(KVM_ARM_VCPU_PMU_V3_INIT),
             addr: 0x0,
@@ -3330,10 +3330,10 @@ mod tests {
 
         vcpu.has_device_attr(&dist_attr).unwrap_err();
         vcpu.set_device_attr(&dist_attr).unwrap_err();
-        let mut kvi: kvm_bindings::kvm_vcpu_init = kvm_bindings::kvm_vcpu_init::default();
+        let mut kvi: kvm_vcpu_init = kvm_vcpu_init::default();
         vm.get_preferred_target(&mut kvi)
             .expect("Cannot get preferred target");
-        kvi.features[0] |= 1 << kvm_bindings::KVM_ARM_VCPU_PSCI_0_2 | 1 << KVM_ARM_VCPU_PMU_V3;
+        kvi.features[0] |= 1 << KVM_ARM_VCPU_PSCI_0_2 | 1 << KVM_ARM_VCPU_PMU_V3;
         vcpu.vcpu_init(&kvi).unwrap();
         vcpu.has_device_attr(&dist_attr).unwrap();
         vcpu.set_device_attr(&dist_attr).unwrap();
@@ -3346,14 +3346,14 @@ mod tests {
         let vm = kvm.create_vm().unwrap();
         let vcpu = vm.create_vcpu(0).unwrap();
 
-        let mut kvi: kvm_bindings::kvm_vcpu_init = kvm_bindings::kvm_vcpu_init::default();
+        let mut kvi = kvm_vcpu_init::default();
         vm.get_preferred_target(&mut kvi)
             .expect("Cannot get preferred target");
         if kvm.check_extension(Cap::ArmPtrAuthAddress) {
-            kvi.features[0] |= 1 << kvm_bindings::KVM_ARM_VCPU_PTRAUTH_ADDRESS;
+            kvi.features[0] |= 1 << KVM_ARM_VCPU_PTRAUTH_ADDRESS;
         }
         if kvm.check_extension(Cap::ArmPtrAuthGeneric) {
-            kvi.features[0] |= 1 << kvm_bindings::KVM_ARM_VCPU_PTRAUTH_GENERIC;
+            kvi.features[0] |= 1 << KVM_ARM_VCPU_PTRAUTH_GENERIC;
         }
         vcpu.vcpu_init(&kvi).unwrap();
     }

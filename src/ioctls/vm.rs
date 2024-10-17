@@ -1916,7 +1916,7 @@ impl AsRawFd for VmFd {
 #[cfg(test)]
 #[cfg(target_arch = "aarch64")]
 pub(crate) fn create_gic_device(vm: &VmFd, flags: u32) -> DeviceFd {
-    let mut gic_device = kvm_bindings::kvm_create_device {
+    let mut gic_device = kvm_create_device {
         type_: kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V3,
         fd: 0,
         flags,
@@ -1940,8 +1940,8 @@ pub(crate) fn create_gic_device(vm: &VmFd, flags: u32) -> DeviceFd {
 #[cfg(test)]
 #[cfg(target_arch = "aarch64")]
 pub(crate) fn set_supported_nr_irqs(vgic: &DeviceFd, nr_irqs: u32) {
-    let vgic_attr = kvm_bindings::kvm_device_attr {
-        group: kvm_bindings::KVM_DEV_ARM_VGIC_GRP_NR_IRQS,
+    let vgic_attr = kvm_device_attr {
+        group: KVM_DEV_ARM_VGIC_GRP_NR_IRQS,
         attr: 0,
         addr: &nr_irqs as *const u32 as u64,
         flags: 0,
@@ -1958,9 +1958,9 @@ pub(crate) fn set_supported_nr_irqs(vgic: &DeviceFd, nr_irqs: u32) {
 #[cfg(test)]
 #[cfg(target_arch = "aarch64")]
 pub(crate) fn request_gic_init(vgic: &DeviceFd) {
-    let vgic_attr = kvm_bindings::kvm_device_attr {
-        group: kvm_bindings::KVM_DEV_ARM_VGIC_GRP_CTRL,
-        attr: u64::from(kvm_bindings::KVM_DEV_ARM_VGIC_CTRL_INIT),
+    let vgic_attr = kvm_device_attr {
+        group: KVM_DEV_ARM_VGIC_GRP_CTRL,
+        attr: u64::from(KVM_DEV_ARM_VGIC_CTRL_INIT),
         addr: 0,
         flags: 0,
     };
@@ -1977,7 +1977,7 @@ pub(crate) fn request_gic_init(vgic: &DeviceFd) {
 #[cfg(test)]
 #[cfg(target_arch = "riscv64")]
 pub(crate) fn create_aia_device(vm: &VmFd, flags: u32) -> DeviceFd {
-    let mut aia_device = kvm_bindings::kvm_create_device {
+    let mut aia_device = kvm_create_device {
         type_: kvm_device_type_KVM_DEV_TYPE_RISCV_AIA,
         fd: 0,
         flags,
@@ -1995,9 +1995,9 @@ pub(crate) fn create_aia_device(vm: &VmFd, flags: u32) -> DeviceFd {
 #[cfg(test)]
 #[cfg(target_arch = "riscv64")]
 pub(crate) fn set_supported_nr_irqs(vaia: &DeviceFd, nr_irqs: u32) {
-    let vaia_attr = kvm_bindings::kvm_device_attr {
-        group: kvm_bindings::KVM_DEV_RISCV_AIA_GRP_CONFIG,
-        attr: u64::from(kvm_bindings::KVM_DEV_RISCV_AIA_CONFIG_SRCS),
+    let vaia_attr = kvm_device_attr {
+        group: KVM_DEV_RISCV_AIA_GRP_CONFIG,
+        attr: u64::from(KVM_DEV_RISCV_AIA_CONFIG_SRCS),
         addr: &nr_irqs as *const u32 as u64,
         flags: 0,
     };
@@ -2013,9 +2013,9 @@ pub(crate) fn set_supported_nr_irqs(vaia: &DeviceFd, nr_irqs: u32) {
 #[cfg(test)]
 #[cfg(target_arch = "riscv64")]
 pub(crate) fn request_aia_init(vaia: &DeviceFd) {
-    let vaia_attr = kvm_bindings::kvm_device_attr {
-        group: kvm_bindings::KVM_DEV_RISCV_AIA_GRP_CTRL,
-        attr: u64::from(kvm_bindings::KVM_DEV_RISCV_AIA_CTRL_INIT),
+    let vaia_attr = kvm_device_attr {
+        group: KVM_DEV_RISCV_AIA_GRP_CTRL,
+        attr: u64::from(KVM_DEV_RISCV_AIA_CTRL_INIT),
         addr: 0,
         flags: 0,
     };
@@ -2129,7 +2129,7 @@ mod tests {
 
         // On ARM/arm64, a GICv2 is created. It's better to check ahead whether GICv2
         // can be emulated or not.
-        let mut gic_device = kvm_bindings::kvm_create_device {
+        let mut gic_device = kvm_create_device {
             type_: kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V2,
             fd: 0,
             flags: KVM_CREATE_DEVICE_TEST,
@@ -2588,7 +2588,7 @@ mod tests {
     fn test_get_preferred_target() {
         let kvm = Kvm::new().unwrap();
         let vm = kvm.create_vm().unwrap();
-        let mut kvi: kvm_bindings::kvm_vcpu_init = kvm_bindings::kvm_vcpu_init::default();
+        let mut kvi = kvm_vcpu_init::default();
         vm.get_preferred_target(&mut kvi).unwrap();
     }
 
