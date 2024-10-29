@@ -1,4 +1,6 @@
-/target
-**/*.rs.bk
 Cargo.lock
+target
 .idea
+**/*.rs.bk
+**/.pytest_cache/
+**/__pycache__/*
