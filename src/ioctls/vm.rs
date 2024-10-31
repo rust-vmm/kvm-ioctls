@@ -69,7 +69,7 @@ impl VmFd {
     /// # Arguments
     ///
     /// * `user_memory_region` - Guest physical memory slot. For details check the
-    ///             `kvm_userspace_memory_region` structure in the
+    ///         `kvm_userspace_memory_region` structure in the
     ///             [KVM API doc](https://www.kernel.org/doc/Documentation/virtual/kvm/api.txt).
     ///
     /// # Safety
@@ -138,6 +138,8 @@ impl VmFd {
     ///
     /// # Example
     ///
+    /// On x86, create a `KVM_X86_SW_PROTECTED_VM` with a memslot that has a `guest_memfd` associated.
+    ///
     /// ```rust
     /// # extern crate kvm_ioctls;
     /// extern crate kvm_bindings;
@@ -149,51 +151,53 @@ impl VmFd {
     /// use kvm_ioctls::Kvm;
     /// use std::os::fd::RawFd;
     ///
-    /// # #[cfg(target_arch = "x86_64")]
-    /// {
-    ///     let kvm = Kvm::new().unwrap();
-    ///     let vm = kvm.create_vm().unwrap();
+    /// let kvm = Kvm::new().unwrap();
+    /// #[cfg(target_arch = "x86_64")]
+    /// let vm = kvm
+    ///     .create_vm_with_type(kvm_bindings::KVM_X86_SW_PROTECTED_VM as u64)
+    ///     .unwrap();
+    /// #[cfg(target_arch = "aarch64")]
+    /// let vm = kvm.create_vm().unwrap(); /* ARM does not yet have a vm type that supports gmem */
     ///
-    ///     let address_space = unsafe { libc::mmap(0 as _, 10000, 3, 34, -1, 0) };
-    ///     let userspace_addr = address_space as *const u8 as u64;
+    /// let address_space = unsafe { libc::mmap(0 as _, 10000, 3, 34, -1, 0) };
+    /// let userspace_addr = address_space as *const u8 as u64;
     ///
-    ///     let mut config = kvm_enable_cap {
-    ///         cap: KVM_CAP_GUEST_MEMFD,
-    ///         ..Default::default()
-    ///     };
+    /// let mut config = kvm_enable_cap {
+    ///     cap: KVM_CAP_GUEST_MEMFD,
+    ///     ..Default::default()
+    /// };
     ///
-    ///     if vm.enable_cap(&config).is_err() {
-    ///         return;
-    ///     }
-    ///     let gmem = kvm_create_guest_memfd {
-    ///         size: 0x10000,
-    ///         flags: 0,
-    ///         reserved: [0; 6],
-    ///     };
-    ///
-    ///     let fd: RawFd = unsafe { vm.create_guest_memfd(gmem).unwrap() };
-    ///
-    ///     config.cap = KVM_CAP_USER_MEMORY2;
-    ///
-    ///     if vm.enable_cap(&config).is_err() {
-    ///         return;
-    ///     }
-    ///
-    ///     let mem_region = kvm_userspace_memory_region2 {
-    ///         slot: 0,
-    ///         flags: KVM_MEM_GUEST_MEMFD,
-    ///         guest_phys_addr: 0x10000 as u64,
-    ///         memory_size: 0x10000 as u64,
-    ///         userspace_addr,
-    ///         guest_memfd_offset: 0,
-    ///         guest_memfd: fd as u32,
-    ///         pad1: 0,
-    ///         pad2: [0; 14],
-    ///     };
-    ///     unsafe {
-    ///         vm.set_user_memory_region2(mem_region).unwrap();
-    ///     };
+    /// if vm.enable_cap(&config).is_err() {
+    ///     return;
     /// }
+    /// let gmem = kvm_create_guest_memfd {
+    ///     size: 0x10000,
+    ///     flags: 0,
+    ///     reserved: [0; 6],
+    /// };
+    ///
+    /// let fd: RawFd = unsafe { vm.create_guest_memfd(gmem).unwrap() };
+    ///
+    /// config.cap = KVM_CAP_USER_MEMORY2;
+    ///
+    /// if vm.enable_cap(&config).is_err() {
+    ///     return;
+    /// }
+    ///
+    /// let mem_region = kvm_userspace_memory_region2 {
+    ///     slot: 0,
+    ///     flags: KVM_MEM_GUEST_MEMFD,
+    ///     guest_phys_addr: 0x10000 as u64,
+    ///     memory_size: 0x10000 as u64,
+    ///     userspace_addr,
+    ///     guest_memfd_offset: 0,
+    ///     guest_memfd: fd as u32,
+    ///     pad1: 0,
+    ///     pad2: [0; 14],
+    /// };
+    /// unsafe {
+    ///     vm.set_user_memory_region2(mem_region).unwrap();
+    /// };
     /// ```
     pub unsafe fn set_user_memory_region2(
         &self,
@@ -283,7 +287,7 @@ impl VmFd {
     ///     use kvm_bindings::{
     ///         kvm_create_device, kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V2, KVM_CREATE_DEVICE_TEST,
     ///     };
-    ///     let mut gic_device = kvm_bindings::kvm_create_device {
+    ///     let mut gic_device = kvm_create_device {
     ///         type_: kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V2,
     ///         fd: 0,
     ///         flags: KVM_CREATE_DEVICE_TEST,
@@ -1373,26 +1377,22 @@ impl VmFd {
     /// let kvm = Kvm::new().unwrap();
     /// let vm = kvm.create_vm().unwrap();
     /// let mut cap: kvm_enable_cap = Default::default();
-    /// // This example cannot enable an arm/aarch64 capability since there
-    /// // is no capability available for these architectures.
-    /// if cfg!(target_arch = "x86_64") {
-    ///     cap.cap = KVM_CAP_SPLIT_IRQCHIP;
-    ///     // As per the KVM documentation, KVM_CAP_SPLIT_IRQCHIP only emulates
-    ///     // the local APIC in kernel, expecting that a userspace IOAPIC will
-    ///     // be implemented by the VMM.
-    ///     // Along with this capability, the user needs to specify the number
-    ///     // of pins reserved for the userspace IOAPIC. This number needs to be
-    ///     // provided through the first argument of the capability structure, as
-    ///     // specified in KVM documentation:
-    ///     //     args[0] - number of routes reserved for userspace IOAPICs
-    ///     //
-    ///     // Because an IOAPIC supports 24 pins, that's the reason why this test
-    ///     // picked this number as reference.
-    ///     cap.args[0] = 24;
-    ///     vm.enable_cap(&cap).unwrap();
-    /// }
+    /// cap.cap = KVM_CAP_SPLIT_IRQCHIP;
+    /// // As per the KVM documentation, KVM_CAP_SPLIT_IRQCHIP only emulates
+    /// // the local APIC in kernel, expecting that a userspace IOAPIC will
+    /// // be implemented by the VMM.
+    /// // Along with this capability, the user needs to specify the number
+    /// // of pins reserved for the userspace IOAPIC. This number needs to be
+    /// // provided through the first argument of the capability structure, as
+    /// // specified in KVM documentation:
+    /// //     args[0] - number of routes reserved for userspace IOAPICs
+    /// //
+    /// // Because an IOAPIC supports 24 pins, that's the reason why this test
+    /// // picked this number as reference.
+    /// cap.args[0] = 24;
+    /// vm.enable_cap(&cap).unwrap();
     /// ```
-    #[cfg(not(any(target_arch = "aarch64", target_arch = "riscv64")))]
+    #[cfg(any(target_arch = "x86_64", target_arch = "s390x", target_arch = "powerpc"))]
     pub fn enable_cap(&self, cap: &kvm_enable_cap) -> Result<()> {
         // SAFETY: The ioctl is safe because we allocated the struct and we know the
         // kernel will write exactly the size of the struct.
@@ -1464,28 +1464,30 @@ impl VmFd {
     /// use kvm_bindings::{kvm_create_guest_memfd, kvm_enable_cap, KVM_CAP_GUEST_MEMFD};
     /// use std::os::fd::RawFd;
     ///
-    /// # #[cfg(target_arch = "x86_64")]
-    /// {
-    ///     let kvm = Kvm::new().unwrap();
-    ///     let vm = kvm.create_vm().unwrap();
+    /// let kvm = Kvm::new().unwrap();
+    /// #[cfg(target_arch = "x86_64")]
+    /// let vm = kvm
+    ///     .create_vm_with_type(kvm_bindings::KVM_X86_SW_PROTECTED_VM as u64)
+    ///     .unwrap();
+    /// #[cfg(target_arch = "aarch64")]
+    /// let vm = kvm.create_vm().unwrap(); /* ARM does not yet have a vm type that supports gmem */
     ///
-    ///     let config = kvm_enable_cap {
-    ///         cap: KVM_CAP_GUEST_MEMFD,
-    ///         ..Default::default()
-    ///     };
+    /// let config = kvm_enable_cap {
+    ///     cap: KVM_CAP_GUEST_MEMFD,
+    ///     ..Default::default()
+    /// };
     ///
-    ///     if vm.enable_cap(&config).is_err() {
-    ///         return;
-    ///     }
-    ///
-    ///     let gmem = kvm_create_guest_memfd {
-    ///         size: 0x1000,
-    ///         flags: 0,
-    ///         reserved: [0; 6],
-    ///     };
-    ///
-    ///     let id: RawFd = vm.create_guest_memfd(gmem).unwrap();
+    /// if vm.enable_cap(&config).is_err() {
+    ///     return;
     /// }
+    ///
+    /// let gmem = kvm_create_guest_memfd {
+    ///     size: 0x1000,
+    ///     flags: 0,
+    ///     reserved: [0; 6],
+    /// };
+    ///
+    /// let guest_memfd = vm.create_guest_memfd(gmem).unwrap();
     /// ```
     #[cfg(any(target_arch = "x86_64", target_arch = "aarch64"))]
     pub fn create_guest_memfd(&self, gmem: kvm_create_guest_memfd) -> Result<RawFd> {
@@ -1524,61 +1526,63 @@ impl VmFd {
     /// };
     /// use std::os::fd::RawFd;
     ///
-    /// # #[cfg(target_arch = "x86_64")]
-    /// {
-    ///     let kvm = Kvm::new().unwrap();
-    ///     let vm = kvm.create_vm().unwrap();
-    ///     let gmem = kvm_create_guest_memfd {
-    ///         size: 0x10000,
-    ///         flags: 0,
-    ///         reserved: [0; 6],
-    ///     };
+    /// let kvm = Kvm::new().unwrap();
+    /// #[cfg(target_arch = "x86_64")]
+    /// let vm = kvm
+    ///     .create_vm_with_type(kvm_bindings::KVM_X86_SW_PROTECTED_VM as u64)
+    ///     .unwrap();
+    /// #[cfg(target_arch = "aarch64")]
+    /// let vm = kvm.create_vm().unwrap(); /* ARM does not yet have a vm type that supports gmem */
+    /// let gmem = kvm_create_guest_memfd {
+    ///     size: 0x10000,
+    ///     flags: 0,
+    ///     reserved: [0; 6],
+    /// };
     ///
-    ///     let address_space = unsafe { libc::mmap(0 as _, 10000, 3, 34, -1, 0) };
-    ///     let userspace_addr = address_space as *const u8 as u64;
-    ///     let mut config = kvm_enable_cap {
-    ///         cap: KVM_CAP_GUEST_MEMFD,
-    ///         ..Default::default()
-    ///     };
+    /// let address_space = unsafe { libc::mmap(0 as _, 10000, 3, 34, -1, 0) };
+    /// let userspace_addr = address_space as *const u8 as u64;
+    /// let mut config = kvm_enable_cap {
+    ///     cap: KVM_CAP_GUEST_MEMFD,
+    ///     ..Default::default()
+    /// };
     ///
-    ///     if vm.enable_cap(&config).is_err() {
-    ///         return;
-    ///     }
-    ///
-    ///     config.cap = KVM_CAP_USER_MEMORY2;
-    ///
-    ///     if vm.enable_cap(&config).is_err() {
-    ///         return;
-    ///     }
-    ///     config.cap = KVM_CAP_MEMORY_ATTRIBUTES;
-    ///
-    ///     if vm.enable_cap(&config).is_err() {
-    ///         return;
-    ///     }
-    ///     let fd: RawFd = unsafe { vm.create_guest_memfd(gmem).unwrap() };
-    ///     let mem_region = kvm_userspace_memory_region2 {
-    ///         slot: 0,
-    ///         flags: KVM_MEM_GUEST_MEMFD,
-    ///         guest_phys_addr: 0x10000 as u64,
-    ///         memory_size: 0x10000 as u64,
-    ///         userspace_addr,
-    ///         guest_memfd_offset: 0,
-    ///         guest_memfd: fd as u32,
-    ///         pad1: 0,
-    ///         pad2: [0; 14],
-    ///     };
-    ///     unsafe {
-    ///         vm.set_user_memory_region2(mem_region).unwrap();
-    ///     };
-    ///
-    ///     let attr = kvm_memory_attributes {
-    ///         address: 0x10000,
-    ///         size: 0x10000,
-    ///         attributes: KVM_MEMORY_ATTRIBUTE_PRIVATE as u64,
-    ///         flags: 0,
-    ///     };
-    ///     vm.set_memory_attributes(attr).unwrap();
+    /// if vm.enable_cap(&config).is_err() {
+    ///     return;
     /// }
+    ///
+    /// config.cap = KVM_CAP_USER_MEMORY2;
+    ///
+    /// if vm.enable_cap(&config).is_err() {
+    ///     return;
+    /// }
+    /// config.cap = KVM_CAP_MEMORY_ATTRIBUTES;
+    ///
+    /// if vm.enable_cap(&config).is_err() {
+    ///     return;
+    /// }
+    /// let fd: RawFd = unsafe { vm.create_guest_memfd(gmem).unwrap() };
+    /// let mem_region = kvm_userspace_memory_region2 {
+    ///     slot: 0,
+    ///     flags: KVM_MEM_GUEST_MEMFD,
+    ///     guest_phys_addr: 0x10000 as u64,
+    ///     memory_size: 0x10000 as u64,
+    ///     userspace_addr,
+    ///     guest_memfd_offset: 0,
+    ///     guest_memfd: fd as u32,
+    ///     pad1: 0,
+    ///     pad2: [0; 14],
+    /// };
+    /// unsafe {
+    ///     vm.set_user_memory_region2(mem_region).unwrap();
+    /// };
+    ///
+    /// let attr = kvm_memory_attributes {
+    ///     address: 0x10000,
+    ///     size: 0x10000,
+    ///     attributes: KVM_MEMORY_ATTRIBUTE_PRIVATE as u64,
+    ///     flags: 0,
+    /// };
+    /// vm.set_memory_attributes(attr).unwrap();
     /// ```
     #[cfg(any(target_arch = "x86_64", target_arch = "aarch64"))]
     pub fn set_memory_attributes(&self, attr: kvm_memory_attributes) -> Result<()> {
