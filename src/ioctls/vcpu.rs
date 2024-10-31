@@ -426,7 +426,6 @@ impl VcpuFd {
     /// let kvm = Kvm::new().unwrap();
     /// let vm = kvm.create_vm().unwrap();
     /// let vcpu = vm.create_vcpu(0).unwrap();
-    /// #[cfg(target_arch = "x86_64")]
     /// let fpu = vcpu.get_fpu().unwrap();
     /// ```
     #[cfg(target_arch = "x86_64")]
@@ -457,15 +456,13 @@ impl VcpuFd {
     /// let kvm = Kvm::new().unwrap();
     /// let vm = kvm.create_vm().unwrap();
     /// let vcpu = vm.create_vcpu(0).unwrap();
-    /// #[cfg(target_arch = "x86_64")]
-    /// {
-    ///     let KVM_FPU_CWD: u16 = 0x37f;
-    ///     let fpu = kvm_fpu {
-    ///         fcw: KVM_FPU_CWD,
-    ///         ..Default::default()
-    ///     };
-    ///     vcpu.set_fpu(&fpu).unwrap();
-    /// }
+    ///
+    /// let KVM_FPU_CWD: u16 = 0x37f;
+    /// let fpu = kvm_fpu {
+    ///     fcw: KVM_FPU_CWD,
+    ///     ..Default::default()
+    /// };
+    /// vcpu.set_fpu(&fpu).unwrap();
     /// ```
     #[cfg(target_arch = "x86_64")]
     pub fn set_fpu(&self, fpu: &kvm_fpu) -> Result<()> {
@@ -499,13 +496,11 @@ impl VcpuFd {
     ///
     /// // Update the CPUID entries to disable the EPB feature.
     /// const ECX_EPB_SHIFT: u32 = 3;
-    /// {
-    ///     let entries = kvm_cpuid.as_mut_slice();
-    ///     for entry in entries.iter_mut() {
-    ///         match entry.function {
-    ///             6 => entry.ecx &= !(1 << ECX_EPB_SHIFT),
-    ///             _ => (),
-    ///         }
+    /// let entries = kvm_cpuid.as_mut_slice();
+    /// for entry in entries.iter_mut() {
+    ///     match entry.function {
+    ///         6 => entry.ecx &= !(1 << ECX_EPB_SHIFT),
+    ///         _ => (),
     ///     }
     /// }
     ///
@@ -581,18 +576,16 @@ impl VcpuFd {
     /// let kvm = Kvm::new().unwrap();
     /// let vm = kvm.create_vm().unwrap();
     /// let mut cap: kvm_enable_cap = Default::default();
-    /// if cfg!(target_arch = "x86_64") {
-    ///     // KVM_CAP_HYPERV_SYNIC needs KVM_CAP_SPLIT_IRQCHIP enabled
-    ///     cap.cap = KVM_CAP_SPLIT_IRQCHIP;
-    ///     cap.args[0] = 24;
-    ///     vm.enable_cap(&cap).unwrap();
+    /// // KVM_CAP_HYPERV_SYNIC needs KVM_CAP_SPLIT_IRQCHIP enabled
+    /// cap.cap = KVM_CAP_SPLIT_IRQCHIP;
+    /// cap.args[0] = 24;
+    /// vm.enable_cap(&cap).unwrap();
     ///
-    ///     let vcpu = vm.create_vcpu(0).unwrap();
-    ///     if kvm.check_extension(Cap::HypervSynic) {
-    ///         let mut cap: kvm_enable_cap = Default::default();
-    ///         cap.cap = KVM_CAP_HYPERV_SYNIC;
-    ///         vcpu.enable_cap(&cap).unwrap();
-    ///     }
+    /// let vcpu = vm.create_vcpu(0).unwrap();
+    /// if kvm.check_extension(Cap::HypervSynic) {
+    ///     let mut cap: kvm_enable_cap = Default::default();
+    ///     cap.cap = KVM_CAP_HYPERV_SYNIC;
+    ///     vcpu.enable_cap(&cap).unwrap();
     /// }
     /// ```
     ///
@@ -1246,19 +1239,16 @@ impl VcpuFd {
     /// let vm = kvm.create_vm().unwrap();
     /// let vcpu = vm.create_vcpu(0).unwrap();
     ///
-    /// #[cfg(any(target_arch = "x86_64", target_arch = "aarch64"))]
-    /// {
-    ///     let debug_struct = kvm_guest_debug {
-    ///         // Configure the vcpu so that a KVM_DEBUG_EXIT would be generated
-    ///         // when encountering a software breakpoint during execution
-    ///         control: KVM_GUESTDBG_ENABLE | KVM_GUESTDBG_USE_SW_BP,
-    ///         pad: 0,
-    ///         // Reset all arch-specific debug registers
-    ///         arch: Default::default(),
-    ///     };
+    /// let debug_struct = kvm_guest_debug {
+    ///     // Configure the vcpu so that a KVM_DEBUG_EXIT would be generated
+    ///     // when encountering a software breakpoint during execution
+    ///     control: KVM_GUESTDBG_ENABLE | KVM_GUESTDBG_USE_SW_BP,
+    ///     pad: 0,
+    ///     // Reset all arch-specific debug registers
+    ///     arch: Default::default(),
+    /// };
     ///
-    ///     vcpu.set_guest_debug(&debug_struct).unwrap();
-    /// }
+    /// vcpu.set_guest_debug(&debug_struct).unwrap();
     /// ```
     #[cfg(any(
         target_arch = "x86_64",
