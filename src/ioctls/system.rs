@@ -556,7 +556,7 @@ impl Kvm {
     /// // Check that the VM mmap size is the same reported by `KVM_GET_VCPU_MMAP_SIZE`.
     /// assert!(vm.run_size() == kvm.get_vcpu_mmap_size().unwrap());
     /// ```
-    #[cfg(not(any(target_arch = "aarch64")))]
+    #[cfg(not(target_arch = "aarch64"))]
     pub fn create_vm(&self) -> Result<VmFd> {
         self.create_vm_with_type(0) // Create using default VM type
     }
@@ -574,7 +574,7 @@ impl Kvm {
     /// let kvm = Kvm::new().unwrap();
     /// let vm = kvm.create_vm().unwrap();
     /// // Check that the VM mmap size is the same reported by `KVM_GET_VCPU_MMAP_SIZE`.
-    /// assert!(vm.run_size() == kvm.get_vcpu_mmap_size().unwrap());
+    /// assert_eq!(vm.run_size(), kvm.get_vcpu_mmap_size().unwrap());
     /// ```
     #[cfg(target_arch = "aarch64")]
     pub fn create_vm(&self) -> Result<VmFd> {
@@ -612,7 +612,7 @@ impl Kvm {
     ///     let host_ipa_limit = kvm.get_host_ipa_limit();
     ///     let vm = kvm.create_vm_with_ipa_size(host_ipa_limit as u32).unwrap();
     ///     // Check that the VM mmap size is the same reported by `KVM_GET_VCPU_MMAP_SIZE`.
-    ///     assert!(vm.run_size() == kvm.get_vcpu_mmap_size().unwrap());
+    ///     assert_eq!(vm.run_size(), kvm.get_vcpu_mmap_size().unwrap());
     /// }
     /// ```
     #[cfg(target_arch = "aarch64")]
@@ -635,7 +635,7 @@ impl Kvm {
     /// let kvm = Kvm::new().unwrap();
     /// let vm = kvm.create_vm_with_type(0).unwrap();
     /// // Check that the VM mmap size is the same reported by `KVM_GET_VCPU_MMAP_SIZE`.
-    /// assert!(vm.run_size() == kvm.get_vcpu_mmap_size().unwrap());
+    /// assert_eq!(vm.run_size(), kvm.get_vcpu_mmap_size().unwrap());
     /// ```
     pub fn create_vm_with_type(&self, vm_type: u64) -> Result<VmFd> {
         // SAFETY: Safe because we know `self.kvm` is a real KVM fd as this module is the only one
