@@ -145,10 +145,10 @@ impl VmFd {
     /// extern crate kvm_bindings;
     ///
     /// use kvm_bindings::{
-    ///     kvm_create_guest_memfd, kvm_enable_cap, kvm_userspace_memory_region2, KVM_CAP_GUEST_MEMFD,
+    ///     kvm_create_guest_memfd, kvm_userspace_memory_region2, KVM_CAP_GUEST_MEMFD,
     ///     KVM_CAP_USER_MEMORY2, KVM_MEM_GUEST_MEMFD,
     /// };
-    /// use kvm_ioctls::Kvm;
+    /// use kvm_ioctls::{Cap, Kvm};
     /// use std::os::fd::RawFd;
     ///
     /// let kvm = Kvm::new().unwrap();
@@ -156,20 +156,16 @@ impl VmFd {
     /// let vm = kvm
     ///     .create_vm_with_type(kvm_bindings::KVM_X86_SW_PROTECTED_VM as u64)
     ///     .unwrap();
-    /// #[cfg(target_arch = "aarch64")]
-    /// let vm = kvm.create_vm().unwrap(); /* ARM does not yet have a vm type that supports gmem */
+    /// #[cfg(not(target_arch = "x86_64"))]
+    /// let vm = kvm.create_vm().unwrap(); /* non-x86 does not yet have a vm type that supports gmem */
     ///
     /// let address_space = unsafe { libc::mmap(0 as _, 10000, 3, 34, -1, 0) };
     /// let userspace_addr = address_space as *const u8 as u64;
     ///
-    /// let mut config = kvm_enable_cap {
-    ///     cap: KVM_CAP_GUEST_MEMFD,
-    ///     ..Default::default()
-    /// };
-    ///
-    /// if vm.enable_cap(&config).is_err() {
+    /// if !vm.check_extension(Cap::GuestMemfd) || !vm.check_extension(Cap::UserMemory2) {
     ///     return;
     /// }
+    ///
     /// let gmem = kvm_create_guest_memfd {
     ///     size: 0x10000,
     ///     flags: 0,
@@ -177,12 +173,6 @@ impl VmFd {
     /// };
     ///
     /// let fd: RawFd = unsafe { vm.create_guest_memfd(gmem).unwrap() };
-    ///
-    /// config.cap = KVM_CAP_USER_MEMORY2;
-    ///
-    /// if vm.enable_cap(&config).is_err() {
-    ///     return;
-    /// }
     ///
     /// let mem_region = kvm_userspace_memory_region2 {
     ///     slot: 0,
@@ -1460,8 +1450,8 @@ impl VmFd {
     /// # extern crate kvm_ioctls;
     /// extern crate kvm_bindings;
     ///
-    /// # use kvm_ioctls::Kvm;
-    /// use kvm_bindings::{kvm_create_guest_memfd, kvm_enable_cap, KVM_CAP_GUEST_MEMFD};
+    /// # use kvm_ioctls::{Cap, Kvm};
+    /// use kvm_bindings::{kvm_create_guest_memfd, KVM_CAP_GUEST_MEMFD};
     /// use std::os::fd::RawFd;
     ///
     /// let kvm = Kvm::new().unwrap();
@@ -1469,15 +1459,10 @@ impl VmFd {
     /// let vm = kvm
     ///     .create_vm_with_type(kvm_bindings::KVM_X86_SW_PROTECTED_VM as u64)
     ///     .unwrap();
-    /// #[cfg(target_arch = "aarch64")]
-    /// let vm = kvm.create_vm().unwrap(); /* ARM does not yet have a vm type that supports gmem */
+    /// #[cfg(not(target_arch = "x86_64"))]
+    /// let vm = kvm.create_vm().unwrap(); /* non-x86 does not yet have a vm type that supports gmem */
     ///
-    /// let config = kvm_enable_cap {
-    ///     cap: KVM_CAP_GUEST_MEMFD,
-    ///     ..Default::default()
-    /// };
-    ///
-    /// if vm.enable_cap(&config).is_err() {
+    /// if !vm.check_extension(Cap::GuestMemfd) {
     ///     return;
     /// }
     ///
@@ -1518,11 +1503,11 @@ impl VmFd {
     /// # extern crate kvm_ioctls;
     /// extern crate kvm_bindings;
     ///
-    /// # use kvm_ioctls::Kvm;
+    /// # use kvm_ioctls::{Cap, Kvm};
     /// use kvm_bindings::{
-    ///     kvm_create_guest_memfd, kvm_enable_cap, kvm_memory_attributes,
-    ///     kvm_userspace_memory_region2, KVM_CAP_GUEST_MEMFD, KVM_CAP_MEMORY_ATTRIBUTES,
-    ///     KVM_CAP_USER_MEMORY2, KVM_MEMORY_ATTRIBUTE_PRIVATE, KVM_MEM_GUEST_MEMFD,
+    ///     kvm_create_guest_memfd, kvm_memory_attributes, kvm_userspace_memory_region2,
+    ///     KVM_CAP_GUEST_MEMFD, KVM_CAP_MEMORY_ATTRIBUTES, KVM_CAP_USER_MEMORY2,
+    ///     KVM_MEMORY_ATTRIBUTE_PRIVATE, KVM_MEM_GUEST_MEMFD,
     /// };
     /// use std::os::fd::RawFd;
     ///
@@ -1531,8 +1516,8 @@ impl VmFd {
     /// let vm = kvm
     ///     .create_vm_with_type(kvm_bindings::KVM_X86_SW_PROTECTED_VM as u64)
     ///     .unwrap();
-    /// #[cfg(target_arch = "aarch64")]
-    /// let vm = kvm.create_vm().unwrap(); /* ARM does not yet have a vm type that supports gmem */
+    /// #[cfg(not(target_arch = "x86_64"))]
+    /// let vm = kvm.create_vm().unwrap(); /* non-x86 does not yet have a vm type that supports gmem */
     /// let gmem = kvm_create_guest_memfd {
     ///     size: 0x10000,
     ///     flags: 0,
@@ -1541,25 +1526,14 @@ impl VmFd {
     ///
     /// let address_space = unsafe { libc::mmap(0 as _, 10000, 3, 34, -1, 0) };
     /// let userspace_addr = address_space as *const u8 as u64;
-    /// let mut config = kvm_enable_cap {
-    ///     cap: KVM_CAP_GUEST_MEMFD,
-    ///     ..Default::default()
-    /// };
     ///
-    /// if vm.enable_cap(&config).is_err() {
+    /// if !vm.check_extension(Cap::GuestMemfd)
+    ///     || !vm.check_extension(Cap::UserMemory2)
+    ///     || !vm.check_extension(Cap::MemoryAttributes)
+    /// {
     ///     return;
     /// }
     ///
-    /// config.cap = KVM_CAP_USER_MEMORY2;
-    ///
-    /// if vm.enable_cap(&config).is_err() {
-    ///     return;
-    /// }
-    /// config.cap = KVM_CAP_MEMORY_ATTRIBUTES;
-    ///
-    /// if vm.enable_cap(&config).is_err() {
-    ///     return;
-    /// }
     /// let fd: RawFd = unsafe { vm.create_guest_memfd(gmem).unwrap() };
     /// let mem_region = kvm_userspace_memory_region2 {
     ///     slot: 0,
