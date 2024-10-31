@@ -57,33 +57,33 @@ impl DeviceFd {
     /// let kvm = Kvm::new().unwrap();
     /// let vm = kvm.create_vm().unwrap();
     ///
-    /// #[cfg(not(target_arch = "riscv64"))]
-    /// {
-    ///     # use kvm_bindings::{
-    ///     #     kvm_device_type_KVM_DEV_TYPE_VFIO,
-    ///     #     KVM_DEV_VFIO_GROUP, KVM_DEV_VFIO_GROUP_ADD, KVM_CREATE_DEVICE_TEST
-    ///     # };
-    ///     let mut device = kvm_bindings::kvm_create_device {
-    ///         type_: kvm_device_type_KVM_DEV_TYPE_VFIO,
-    ///         fd: 0,
-    ///         flags: KVM_CREATE_DEVICE_TEST,
-    ///     };
+    /// # #[cfg(not(target_arch = "riscv64"))]
+    /// # {
+    /// # use kvm_bindings::{
+    /// #     kvm_device_type_KVM_DEV_TYPE_VFIO,
+    /// #     KVM_DEV_VFIO_GROUP, KVM_DEV_VFIO_GROUP_ADD, KVM_CREATE_DEVICE_TEST
+    /// # };
+    /// let mut device = kvm_bindings::kvm_create_device {
+    ///     type_: kvm_device_type_KVM_DEV_TYPE_VFIO,
+    ///     fd: 0,
+    ///     flags: KVM_CREATE_DEVICE_TEST,
+    /// };
     ///
-    ///     let device_fd = vm
-    ///         .create_device(&mut device)
-    ///         .expect("Cannot create KVM device");
+    /// let device_fd = vm
+    ///     .create_device(&mut device)
+    ///     .expect("Cannot create KVM device");
     ///
-    ///     let dist_attr = kvm_bindings::kvm_device_attr {
-    ///         group: KVM_DEV_VFIO_GROUP,
-    ///         attr: u64::from(KVM_DEV_VFIO_GROUP_ADD),
-    ///         addr: 0x0,
-    ///         flags: 0,
-    ///     };
+    /// let dist_attr = kvm_bindings::kvm_device_attr {
+    ///     group: KVM_DEV_VFIO_GROUP,
+    ///     attr: u64::from(KVM_DEV_VFIO_GROUP_ADD),
+    ///     addr: 0x0,
+    ///     flags: 0,
+    /// };
     ///
-    ///     if (device_fd.has_device_attr(&dist_attr).is_ok()) {
-    ///         device_fd.set_device_attr(&dist_attr).unwrap();
-    ///     }
+    /// if (device_fd.has_device_attr(&dist_attr).is_ok()) {
+    ///     device_fd.set_device_attr(&dist_attr).unwrap();
     /// }
+    /// # }
     /// ```
     pub fn set_device_attr(&self, device_attr: &kvm_device_attr) -> Result<()> {
         // SAFETY: We are calling this function with a Device fd, and we trust the kernel.
@@ -120,46 +120,46 @@ impl DeviceFd {
     /// including that it is safe to write to the `addr` member.
     ///
     /// # Examples
+    ///
+    /// Getting the number of IRQs for a GICv2 device on an aarch64 platform
+    ///
     /// ```rust
     /// # extern crate kvm_ioctls;
     /// # extern crate kvm_bindings;
     /// # use kvm_ioctls::Kvm;
-    ///
     /// let kvm = Kvm::new().unwrap();
     /// let vm = kvm.create_vm().unwrap();
     ///
-    /// // As on x86_64, `get_device_attr` is not necessarily needed. Therefore here
-    /// // the code example is only for AArch64.
-    /// #[cfg(any(target_arch = "aarch64"))]
-    /// {
-    ///     use kvm_bindings::{
-    ///         kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V2, kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V3,
-    ///         KVM_DEV_ARM_VGIC_GRP_NR_IRQS,
-    ///     };
+    /// # #[cfg(target_arch = "aarch64")]
+    /// # {
+    /// use kvm_bindings::{
+    ///     kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V2, kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V3,
+    ///     KVM_DEV_ARM_VGIC_GRP_NR_IRQS,
+    /// };
     ///
-    ///     // Create a GIC device.
-    ///     let mut gic_device = kvm_bindings::kvm_create_device {
-    ///         type_: kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V3,
-    ///         fd: 0,
-    ///         flags: 0,
-    ///     };
-    ///     let device_fd = match vm.create_device(&mut gic_device) {
-    ///         Ok(fd) => fd,
-    ///         Err(_) => {
-    ///             gic_device.type_ = kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V2;
-    ///             vm.create_device(&mut gic_device)
-    ///                 .expect("Cannot create KVM vGIC device")
-    ///         }
-    ///     };
+    /// // Create a GIC device.
+    /// let mut gic_device = kvm_bindings::kvm_create_device {
+    ///     type_: kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V3,
+    ///     fd: 0,
+    ///     flags: 0,
+    /// };
+    /// let device_fd = match vm.create_device(&mut gic_device) {
+    ///     Ok(fd) => fd,
+    ///     Err(_) => {
+    ///         gic_device.type_ = kvm_device_type_KVM_DEV_TYPE_ARM_VGIC_V2;
+    ///         vm.create_device(&mut gic_device)
+    ///             .expect("Cannot create KVM vGIC device")
+    ///     }
+    /// };
     ///
-    ///     let mut data: u32 = 0;
-    ///     let mut gic_attr = kvm_bindings::kvm_device_attr::default();
-    ///     gic_attr.group = KVM_DEV_ARM_VGIC_GRP_NR_IRQS;
-    ///     gic_attr.addr = &mut data as *mut u32 as u64;
+    /// let mut data: u32 = 0;
+    /// let mut gic_attr = kvm_bindings::kvm_device_attr::default();
+    /// gic_attr.group = KVM_DEV_ARM_VGIC_GRP_NR_IRQS;
+    /// gic_attr.addr = &mut data as *mut u32 as u64;
     ///
-    ///     // SAFETY: gic_attr.addr is safe to write to.
-    ///     unsafe { device_fd.get_device_attr(&mut gic_attr) }.unwrap();
-    /// }
+    /// // SAFETY: gic_attr.addr is safe to write to.
+    /// unsafe { device_fd.get_device_attr(&mut gic_attr) }.unwrap();
+    /// # }
     /// ```
     pub unsafe fn get_device_attr(&self, device_attr: &mut kvm_device_attr) -> Result<()> {
         // SAFETY: Caller has ensured device_attr.addr is safe to write to.
