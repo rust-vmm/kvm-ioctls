@@ -1194,16 +1194,16 @@ impl VcpuFd {
     /// let vcpu = vm.create_vcpu(0).unwrap();
     ///
     /// // KVM_GET_REG_LIST on Aarch64 demands that the vcpus be initialized.
-    /// #[cfg(target_arch = "aarch64")]
-    /// {
-    ///     let mut kvi = kvm_bindings::kvm_vcpu_init::default();
-    ///     vm.get_preferred_target(&mut kvi).unwrap();
-    ///     vcpu.vcpu_init(&kvi).expect("Cannot initialize vcpu");
+    /// # #[cfg(target_arch = "aarch64")]
+    /// # {
+    /// let mut kvi = kvm_bindings::kvm_vcpu_init::default();
+    /// vm.get_preferred_target(&mut kvi).unwrap();
+    /// vcpu.vcpu_init(&kvi).expect("Cannot initialize vcpu");
     ///
-    ///     let mut reg_list = RegList::new(500).unwrap();
-    ///     vcpu.get_reg_list(&mut reg_list).unwrap();
-    ///     assert!(reg_list.as_fam_struct_ref().n > 0);
-    /// }
+    /// let mut reg_list = RegList::new(500).unwrap();
+    /// vcpu.get_reg_list(&mut reg_list).unwrap();
+    /// assert!(reg_list.as_fam_struct_ref().n > 0);
+    /// # }
     /// ```
     #[cfg(any(target_arch = "aarch64", target_arch = "riscv64"))]
     pub fn get_reg_list(&self, reg_list: &mut RegList) -> Result<()> {
@@ -1351,6 +1351,9 @@ impl VcpuFd {
     ///
     /// # Example
     ///
+    /// Running some dummy code on x86_64 that immediately halts the vCPU. Based on
+    /// [https://lwn.net/Articles/658511/](https://lwn.net/Articles/658511/).
+    ///
     /// ```rust
     /// # extern crate kvm_ioctls;
     /// # extern crate kvm_bindings;
@@ -1361,64 +1364,64 @@ impl VcpuFd {
     /// # use kvm_bindings::{kvm_userspace_memory_region, KVM_MEM_LOG_DIRTY_PAGES};
     /// # let kvm = Kvm::new().unwrap();
     /// # let vm = kvm.create_vm().unwrap();
-    /// // This is a dummy example for running on x86 based on https://lwn.net/Articles/658511/.
-    /// #[cfg(target_arch = "x86_64")]
-    /// {
-    ///     let mem_size = 0x4000;
-    ///     let guest_addr: u64 = 0x1000;
-    ///     let load_addr: *mut u8 = unsafe {
-    ///         libc::mmap(
-    ///             null_mut(),
-    ///             mem_size,
-    ///             libc::PROT_READ | libc::PROT_WRITE,
-    ///             libc::MAP_ANONYMOUS | libc::MAP_SHARED | libc::MAP_NORESERVE,
-    ///             -1,
-    ///             0,
-    ///         ) as *mut u8
-    ///     };
     ///
-    ///     let mem_region = kvm_userspace_memory_region {
-    ///         slot: 0,
-    ///         guest_phys_addr: guest_addr,
-    ///         memory_size: mem_size as u64,
-    ///         userspace_addr: load_addr as u64,
-    ///         flags: 0,
-    ///     };
-    ///     unsafe { vm.set_user_memory_region(mem_region).unwrap() };
+    /// # #[cfg(target_arch = "x86_64")]
+    /// # {
+    /// let mem_size = 0x4000;
+    /// let guest_addr: u64 = 0x1000;
+    /// let load_addr: *mut u8 = unsafe {
+    ///     libc::mmap(
+    ///         null_mut(),
+    ///         mem_size,
+    ///         libc::PROT_READ | libc::PROT_WRITE,
+    ///         libc::MAP_ANONYMOUS | libc::MAP_SHARED | libc::MAP_NORESERVE,
+    ///         -1,
+    ///         0,
+    ///     ) as *mut u8
+    /// };
     ///
-    ///     // Dummy x86 code that just calls halt.
-    ///     let x86_code = [0xf4 /* hlt */];
+    /// let mem_region = kvm_userspace_memory_region {
+    ///     slot: 0,
+    ///     guest_phys_addr: guest_addr,
+    ///     memory_size: mem_size as u64,
+    ///     userspace_addr: load_addr as u64,
+    ///     flags: 0,
+    /// };
+    /// unsafe { vm.set_user_memory_region(mem_region).unwrap() };
     ///
-    ///     // Write the code in the guest memory. This will generate a dirty page.
-    ///     unsafe {
-    ///         let mut slice = slice::from_raw_parts_mut(load_addr, mem_size);
-    ///         slice.write(&x86_code).unwrap();
-    ///     }
+    /// // Dummy x86 code that just calls halt.
+    /// let x86_code = [0xf4 /* hlt */];
     ///
-    ///     let mut vcpu_fd = vm.create_vcpu(0).unwrap();
+    /// // Write the code in the guest memory. This will generate a dirty page.
+    /// unsafe {
+    ///     let mut slice = slice::from_raw_parts_mut(load_addr, mem_size);
+    ///     slice.write(&x86_code).unwrap();
+    /// }
     ///
-    ///     let mut vcpu_sregs = vcpu_fd.get_sregs().unwrap();
-    ///     vcpu_sregs.cs.base = 0;
-    ///     vcpu_sregs.cs.selector = 0;
-    ///     vcpu_fd.set_sregs(&vcpu_sregs).unwrap();
+    /// let mut vcpu_fd = vm.create_vcpu(0).unwrap();
     ///
-    ///     let mut vcpu_regs = vcpu_fd.get_regs().unwrap();
-    ///     // Set the Instruction Pointer to the guest address where we loaded the code.
-    ///     vcpu_regs.rip = guest_addr;
-    ///     vcpu_regs.rax = 2;
-    ///     vcpu_regs.rbx = 3;
-    ///     vcpu_regs.rflags = 2;
-    ///     vcpu_fd.set_regs(&vcpu_regs).unwrap();
+    /// let mut vcpu_sregs = vcpu_fd.get_sregs().unwrap();
+    /// vcpu_sregs.cs.base = 0;
+    /// vcpu_sregs.cs.selector = 0;
+    /// vcpu_fd.set_sregs(&vcpu_sregs).unwrap();
     ///
-    ///     loop {
-    ///         match vcpu_fd.run().expect("run failed") {
-    ///             VcpuExit::Hlt => {
-    ///                 break;
-    ///             }
-    ///             exit_reason => panic!("unexpected exit reason: {:?}", exit_reason),
+    /// let mut vcpu_regs = vcpu_fd.get_regs().unwrap();
+    /// // Set the Instruction Pointer to the guest address where we loaded the code.
+    /// vcpu_regs.rip = guest_addr;
+    /// vcpu_regs.rax = 2;
+    /// vcpu_regs.rbx = 3;
+    /// vcpu_regs.rflags = 2;
+    /// vcpu_fd.set_regs(&vcpu_regs).unwrap();
+    ///
+    /// loop {
+    ///     match vcpu_fd.run().expect("run failed") {
+    ///         VcpuExit::Hlt => {
+    ///             break;
     ///         }
+    ///         exit_reason => panic!("unexpected exit reason: {:?}", exit_reason),
     ///     }
     /// }
+    /// # }
     /// ```
     pub fn run(&mut self) -> Result<VcpuExit> {
         // SAFETY: Safe because we know that our file is a vCPU fd and we verify the return result.
