@@ -1474,7 +1474,6 @@ impl VmFd {
     ///
     /// let guest_memfd = vm.create_guest_memfd(gmem).unwrap();
     /// ```
-    #[cfg(any(target_arch = "x86_64", target_arch = "aarch64"))]
     pub fn create_guest_memfd(&self, gmem: kvm_create_guest_memfd) -> Result<RawFd> {
         // SAFETY: Safe because we know that our file is a VM fd, we know the kernel will only
         // read the correct amount of memory from our pointer, and we verify the return result.
