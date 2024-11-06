@@ -1,5 +1,5 @@
 Cargo.lock
-/target
+target
 .idea
 **/*.rs.bk
 **/.pytest_cache/
