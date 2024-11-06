@@ -1,5 +1,4 @@
-[![Crates.io](https://img.shields.io/crates/v/kvm-bindings.svg)](https://crates.io/crates/kvm-bindings)
-![](https://img.shields.io/crates/l/kvm-bindings.svg)
+[![Crates.io](https://img.shields.io/crates/v/kvm-bindings.svg)]
 # kvm-bindings
 Rust FFI bindings to KVM, generated using
 [bindgen](https://crates.io/crates/bindgen). It currently has support for the
@@ -17,30 +16,16 @@ kernel version they are using. For example, the `immediate_exit` field from the
 capability is available. Using invalid fields or features may lead to undefined
 behaviour.
 
-## Usage
-First, add the following to your `Cargo.toml`:
-```toml
-kvm-bindings = "0.3"
-```
-Next, add this to your crate root:
-```rust
-extern crate kvm_bindings;
-```
+### Flexible Array Members (FAM structs)
 
-This crate also offers safe wrappers over FAM structs - FFI structs that have
-a Flexible Array Member in their definition.
-These safe wrappers can be used if the `fam-wrappers` feature is enabled for
-this crate. Example:
-```toml
-kvm-bindings = { version = "0.3", features = ["fam-wrappers"]}
-```
+This crate optionally offers safe wrappers over FAM structs - FFI structs that
+have a Flexible Array Member in their definition.  These safe wrappers can be
+used if the `fam-wrappers` feature is enabled for this crate. Note that
+enabling the `fam-wrappers` feature enables the `vmm-sys-util` dependency.
 
-## Dependencies
-The crate has an `optional` dependency to
-[vmm-sys-util](https://crates.io/crates/vmm-sys-util) when enabling the
-`fam-wrappers` feature.
+## Serialization
 
-It also has an optional dependency on [`serde`](serde.rs) when enabling the 
+It has an optional dependency on [`serde`](serde.rs) when enabling the 
 `serde` feature, to allow serialization of bindings. Serialization of
 bindings happens as opaque binary blobs via [`zerocopy`](https://google.github.io/comprehensive-rust/bare-metal/useful-crates/zerocopy.html).
 Due to the kernel's ABI compatibility, this means that bindings serialized
