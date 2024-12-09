@@ -2,6 +2,8 @@
 
 ## Upcoming Release
 
+## v0.19.1
+
 ### Fixed
 
 - [[#298](https://github.com/rust-vmm/kvm/pull/298)]: Fixed incorrect usage of `ioctl_wit_ref` in the
