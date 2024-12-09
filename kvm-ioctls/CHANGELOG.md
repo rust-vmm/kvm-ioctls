@@ -4,6 +4,12 @@
 
 ### Added 
 
+### Fixed
+
+## v0.20.0
+
+### Added 
+
 - [[#288](https://github.com/rust-vmm/kvm-ioctls/pull/288)]: Introduce `Cap::GuestMemfd`, `Cap::MemoryAttributes` and 
    `Cap::UserMemory2` capabilities enum variants for use with `VmFd::check_extension`.
 
